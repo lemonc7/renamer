@@ -1,0 +1,41 @@
+### ping
+GET http://localhost:7777/ping HTTP/1.1
+Content-Type: Application/json
+
+### 获取文件目录
+PUT http://localhost:7777/api/files HTTP/1.1
+
+{
+    "path": "/vol1/1000/tools/project/go/renamer"
+}
+
+### 创建文件目录
+POST http://localhost:7777/api/files HTTP/1.1
+
+{
+    "path": "/vol1/1000/tools/project/go/renamer/test"
+}
+
+### 删除文件
+DELETE  http://localhost:7777/api/files HTTP/1.1
+
+{
+    "path": "/vol1/1000/tools/project/go/renamer/test"
+}
+
+### 复制文件
+POST http://localhost:7777/api/files/copy HTTP/1.1
+
+{
+    "path": "/vol1/1000/tools/project/go/renamer/test1",
+    "targetPath": "/vol1/1000/tools/project/go/renamer/test2"
+}
+
+### 移动文件
+POST http://localhost:7777/api/files/move HTTP/1.1
+
+{
+    "path": "/vol1/1000/tools/project/go/renamer/test.txt",
+    "targetPath": "/vol1/1000/tools/project/go/renamer/test2"
+}
+
