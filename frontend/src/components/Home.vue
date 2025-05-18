@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useAllDataStore } from '../stores';
 import axios from 'axios';
-
+import { useRoute } from 'vue-router';
 
 const store = useAllDataStore();
 
@@ -20,19 +20,20 @@ const editPasteButton = (type: string) => {
     }
 }
 
-async function testPing() {
+const route = useRoute()
+const capPath = route.params.path
+
+async function getFile(path=capPath) {
     const res = await axios({
         url: 'http://192.168.100.2:7777/api/files',
         method: 'GET',
         params: {
-            path: '/vol1/1000/tools/project/go/renamer'
+            path: `/${path}`
         }
     })
     store.fileList = res.data
-    store.checkFile()
 }
-
-testPing()
+getFile()
 
 </script>
 
@@ -43,9 +44,9 @@ testPing()
             <el-row class="header">
                 <el-col :span="12">
                     <el-breadcrumb separator="/">
-                        <el-breadcrumb-item :to="{ path: '/' }">homepage</el-breadcrumb-item>
+                        <el-breadcrumb-item :to="{ path: '/home/lemoncnas' }">home</el-breadcrumb-item>
                         <el-breadcrumb-item>
-                        <a href="/">first page</a>
+                            <router-link to="/home/lemoncnas/.config">test</router-link>
                         </el-breadcrumb-item>
                         <el-breadcrumb-item>second page</el-breadcrumb-item>
                     </el-breadcrumb>
@@ -93,17 +94,24 @@ testPing()
             </el-row>
 
             <el-table
-                class="table"
-                ref="multipleTable"
                 :data="store.fileList"
             >
-                <el-table-column
-                    v-for="(value, key) in store.fileLable"
-                    :prop="key"
-                    :key="key"
-                    :label="value"
-                >
-                </el-table-column>
+            <el-table-column type="selection"></el-table-column>
+            <el-table-column label="名称" prop="name" width="700">
+                <template #default="{ row }">
+                    <el-button 
+                        class="fileSelect" 
+                        :icon="row.isDir ? 'Folder' : 'Document'"
+                        plain
+                        >
+                        {{ row.name }}
+                    </el-button>
+                </template>
+            </el-table-column>
+
+            <el-table-column label="大小" prop="size" width="200"/>
+            <el-table-column label="修改时间" prop="modTime" />
+
             </el-table>
         </el-card>
     </div>
@@ -134,6 +142,12 @@ testPing()
     .el-button-group {
     margin-right: 20px;
 }
+}
+
+
+.fileSelect {
+    border-color: transparent;
+    background: transparent;
 }
 
 </style>

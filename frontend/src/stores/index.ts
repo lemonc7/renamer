@@ -25,47 +25,22 @@ export const useAllDataStore = defineStore('allData', ()=>{
         {
             name: 'test1.txt',
             size: '100KB',
-            isDir: false,
-            modTime:'2022-01-01 12:00:00'
+            modTime: '2022-01-01 12:00:00'
         },
         {
             name: 'test2.txt',
             size: '100KB',
-            isDir: false,
-            modTime:'2022-01-01 12:00:00'
-        },
-        {
-            name: 'test3',
-            size: '100KB',
-            isDir: true,
-            modTime:'2022-01-01 12:00:00'
+            modTime: '2022-01-01 12:00:00'
         },
     ])
 
-    for (let i = 0; i < 100; i++) {
-
-    }
-
-    const fileLable = {
-        name: '名称',
-        size: '大小',
-        modTime: '修改时间'
-    }
-
-    const checkFile = () => {
-        fileList.value.forEach((file) => {
-            if (file.isDir) {
-                file.size = '-'
-            }
-        })
-    }
+    const homePath = '/vol1/1000/tools/project/go/renamer'
 
     return {
         isCollapse,
         modeOption,
         modeSection,
         fileList,
-        fileLable,
-        checkFile
+        homePath
     }
 })

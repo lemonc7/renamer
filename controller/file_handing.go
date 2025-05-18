@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
 	"github.com/lemonc7/renamer/model"
 )
@@ -35,7 +36,7 @@ func GetFiles(ctx *gin.Context) {
 		info, _ := entry.Info()
 		files = append(files, model.FileInfo{
 			Name:    entry.Name(),
-			Size:    info.Size(),
+			Size:    humanize.Bytes(uint64(info.Size())),
 			IsDir:   entry.IsDir(),
 			ModTime: info.ModTime().Format("2006-01-02 15:04:05"),
 		})

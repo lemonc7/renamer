@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import CommonHeader from './components/CommonHeader.vue';
-import Home from './components/Home.vue';
 
 </script>
 
@@ -11,7 +10,7 @@ import Home from './components/Home.vue';
                 <CommonHeader />
             </el-header>
             <el-main>
-                <Home />
+                <router-view />
             </el-main>
         </el-container>
 
