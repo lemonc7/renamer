@@ -3,11 +3,7 @@ GET http://localhost:7777/ping HTTP/1.1
 Content-Type: Application/json
 
 ### 获取文件目录
-PUT http://localhost:7777/api/files HTTP/1.1
-
-{
-    "path": "/vol1/1000/tools/project/go/renamer"
-}
+GET  http://localhost:7777/api/files?path=/vol1/1000/tools/project/go/renamer HTTP/1.1
 
 ### 创建文件目录
 POST http://localhost:7777/api/files HTTP/1.1
@@ -37,5 +33,13 @@ POST http://localhost:7777/api/files/move HTTP/1.1
 {
     "path": "/vol1/1000/tools/project/go/renamer/test.txt",
     "targetPath": "/vol1/1000/tools/project/go/renamer/test2"
+}
+
+
+### 预览重命名结果
+POST http://localhost:7777/api/files/preview HTTP/1.1
+
+{
+    "path": "/vol2/1000/share/downloads/media"
 }
 

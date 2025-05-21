@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
 	"github.com/lemonc7/renamer/model"
+	"github.com/lemonc7/renamer/utils"
 )
 
 var req model.PathRequest
@@ -21,25 +21,13 @@ func GetFiles(ctx *gin.Context) {
 		})
 		return
 	}
-	// 读取目录
-	entries, err := os.ReadDir(req.Path)
+
+	files, err := utils.GetFiles(req.Path)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "读取目录失败",
+			"error": err.Error(),
 		})
 		return
-	}
-
-	// 将读取的信息转换成FileInfo数组
-	var files []model.FileInfo
-	for _, entry := range entries {
-		info, _ := entry.Info()
-		files = append(files, model.FileInfo{
-			Name:    entry.Name(),
-			Size:    humanize.Bytes(uint64(info.Size())),
-			IsDir:   entry.IsDir(),
-			ModTime: info.ModTime().Format("2006-01-02 15:04:05"),
-		})
 	}
 
 	// 返回JSON响应数据
