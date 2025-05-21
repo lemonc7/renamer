@@ -25,11 +25,13 @@ export const useAllDataStore = defineStore('allData', ()=>{
         {
             name: 'test1.txt',
             size: '100KB',
+            isDir: true,
             modTime: '2022-01-01 12:00:00'
         },
         {
             name: 'test2.txt',
             size: '100KB',
+            isDir: false,
             modTime: '2022-01-01 12:00:00'
         },
     ])

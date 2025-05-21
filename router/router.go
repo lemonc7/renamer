@@ -26,7 +26,7 @@ func SetupRouter() *gin.Engine {
 		api.DELETE("", controller.DeleteFiles)
 		api.POST("/copy", controller.CopyFiles)
 		api.POST("/move", controller.MoveFiles)
-		api.POST("/preview",controller.RenamedNames)
+		api.POST("/preview", controller.RenamedPreview)
 	}
 
 	return r

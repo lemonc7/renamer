@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useAllDataStore } from '../stores';
-import axios from 'axios';
+import axios, { type AxiosResponse } from 'axios';
 import { useRoute } from 'vue-router';
 
 const store = useAllDataStore();
@@ -23,12 +23,40 @@ const editPasteButton = (type: string) => {
 const route = useRoute()
 const capPath = route.params.path
 
-async function getFile(path=capPath) {
-    const res = await axios({
-        url: 'http://192.168.100.2:7777/api/files',
-        method: 'GET',
-        params: {
-            path: `/${path}`
+interface FileInfo {
+    name: string
+    size: string
+    isDir: boolean
+    modTime: string
+}
+
+// interface DataType {
+//     list: FileInfo[]
+// }
+
+
+// async function getFile(path=capPath) {
+//     const res = await axios({
+//         url: 'http://192.168.100.2:7777/api/files',
+//         method: 'GET',
+//         params: {
+//             path: `/${path}`
+//         }
+//     })
+//     store.fileList = res.data
+// }
+
+const api = axios.create({
+    baseURL: "http://192.168.100.2:7777",
+    timeout: 3000,
+}
+    
+)
+
+async function getFile() {
+    let res: AxiosResponse<FileInfo[]> = await api.get("/api/files",{
+        params:{
+            path: "/"+capPath
         }
     })
     store.fileList = res.data

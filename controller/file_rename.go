@@ -28,7 +28,7 @@ func renameFormat(request model.PathRequest, episode *string) {
 
 }
 
-func RenamedNames(ctx *gin.Context) {
+func RenamedPreview(ctx *gin.Context) {
 	// 绑定JSON参数到结构体
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -37,13 +37,14 @@ func RenamedNames(ctx *gin.Context) {
 		return
 	}
 	// oldName存储原文件名，newName存储新文件名
-	var oldNames, newNames []string
+	var nameMaps []model.NameMaps
+	var newNames []string
 	// 获取文件信息
 	files, err := utils.GetFiles(req.Path)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "获取文件信息失败",
+			"error": err.Error(),
 		})
 		return
 	}
@@ -63,12 +64,18 @@ func RenamedNames(ctx *gin.Context) {
 			}
 			// 输出SxxExx文件名
 			renameFormat(req, &newName)
-			oldNames = append(oldNames, oldName)
+			nameMaps = append(nameMaps, model.NameMaps{
+				OldName: oldName,
+				NewName: newName,
+			})
 			newNames = append(newNames, newName)
 		} else {
 			// 不需要重命名的文件名
 			if oldName != "error" {
-				oldNames = append(oldNames, oldName)
+				nameMaps = append(nameMaps, model.NameMaps{
+					OldName: oldName,
+					NewName: oldName,
+				})
 				newNames = append(newNames, oldName)
 			}
 		}
@@ -81,10 +88,33 @@ func RenamedNames(ctx *gin.Context) {
 		})
 		return
 	}
+	// 是否自动进行重命名,不进行确认
+	if req.AutoRename {
+		if err := utils.RenameFile(req.Path, nameMaps); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		ctx.JSON(http.StatusOK, gin.H{
+			"重命名成功": nameMaps, 
+		})
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"oldNames": oldNames,
-		"newNames": newNames,
+		"nameMaps": nameMaps,
 	})
 
 }
+
+// func RenamedFile(ctx *gin.Context) {
+// 	// 绑定JSON数据到结构体
+// 	if err := ctx.ShouldBindJSON(&req); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{
+// 			"error": err,
+// 		})
+// 		return
+// 	}
+
+// 	//
+// }

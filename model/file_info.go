@@ -8,7 +8,14 @@ type FileInfo struct {
 }
 
 type PathRequest struct {
-	Path       string `json:"path" form:"path" binding:"required"`
-	TargetPath string `json:"targetPath"`
-	Season     string `json:"season"`
+	Path       string     `json:"path" form:"path" binding:"required"`
+	TargetPath string     `json:"targetPath"`
+	Season     string     `json:"season"`
+	NameMaps   []NameMaps `json:"nameMaps"`
+	AutoRename bool       `json:"autoRename"`
+}
+
+type NameMaps struct {
+	OldName string `json:"oldName"`
+	NewName string `json:"newName"`
 }

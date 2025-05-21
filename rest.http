@@ -40,6 +40,8 @@ POST http://localhost:7777/api/files/move HTTP/1.1
 POST http://localhost:7777/api/files/preview HTTP/1.1
 
 {
-    "path": "/vol2/1000/share/downloads/media"
+    "path": "/vol2/1000/share/downloads/media/S04",
+    "autoRename": true,
+    "season": ""
 }
 
