@@ -40,8 +40,26 @@ POST http://localhost:7777/api/files/move HTTP/1.1
 POST http://localhost:7777/api/files/preview HTTP/1.1
 
 {
-    "path": "/vol2/1000/share/downloads/media/S04",
-    "autoRename": true,
-    "season": ""
+    "path": "/vol2/1000/share/downloads/media",
+    "autoRename": false,
+    "season": "S02"
+}
+
+
+### 确认重命名
+POST http://localhost:7777/api/files/rename HTTP/1.1
+
+{
+    "path": "/vol2/1000/share/downloads/media",
+    "nameMaps": [
+        {
+        "oldName": "S0E03.mkv",
+        "newName": "S02E03.mkv"
+        },
+        {
+        "oldName": "S0E04.mkv",
+        "newName": "S02E04.mkv"
+        }
+    ]
 }
 

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useAllDataStore } from '../stores';
-import axios, { type AxiosResponse } from 'axios';
+import { type AxiosResponse } from 'axios';
 import { useRoute } from 'vue-router';
+import { getFile } from '../api/api';
 
 const store = useAllDataStore();
 
@@ -21,7 +22,7 @@ const editPasteButton = (type: string) => {
 }
 
 const route = useRoute()
-const capPath = route.params.path
+const capPath = "/"+route.params.path
 
 interface FileInfo {
     name: string
@@ -30,38 +31,30 @@ interface FileInfo {
     modTime: string
 }
 
+onMounted(async () => {
+    let res:AxiosResponse<FileInfo[]> = await getFile(capPath)
+    store.fileList = res.data
+})
+
 // interface DataType {
 //     list: FileInfo[]
 // }
 
+// const api = axios.create({
+//     baseURL: "http://192.168.100.2:7777",
+//     timeout: 3000,
+// }
+// )
 
-// async function getFile(path=capPath) {
-//     const res = await axios({
-//         url: 'http://192.168.100.2:7777/api/files',
-//         method: 'GET',
-//         params: {
-//             path: `/${path}`
+// async function getFile() {
+//     let res: AxiosResponse<FileInfo[]> = await api.get("/api/files",{
+//         params:{
+//             path: "/"+capPath
 //         }
 //     })
 //     store.fileList = res.data
 // }
-
-const api = axios.create({
-    baseURL: "http://192.168.100.2:7777",
-    timeout: 3000,
-}
-    
-)
-
-async function getFile() {
-    let res: AxiosResponse<FileInfo[]> = await api.get("/api/files",{
-        params:{
-            path: "/"+capPath
-        }
-    })
-    store.fileList = res.data
-}
-getFile()
+// getFile()
 
 </script>
 

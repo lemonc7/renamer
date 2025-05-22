@@ -10,6 +10,7 @@ import (
 	"github.com/lemonc7/renamer/utils"
 )
 
+// 重命名标准格式输出
 func renameFormat(request model.PathRequest, episode *string) {
 	ep := *episode
 	ext := filepath.Ext(ep)
@@ -28,6 +29,7 @@ func renameFormat(request model.PathRequest, episode *string) {
 
 }
 
+// 重命名预览
 func RenamedPreview(ctx *gin.Context) {
 	// 绑定JSON参数到结构体
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -90,14 +92,14 @@ func RenamedPreview(ctx *gin.Context) {
 	}
 	// 是否自动进行重命名,不进行确认
 	if req.AutoRename {
-		if err := utils.RenameFile(req.Path, nameMaps); err != nil {
+		if err := utils.RenameFiles(req.Path, nameMaps); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
 		ctx.JSON(http.StatusOK, gin.H{
-			"重命名成功": nameMaps, 
+			"重命名成功": nameMaps,
 		})
 	}
 
@@ -107,14 +109,24 @@ func RenamedPreview(ctx *gin.Context) {
 
 }
 
-// func RenamedFile(ctx *gin.Context) {
-// 	// 绑定JSON数据到结构体
-// 	if err := ctx.ShouldBindJSON(&req); err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err,
-// 		})
-// 		return
-// 	}
+// 确认重命名文件(前端预览重命名时,确认需要重命名的文件)
+func RenamedFiles(ctx *gin.Context) {
+	// 绑定JSON数据到结构体
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
 
-// 	//
-// }
+	// 重命名文件
+	if err := utils.RenameFiles(req.Path, req.NameMaps); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "重命名成功",
+	})
+}

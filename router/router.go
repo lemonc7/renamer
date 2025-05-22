@@ -27,6 +27,7 @@ func SetupRouter() *gin.Engine {
 		api.POST("/copy", controller.CopyFiles)
 		api.POST("/move", controller.MoveFiles)
 		api.POST("/preview", controller.RenamedPreview)
+		api.POST("/rename", controller.RenamedFiles)
 	}
 
 	return r
