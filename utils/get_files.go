@@ -25,9 +25,17 @@ func GetFiles(dir string) ([]model.FileInfo, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		var size string
+		if entry.IsDir() {
+			size = "-"
+		} else {
+			size = humanize.Bytes(uint64(info.Size()))
+		}
+
 		files = append(files, model.FileInfo{
 			Name:    entry.Name(),
-			Size:    humanize.Bytes(uint64(info.Size())),
+			Size:    size,
 			IsDir:   entry.IsDir(),
 			ModTime: info.ModTime().Format("2006-01-02 15:04:05"),
 		})
