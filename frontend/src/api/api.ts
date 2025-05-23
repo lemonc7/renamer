@@ -4,8 +4,9 @@ import { useAllDataStore } from "../stores"
 
 const store = useAllDataStore()
 
-interface FileInfo {
+export interface FileInfo {
   name: string
+  type: string
   size: string
   isDir: boolean
   modTime: string
@@ -24,8 +25,12 @@ export function getFile(path: string) {
       method: "get",
       params: { path }
     })
-
-    store.fileList = res.data
+    // 如果后端返回的数据是空的，说明目录下无文件，将fileList设置为空
+    if (!res.data || res.data === null) {
+      store.fileList = []
+    }else {
+      store.fileList = res.data
+    }
   }
 }
 

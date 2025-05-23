@@ -1,19 +1,13 @@
 package utils
 
 var matchExts = []string {
-	".flv",".mkv",".mp4",".avi",".rmvb",".m2ts",".wmv",".nfo",
-	".srt",".ass",".ssa",".sub",".smi",
+	"flv","mkv","mp4","avi","rmvb","m2ts","wmv","nfo",
+	"srt","ass","ssa","sub","smi",
 }
 
 var ignorePattens = []string{
 	`^S\d{2}E\d{2,}$`,
 }
-
-// var specificRules = []string{
-// 	// `^\[GM-Team\].*?\[\d{4}\]\[(.*?)\]`,
-// 	// `^\[LoliHouse\] .* - (.*?) .*`,
-// 	// `^\[AI-Raws\] .* #(.*?) .*`,
-// }
 
 var bracketPairs = [][]string{
 	{`\[`,`\]`},

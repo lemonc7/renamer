@@ -5,9 +5,6 @@ import (
 	"strings"
 )
 
-
-
-
 // 返回一个新的文件名，去除原文件名中的指定文本
 func RemoveTexts(fileName string, texts []string) string {
 	ext := filepath.Ext(fileName)

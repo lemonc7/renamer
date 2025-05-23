@@ -2,6 +2,7 @@ package model
 
 type FileInfo struct {
 	Name    string `json:"name"`
+	Type    string `json:"type"`
 	Size    string `json:"size"`
 	IsDir   bool   `json:"isDir"`
 	ModTime string `json:"modTime"`

@@ -1,10 +1,11 @@
 package utils
 
 import (
-	"errors"
+	// "errors"
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 
 	"github.com/dustin/go-humanize"
 	"github.com/lemonc7/renamer/model"
@@ -26,25 +27,28 @@ func GetFiles(dir string) ([]model.FileInfo, error) {
 			return nil, err
 		}
 
-		var size string
+		var size, fileType string
 		if entry.IsDir() {
 			size = "-"
+			fileType = "-"
 		} else {
 			size = humanize.Bytes(uint64(info.Size()))
+			ext := filepath.Ext(entry.Name())
+			if len(ext)== len(entry.Name()) {
+				fileType = ""
+			}else {
+				fileType = strings.Replace(ext, ".", "", 1)
+			}
 		}
 
 		files = append(files, model.FileInfo{
 			Name:    entry.Name(),
 			Size:    size,
+			Type:    fileType,
 			IsDir:   entry.IsDir(),
 			ModTime: info.ModTime().Format("2006-01-02 15:04:05"),
 		})
 	}
-
-	if len(files) == 0 {
-		return nil, errors.New("no files found in directory")
-	}
-
 	return files, nil
 }
 
@@ -52,10 +56,9 @@ func GetFiles(dir string) ([]model.FileInfo, error) {
 func GetPendingFile(file model.FileInfo) (bool, string) {
 	// 过滤文件夹
 	if !file.IsDir {
-		ext := filepath.Ext(file.Name)
-		fileNameWithoutExt := file.Name[:len(file.Name)-len(ext)]
+		fileNameWithoutExt := file.Name[:len(file.Name)-len(file.Type)-1]
 		// 只保留指定后缀名的文件
-		if slices.Contains(matchExts, ext) {
+		if slices.Contains(matchExts, file.Type) {
 			// 排除已经按规则命名的文件
 			if ignoreRules(fileNameWithoutExt) {
 				return false, file.Name

@@ -2,8 +2,7 @@
 import { onMounted, ref } from "vue"
 import { useAllDataStore } from "../stores"
 import { useRoute, useRouter } from "vue-router"
-import { getFile } from "../api/api"
-
+import { getFile, type FileInfo } from "../api/api"
 const store = useAllDataStore()
 
 const showPasteButton = ref({
@@ -25,9 +24,11 @@ const route = useRoute()
 const router = useRouter()
 const capPath = "/" + route.params.path
 
-const appendRoute = (path: string) => {
-  let newPath = `${route.path}/${path}`.replace(/\/+/g, "/")
-  router.push(newPath)
+const appendRoute = (file: FileInfo) => {
+  if (file.isDir) {
+    let newPath = `${route.path}/${file.name}`.replace(/\/+/g, "/")
+    router.push(newPath)
+  }
 }
 
 onMounted(getFile(capPath))
@@ -109,14 +110,14 @@ onMounted(getFile(capPath))
         </el-col>
       </el-row>
 
-      <el-table :data="store.fileList">
+      <el-table :data="store.fileList" empty-text="无文件">
         <el-table-column type="selection"></el-table-column>
-        <el-table-column label="名称" prop="name" width="700">
+        <el-table-column label="名称" prop="name" width="600">
           <template #default="{ row }">
             <el-button
               class="fileSelect"
               :icon="row.isDir ? 'Folder' : 'Document'"
-              @click="appendRoute(row.name)"
+              @click="appendRoute(row)"
               plain
             >
               {{ row.name }}
@@ -124,7 +125,8 @@ onMounted(getFile(capPath))
           </template>
         </el-table-column>
 
-        <el-table-column label="大小" prop="size" width="200" />
+        <el-table-column label="类型" prop="type" width="100" />
+        <el-table-column label="大小" prop="size" width="100" />
         <el-table-column label="修改时间" prop="modTime" />
       </el-table>
     </el-card>

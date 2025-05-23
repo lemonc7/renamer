@@ -22,7 +22,7 @@ const service = axios.create({
 service.interceptors.response.use(
   (response) => {
     const res = response.data
-    if (res.code && res.code !== 200) {
+    if (res?.code && res?.code !== 200) {
       console.warn("业务错误", res.message)
       return Promise.reject(new Error(res.message))
     }
