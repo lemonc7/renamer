@@ -1,9 +1,9 @@
 import { defineStore } from "pinia"
 import { ref } from "vue"
+import type { FileInfo,NameMap } from "../model"
 
 export const useAllDataStore = defineStore("allData", () => {
-  const isCollapse = ref(false)
-
+  // 选择模式
   const modeOption = [
     {
       value: 1,
@@ -18,30 +18,32 @@ export const useAllDataStore = defineStore("allData", () => {
       label: "移除指定文本"
     }
   ]
-
   const modeSection = ref()
 
+  // 目录下的文件信息
+  const fileList = ref<FileInfo[]>([])
 
-  const fileList = ref([
-    {
-      name: "file.txt",
-      type: "txt",
-      size: "100KB",
-      isDir: false,
-      modTime: ""
-    },
-  ])
+  // 选择的文件列表
+  const selectFiles = ref<FileInfo[]>([])
+  // 控制button的显示(选择需要重命名的文件夹)
+  const renamePreviewButton = ref(true)
 
-  const nameMaps = ref()
+  // 预览重命名时选择需要的重命名的文件
+  const nameMaps = ref<NameMap[]>([])
 
-  const homePath = "/vol1/1000/tools/project/go/renamer"
+  // 控制粘贴button的显示
+  const showPasteButton = ref({
+    type: "",
+    show: false
+  }) 
 
   return {
-    isCollapse,
     modeOption,
     modeSection,
     fileList,
-    homePath,
-    nameMaps
+    nameMaps,
+    selectFiles,
+    renamePreviewButton,
+    showPasteButton
   }
 })

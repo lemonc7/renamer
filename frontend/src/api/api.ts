@@ -1,21 +1,7 @@
 import request from "./request"
 import { type AxiosResponse } from "axios"
 import { useAllDataStore } from "../stores"
-
-const store = useAllDataStore()
-
-export interface FileInfo {
-  name: string
-  type: string
-  size: string
-  isDir: boolean
-  modTime: string
-}
-
-interface NameMaps {
-  oldName: string
-  newName: string
-}
+import type { FileInfo, NameMap } from "../model"
 
 // 获取文件目录
 export function getFile(path: string) {
@@ -25,10 +11,11 @@ export function getFile(path: string) {
       method: "get",
       params: { path }
     })
+    let store = useAllDataStore()
     // 如果后端返回的数据是空的，说明目录下无文件，将fileList设置为空
     if (!res.data || res.data === null) {
       store.fileList = []
-    }else {
+    } else {
       store.fileList = res.data
     }
   }
@@ -85,27 +72,28 @@ export function moveFile(path: string, targetPath: string) {
 }
 
 // 预览重命名结果
-export function renamePreview(
+export async function renamePreview(
   path: string,
   season: string,
   autoRename: boolean
 ) {
-  return async () => {
-    let res: AxiosResponse<NameMaps[]> = await request({
-      url: "/api/files/preview",
-      method: "post",
-      data: {
-        path,
-        season,
-        autoRename
-      }
-    })
-    store.nameMaps = res.data
-  }
+  const res: AxiosResponse<NameMap[]> = await request({
+    url: "/api/files/preview",
+    method: "post",
+    data: {
+      path,
+      season,
+      autoRename
+    }
+  })
+  let store = useAllDataStore()
+  store.nameMaps = res.data
+  return res
 }
 
+
 // 确认需要重命名的文件
-export function renameFiles(path: string, nameMaps: NameMaps[]) {
+export function renameFiles(path: string, nameMaps: NameMap[]) {
   return async () => {
     await request({
       url: "/api/files/rename",

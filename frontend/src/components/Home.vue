@@ -1,24 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue"
+import { onMounted} from "vue"
 import { useAllDataStore } from "../stores"
 import { useRoute, useRouter } from "vue-router"
-import { getFile, type FileInfo } from "../api/api"
+import { getFile } from "../api/api"
+import type { FileInfo } from "../model"
+import { getSelections } from "../utils/get_selection"
+import { editPasteButton } from "../utils/show_paste_button"
+
 const store = useAllDataStore()
-
-const showPasteButton = ref({
-  type: "",
-  show: false
-})
-
-const editPasteButton = (type: string) => {
-  if (type === "") {
-    showPasteButton.value.show = false
-    showPasteButton.value.type = ""
-  } else {
-    showPasteButton.value.show = true
-    showPasteButton.value.type = type
-  }
-}
 
 const route = useRoute()
 const router = useRouter()
@@ -32,6 +21,7 @@ const appendRoute = (file: FileInfo) => {
 }
 
 onMounted(getFile(capPath))
+
 </script>
 
 <template>
@@ -92,11 +82,11 @@ onMounted(getFile(capPath))
               @click="editPasteButton('warning')"
             ></el-button>
             <el-button
-              :type="showPasteButton.type"
+              :type="store.showPasteButton.type"
               plain
               icon="Checked"
               title="粘贴"
-              :disabled="!showPasteButton.show"
+              :disabled="!store.showPasteButton.show"
               @click="editPasteButton('')"
             ></el-button>
             <el-button
@@ -110,7 +100,7 @@ onMounted(getFile(capPath))
         </el-col>
       </el-row>
 
-      <el-table :data="store.fileList" empty-text="无文件">
+      <el-table :data="store.fileList" empty-text="无文件" @selection-change="getSelections">
         <el-table-column type="selection"></el-table-column>
         <el-table-column label="名称" prop="name" width="600">
           <template #default="{ row }">
