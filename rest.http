@@ -54,8 +54,7 @@ POST http://localhost:7777/api/files/preview HTTP/1.1
     "path": "/vol1/1000/tools/project/go/renamer",
     "autoRename": false,
     "nameMaps": {
-        "S01": [],
-        "S02": []
+        "test2":[]
     }
 }
 
@@ -64,18 +63,16 @@ POST http://localhost:7777/api/files/preview HTTP/1.1
 POST http://localhost:7777/api/files/rename HTTP/1.1
 
 {
-    "path": "/vol1/1000/tools/project/go/renamer",
+    "path": "/vol1/1000/tools/project/go/renamer/test2",
     "nameMaps": {
-        "S01": [
+        "": [
+        {
+            "oldName": "test3",
+            "newName": "test1"
+        },
         {
             "oldName": "1.mp4",
-            "newName": "S01E01.mp4"
-        }
-        ],
-        "S02": [
-        {
-            "oldName": "1.mp4",
-            "newName": "S02E01.mp4"
+            "newName": "2.mp4"
         }
         ]
     }

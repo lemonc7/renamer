@@ -34,6 +34,7 @@ declare module 'vue' {
     Home: typeof import('./src/components/Home.vue')['default']
     Hometest: typeof import('./src/components/Hometest.vue')['default']
     HomeTest: typeof import('./src/components/HomeTest.vue')['default']
+    Ping: typeof import('./src/components/Ping.vue')['default']
     RightAside: typeof import('./src/components/RightAside.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

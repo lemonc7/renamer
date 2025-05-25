@@ -10,10 +10,12 @@ import (
 	"github.com/lemonc7/renamer/utils"
 )
 
-var req model.PathRequest
+// 因为定义了map,如果还使用全局变量,容易产生缓存,会报错
+// var req model.PathRequest
 
 // 获取目录下的文件列表
 func GetFiles(ctx *gin.Context) {
+	var req model.PathRequest
 	// 绑定Query请求参数到结构体
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -36,6 +38,7 @@ func GetFiles(ctx *gin.Context) {
 
 // 根据路径创建文件夹(父文件夹必须存在)
 func CreateDirs(ctx *gin.Context) {
+	var req model.PathRequest
 	// 绑定JSON请求参数到结构体
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -70,6 +73,7 @@ func CreateDirs(ctx *gin.Context) {
 
 // 根据路径删除文件或目录
 func DeleteFiles(ctx *gin.Context) {
+	var req model.PathRequest
 	// 绑定JSON请求参数到结构体
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -102,6 +106,7 @@ func DeleteFiles(ctx *gin.Context) {
 
 // 复制文件
 func CopyFiles(ctx *gin.Context) {
+	var req model.PathRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "必须提供path,targetPath和nameMaps参数",
@@ -168,6 +173,7 @@ func CopyFiles(ctx *gin.Context) {
 
 // 移动文件
 func MoveFiles(ctx *gin.Context) {
+	var req model.PathRequest
 	// 绑定JSON请求参数到结构体
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

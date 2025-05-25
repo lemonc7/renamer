@@ -2,22 +2,33 @@
 import { useAllDataStore } from "../stores"
 import { useRoute } from "vue-router"
 import { renamePreview } from "../api/api"
+import router from "../router"
 
 const route = useRoute()
 const store = useAllDataStore()
 
 const confirmRename = async () => {
-  if (store.selectFiles.length > 0 && store.selectFiles[0].isDir) {
-    let fullPath = `${route.path}/${store.selectFiles[0].name}`
-    try {
-      await renamePreview(fullPath, "S02", true)
-      console.log("请求成功")
-    } catch (err) {
-      console.error("请求失败", err)
+  let dirs: string[] = []
+  store.selectFiles.forEach((row) => {
+    if (row.isDir) {
+      dirs.push(row.name)
     }
+  })
+
+  try {
+    await renamePreview(route.path, true, dirs, store)
+    console.log("请求成功:", dirs)
+  } catch (err) {
+    console.error("请求失败:", err)
   }
 }
 
+const refreshPage = () => {
+  let currentRoute = router.currentRoute.value.path
+  router.push("/ping").then(() => {
+    router.push(currentRoute)
+  })
+}
 </script>
 
 <template>
@@ -27,11 +38,7 @@ const confirmRename = async () => {
     </router-link>
 
     <div>
-      <el-select
-        v-model="store.modeSection"
-        placeholder="选择文件处理方式"
-        style="width: 180px"
-      >
+      <el-select v-model="store.modeSection" style="width: 180px">
         <el-option
           v-for="item in store.modeOption"
           :key="item.value"
@@ -43,14 +50,14 @@ const confirmRename = async () => {
       <el-button
         icon="pointer"
         style="margin-left: 10px"
-        @click="confirmRename()"
+        @click="confirmRename"
         :disabled="store.renamePreviewButton"
       >
         确认
       </el-button>
     </div>
 
-    <el-button icon="refresh">刷新</el-button>
+    <el-button icon="refresh" @click="refreshPage">刷新</el-button>
   </div>
 </template>
 

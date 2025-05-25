@@ -1,45 +1,54 @@
 import request from "./request"
 import { type AxiosResponse } from "axios"
 import { useAllDataStore } from "../stores"
-import type { FileInfo, NameMap } from "../model"
+import type { FileInfo, NameMaps } from "../model"
 
 // 获取文件目录
-export function getFile(path: string) {
-  return async () => {
+export async function getFile(path: string, store = useAllDataStore()) {
+  try {
     let res: AxiosResponse<FileInfo[]> = await request({
       url: "/api/files",
       method: "get",
       params: { path }
     })
-    let store = useAllDataStore()
     // 如果后端返回的数据是空的，说明目录下无文件，将fileList设置为空
-    if (!res.data || res.data === null) {
-      store.fileList = []
-    } else {
-      store.fileList = res.data
-    }
+    store.fileList = Array.isArray(res.data) ? res.data : []
+  } catch (error) {
+    console.error("获取文件或目录失败：", error)
+    store.fileList = []
   }
 }
 
 // 创建文件夹
-export function createDir(path: string) {
-  return async () => {
+export async function createDir(path: string) {
+  try {
     await request({
       url: "/api/files",
       method: "post",
       data: { path }
     })
+  } catch (error) {
+    console.error("创建目录失败：", error)
   }
 }
 
-// 删除文件夹
-export function deleteFile(path: string) {
-  return async () => {
+// 删除文件/目录
+export async function deleteFile(path: string, files: string[]) {
+  let nameMaps: NameMaps = {}
+  files.forEach((key) => {
+    nameMaps[key] = []
+  })
+  try {
     await request({
       url: "/api/files",
       method: "delete",
-      data: { path }
+      data: {
+        path,
+        nameMaps
+      }
     })
+  } catch (error) {
+    console.error("创建目录失败：", error)
   }
 }
 
@@ -74,26 +83,28 @@ export function moveFile(path: string, targetPath: string) {
 // 预览重命名结果
 export async function renamePreview(
   path: string,
-  season: string,
-  autoRename: boolean
+  autoRename: boolean,
+  dirs: string[],
+  store = useAllDataStore()
 ) {
-  const res: AxiosResponse<NameMap[]> = await request({
+  let nameMaps: NameMaps = {}
+  dirs.forEach((key) => {
+    nameMaps[key] = []
+  })
+  let res: AxiosResponse<NameMaps> = await request({
     url: "/api/files/preview",
     method: "post",
     data: {
       path,
-      season,
-      autoRename
+      autoRename,
+      nameMaps
     }
   })
-  let store = useAllDataStore()
   store.nameMaps = res.data
-  return res
 }
 
-
 // 确认需要重命名的文件
-export function renameFiles(path: string, nameMaps: NameMap[]) {
+export function renameFiles(path: string, nameMaps: NameMaps) {
   return async () => {
     await request({
       url: "/api/files/rename",
@@ -103,5 +114,21 @@ export function renameFiles(path: string, nameMaps: NameMap[]) {
         nameMaps
       }
     })
+  }
+}
+
+// 手动重命名单个/多个文件/目录
+export async function renameFilesManual(path: string, nameMaps: NameMaps) {
+  try {
+    await request({
+      url: "/api/files/rename",
+      method: "post",
+      data: {
+        path,
+        nameMaps
+      }
+    })
+  } catch (error) {
+    console.error("手动重命名失败：", error)
   }
 }

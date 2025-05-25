@@ -29,6 +29,7 @@ func renameFormat(dir string, episode *string) {
 
 // 重命名预览
 func RenamedPreview(ctx *gin.Context) {
+	var req model.PathRequest
 	// 绑定JSON参数到结构体
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -42,7 +43,7 @@ func RenamedPreview(ctx *gin.Context) {
 		// oldName存储原文件名，newName存储新文件名
 		var nameMaps []model.Names
 		var newNames []string
-		files, err := utils.GetFiles(req.Path+"/"+key)
+		files, err := utils.GetFiles(req.Path + "/" + key)
 
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -107,16 +108,17 @@ func RenamedPreview(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "自动重命名成功",
 		})
+	} else {
+		ctx.JSON(http.StatusOK, gin.H{
+			"nameMaps": newnameMaps,
+		})
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"nameMaps": newnameMaps,
-	})
 
 }
 
 // 确认重命名文件(前端预览重命名时,确认需要重命名的文件)
 func RenamedFiles(ctx *gin.Context) {
+	var req model.PathRequest
 	// 绑定JSON数据到结构体
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

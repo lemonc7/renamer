@@ -1,21 +1,21 @@
 import type { FileInfo } from "../model"
 import { useAllDataStore } from "../stores"
 
-
-export function getSelections(selection: FileInfo[]) {
-  let store = useAllDataStore()
+export function getSelections(
+  selection: FileInfo[],
+  store = useAllDataStore()
+) {
   store.selectFiles = selection
   if (selection.length !== 0) {
     store.renamePreviewButton = false
+    store.hiddenDeleteButton = false
   } else {
     store.renamePreviewButton = true
+    store.hiddenDeleteButton = true
   }
-}
-
-export function confirmRename(path: string) {
-  let store = useAllDataStore()
-  let names = store.selectFiles.map((row) => row.name)
-  names.forEach((name: string) => {
-    console.log(path + "/" + name)
-  })
+  if (selection.length === 1) {
+    store.hiddenRenameButton = false
+  } else {
+    store.hiddenRenameButton = true
+  }
 }

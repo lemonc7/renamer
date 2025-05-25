@@ -8,6 +8,14 @@ const routes = [
   {
     path: "/",
     redirect: "/home"
+  },
+  {
+    path: "/ping",
+    component: {
+      render() {
+        return "pong"
+      }
+    }
   }
 ]
 

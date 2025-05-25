@@ -15,7 +15,7 @@ import CommonHeader from "./components/CommonHeader.vue"
   </div>
 </template>
 
-<style scoped lang="less">
+<style lang="less">
 .common-layout,
 .lay-container {
   height: 100%;
@@ -23,4 +23,8 @@ import CommonHeader from "./components/CommonHeader.vue"
 .el-header {
   background-color: silver;
 }
+html {
+  overflow-y: scroll;
+}
+
 </style>

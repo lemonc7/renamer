@@ -1,4 +1,4 @@
-export interface FileInfo {
+interface FileInfo {
   name: string
   type: string
   size: string
@@ -6,7 +6,11 @@ export interface FileInfo {
   modTime: string
 }
 
-export interface NameMap {
+interface Names {
   oldName: string
   newName: string
 }
+
+type NameMaps = Record<string,Names[]> 
+
+export type { FileInfo, Names, NameMaps }

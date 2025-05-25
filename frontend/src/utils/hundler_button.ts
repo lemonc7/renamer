@@ -1,8 +1,6 @@
 import { useAllDataStore } from "../stores";
 
-
-export function editPasteButton(type:string) {
-  const store = useAllDataStore()
+export function editPasteButton(type:string,store=useAllDataStore()) {
   if (type === "") {
     store.showPasteButton.show = false
     store.showPasteButton.type = ""
