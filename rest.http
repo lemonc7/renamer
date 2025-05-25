@@ -3,36 +3,47 @@ GET http://localhost:7777/ping HTTP/1.1
 Content-Type: Application/json
 
 ### 获取文件目录
-GET  http://localhost:7777/api/files?path=/home/lemoncnas/go/bin HTTP/1.1
+GET  http://localhost:7777/api/files?path=/vol1/1000/tools/project/go/renamer HTTP/1.1
 
 ### 创建文件目录
 POST http://localhost:7777/api/files HTTP/1.1
 
 {
-    "path": "/vol1/1000/tools/project/go/renamer/test"
+    "path": "/vol1/1000/tools/project/go/renamer/S01"
 }
 
 ### 删除文件
 DELETE  http://localhost:7777/api/files HTTP/1.1
 
 {
-    "path": "/vol1/1000/tools/project/go/renamer/test"
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "nameMaps": {
+        "test":[],
+        "test1":[]
+    }
 }
 
 ### 复制文件
 POST http://localhost:7777/api/files/copy HTTP/1.1
 
 {
-    "path": "/vol1/1000/tools/project/go/renamer/test1",
-    "targetPath": "/vol1/1000/tools/project/go/renamer/test2"
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "targetPath": "/vol1/1000/tools/project/go/renamer/test",
+    "nameMaps": {
+        "S02":[],
+        "S01.txt":[]
+    }
 }
 
 ### 移动文件
 POST http://localhost:7777/api/files/move HTTP/1.1
 
 {
-    "path": "/vol1/1000/tools/project/go/renamer/test.txt",
-    "targetPath": "/vol1/1000/tools/project/go/renamer/test2"
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "targetPath": "/vol1/1000/tools/project/go/renamer/test",
+    "nameMaps": {
+        "S02":[]
+    }
 }
 
 
@@ -40,9 +51,12 @@ POST http://localhost:7777/api/files/move HTTP/1.1
 POST http://localhost:7777/api/files/preview HTTP/1.1
 
 {
-    "path": "/vol2/1000/share/downloads/media",
+    "path": "/vol1/1000/tools/project/go/renamer",
     "autoRename": false,
-    "season": "S02"
+    "nameMaps": {
+        "S01": [],
+        "S02": []
+    }
 }
 
 
@@ -50,16 +64,20 @@ POST http://localhost:7777/api/files/preview HTTP/1.1
 POST http://localhost:7777/api/files/rename HTTP/1.1
 
 {
-    "path": "/vol2/1000/share/downloads/media",
-    "nameMaps": [
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "nameMaps": {
+        "S01": [
         {
-        "oldName": "S0E03.mkv",
-        "newName": "S02E03.mkv"
-        },
-        {
-        "oldName": "S0E04.mkv",
-        "newName": "S02E04.mkv"
+            "oldName": "1.mp4",
+            "newName": "S01E01.mp4"
         }
-    ]
+        ],
+        "S02": [
+        {
+            "oldName": "1.mp4",
+            "newName": "S02E01.mp4"
+        }
+        ]
+    }
 }
 

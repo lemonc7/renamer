@@ -46,6 +46,8 @@ service.interceptors.response.use(
       case 500:
         console.error("服务器错误")
         break
+      default:
+        console.error("其他错误")
     }
 
     return Promise.reject(error)
