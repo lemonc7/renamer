@@ -15,12 +15,11 @@ type FileInfo struct {
 // 删除文件-DeleteFiles---Path,NameMaps(key)
 // 复制文件-CopyFiles---Path,TargetPath,NameMaps(key)
 // 移动文件-MoveFiles---Path,TargetPath,NameMaps(key)
-// 预览重命名-RenamePreview---Path,AutoRename,NameMaps(key)
+// 预览重命名-RenamePreview---Path,NameMaps(key)
 // 确认重命名-RenameFiles---Path,NameMaps(key,value)
 type PathRequest struct {
 	Path       string             `json:"path" form:"path" binding:"required"`
 	TargetPath string             `json:"targetPath"`
-	AutoRename bool               `json:"autoRename"`
 	NameMaps   map[string][]Names `json:"nameMaps"`
 }
 

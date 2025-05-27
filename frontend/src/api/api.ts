@@ -14,8 +14,7 @@ export async function getFile(path: string, store = useAllDataStore()) {
     // 如果后端返回的数据是空的，说明目录下无文件，将fileList设置为空
     store.fileList = Array.isArray(res.data) ? res.data : []
   } catch (error) {
-    console.error("获取文件或目录失败：", error)
-    store.fileList = []
+    throw error
   }
 }
 
@@ -28,7 +27,7 @@ export async function createDir(path: string) {
       data: { path }
     })
   } catch (error) {
-    console.error("创建目录失败：", error)
+    throw error
   }
 }
 
@@ -47,8 +46,8 @@ export async function deleteFile(path: string, files: string[]) {
         nameMaps
       }
     })
-  } catch (error) {
-    console.error("创建目录失败：", error)
+  } catch (error: any) {
+    throw error
   }
 }
 
@@ -83,7 +82,6 @@ export function moveFile(path: string, targetPath: string) {
 // 预览重命名结果
 export async function renamePreview(
   path: string,
-  autoRename: boolean,
   dirs: string[],
   store = useAllDataStore()
 ) {
@@ -91,34 +89,24 @@ export async function renamePreview(
   dirs.forEach((key) => {
     nameMaps[key] = []
   })
-  let res: AxiosResponse<NameMaps> = await request({
-    url: "/api/files/preview",
-    method: "post",
-    data: {
-      path,
-      autoRename,
-      nameMaps
-    }
-  })
-  store.nameMaps = res.data
-}
 
-// 确认需要重命名的文件
-export function renameFiles(path: string, nameMaps: NameMaps) {
-  return async () => {
-    await request({
-      url: "/api/files/rename",
+  try {
+    let res: AxiosResponse<NameMaps> = await request({
+      url: "/api/files/preview",
       method: "post",
       data: {
         path,
         nameMaps
       }
     })
+    store.nameMaps = res.data
+  } catch (error) {
+    throw error
   }
 }
 
-// 手动重命名单个/多个文件/目录
-export async function renameFilesManual(path: string, nameMaps: NameMaps) {
+// 文件/目录重命名
+export async function renameFiles(path: string, nameMaps: NameMaps) {
   try {
     await request({
       url: "/api/files/rename",
@@ -129,6 +117,6 @@ export async function renameFilesManual(path: string, nameMaps: NameMaps) {
       }
     })
   } catch (error) {
-    console.error("手动重命名失败：", error)
+    throw error
   }
 }

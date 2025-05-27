@@ -91,33 +91,17 @@ func RenamedPreview(ctx *gin.Context) {
 			})
 			return
 		}
-
-		// 是否自动进行重命名,不进行确认
-		if req.AutoRename {
-			if err := utils.RenameFiles(req.Path+"/"+key, nameMaps); err != nil {
-				ctx.JSON(http.StatusInternalServerError, gin.H{
-					"error": err.Error(),
-				})
-				return
-			}
-		}
 		newnameMaps[key] = append(newnameMaps[key], nameMaps...)
 	}
 
-	if req.AutoRename {
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "自动重命名成功",
-		})
-	} else {
-		ctx.JSON(http.StatusOK, gin.H{
-			"nameMaps": newnameMaps,
-		})
-	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"nameMaps": newnameMaps,
+	})
 
 }
 
-// 确认重命名文件(前端预览重命名时,确认需要重命名的文件)
-func RenamedFiles(ctx *gin.Context) {
+// 确认重命名文件(前端预览重命名时,需要确认)
+func RenamedConfirm(ctx *gin.Context) {
 	var req model.PathRequest
 	// 绑定JSON数据到结构体
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -130,7 +114,7 @@ func RenamedFiles(ctx *gin.Context) {
 	// 重命名文件
 	for key, value := range req.NameMaps {
 		if err := utils.RenameFiles(req.Path+"/"+key, value); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
+			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
 			return

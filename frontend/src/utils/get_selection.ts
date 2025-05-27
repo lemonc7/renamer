@@ -7,12 +7,23 @@ export function getSelections(
 ) {
   store.selectFiles = selection
   if (selection.length !== 0) {
-    store.renamePreviewButton = false
     store.hiddenDeleteButton = false
   } else {
-    store.renamePreviewButton = true
     store.hiddenDeleteButton = true
   }
+
+  let dirsNumber = 0
+  selection.forEach((item) => {
+    if (item.isDir) {
+      dirsNumber++
+    }
+  })
+  if (dirsNumber > 0) {
+    store.hiddenModeButton = false
+  } else {
+    store.hiddenModeButton = true
+  }
+
   if (selection.length === 1) {
     store.hiddenRenameButton = false
   } else {
