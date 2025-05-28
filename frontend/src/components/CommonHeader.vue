@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAllDataStore } from "../stores"
 import { useRoute } from "vue-router"
-import { renamePreview } from "../api/api"
+import { getFile, renameFiles, renamePreview } from "../api/api"
 import router from "../router"
 
 const route = useRoute()
@@ -18,8 +18,7 @@ const modeConfirmButton = async () => {
       try {
         await renamePreview(route.path, dirs)
         store.previewRenameDialog = true
-        console.log(store.nameMaps);
-        
+        console.log(store.nameMaps)
       } catch (error) {
         ElMessage.error(
           `${error instanceof Error ? error.message : String(error)}`
@@ -28,30 +27,25 @@ const modeConfirmButton = async () => {
       }
       break
     default:
+      ElMessage.warning("功能待完成")
       break
   }
 }
 
-// const modeConfirmButton = async () => {
-//   try {
-//     switch (store.modeSection) {
-//       case 1:
-//         let dirs: string[] = []
-//         store.selectFiles.forEach((row) => {
-//           if (row.isDir) {
-//             dirs.push(row.name)
-//           }
-//         })
-//         store.previewRenameDialog = true
-//         await renamePreview(route.path, dirs, store)
-//         break
-//       default:
-//         console.log("未选择方法")
-//     }
-//   } catch (error) {
-//     console.error("请求失败:", error)
-//   }
-// }
+const confirmAutoRename = async () => {
+  try {
+    await renameFiles(route.path, store.nameMaps)
+    ElMessage.success("重命名成功")
+    getFile(route.path, store)
+    
+  } catch (error) {
+    ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
+  } finally {
+    store.previewRenameDialog = false
+    console.log(store.nameMaps.nameMaps);
+    store.nameMaps = {}
+  }
+}
 
 const refreshPage = () => {
   let currentRoute = router.currentRoute.value.path
@@ -59,6 +53,7 @@ const refreshPage = () => {
     router.push(currentRoute)
   })
 }
+
 </script>
 
 <template>
@@ -91,20 +86,28 @@ const refreshPage = () => {
         v-model="store.previewRenameDialog"
         title="重命名预览"
         width="700"
-        @close="store.previewRenameDialog = false"
+        @close="((store.previewRenameDialog = false), (store.nameMaps = {}))"
       >
         <el-tabs type="border-card">
           <el-tab-pane
-            v-for="[groupKey, groupItems] in Object.entries(store.nameMaps)"
-            :label="groupKey"
-            :key="groupKey"
+            v-for="[key, items] in Object.entries(store.nameMaps.nameMaps)"
+            :label="key"
+            :key="key"
           >
-            <el-table :data="Array.isArray(groupItems) ? groupItems : []">
+            <el-table :data="Array.isArray(items) ? items : []">
               <el-table-column prop="oldName" label="原名称"></el-table-column>
               <el-table-column prop="newName" label="新名称"></el-table-column>
             </el-table>
           </el-tab-pane>
         </el-tabs>
+        <template #footer>
+          <div class="mode-footer">
+            <el-button @click="store.previewRenameDialog = false"
+              >返回</el-button
+            >
+            <el-button type="primary" @click="confirmAutoRename"> 确认 </el-button>
+          </div>
+        </template>
       </el-dialog>
     </div>
 

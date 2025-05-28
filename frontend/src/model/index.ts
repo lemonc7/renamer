@@ -12,5 +12,7 @@ interface Names {
 }
 
 type NameMaps = Record<string,Names[]> 
+// type NameMaps = Map<string,Names[]> 
+  
 
 export type { FileInfo, Names, NameMaps }
