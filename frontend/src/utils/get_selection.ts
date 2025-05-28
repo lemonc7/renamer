@@ -7,9 +7,9 @@ export function getSelections(
 ) {
   store.selectFiles = selection
   if (selection.length !== 0) {
-    store.hiddenDeleteButton = false
+    store.hiddenFilesHandlingButton = false
   } else {
-    store.hiddenDeleteButton = true
+    store.hiddenFilesHandlingButton = true
   }
 
   let dirsNumber = 0

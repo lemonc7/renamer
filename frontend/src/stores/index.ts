@@ -34,15 +34,19 @@ export const useAllDataStore = defineStore("allData", () => {
     type: "",
     show: false
   })
-  //delete按钮禁用
-  const hiddenDeleteButton = ref(true)
+  //删除/复制/粘贴按钮禁用
+  const hiddenFilesHandlingButton = ref(true)
   //手动重命名按钮禁用
   const hiddenRenameButton = ref(true)
 
   // 模式选择-确认-弹窗按钮
   const hiddenModeButton = ref(true)
   const previewRenameDialog = ref(false)
-  
+
+  // 保存准备复制/移动的文件名
+  const loadFilesName = ref<string[]>([])
+  const originalPath = ref("")
+
   return {
     modeOption,
     modeSection,
@@ -50,9 +54,11 @@ export const useAllDataStore = defineStore("allData", () => {
     nameMaps,
     selectFiles,
     showPasteButton,
-    hiddenDeleteButton,
+    hiddenFilesHandlingButton,
     hiddenRenameButton,
     previewRenameDialog,
-    hiddenModeButton
+    hiddenModeButton,
+    loadFilesName,
+    originalPath
   }
 })

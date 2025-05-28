@@ -2,7 +2,14 @@
 import { watch, computed } from "vue"
 import { useAllDataStore } from "../stores"
 import { useRoute, useRouter } from "vue-router"
-import { getFile, createDir, deleteFile, renameFiles } from "../api/api"
+import {
+  getFile,
+  createDir,
+  deleteFile,
+  renameFiles,
+  copyFile,
+  moveFile
+} from "../api/api"
 import type { FileInfo, NameMap } from "../model"
 import { getSelections } from "../utils/get_selection"
 import { editPasteButton } from "../utils/handler_button"
@@ -92,17 +99,27 @@ const confirmRenameFile = async () => {
 }
 
 // 点击文件夹后路由跳转
-const appendRoute = (file: FileInfo) => {
+const appendRoute = async (file: FileInfo) => {
   if (file.isDir) {
     let newPath = `${route.path}/${file.name}`.replace(/\/+/g, "/")
-    router.push(newPath)
+    try {
+      await getFile(decodeURIComponent(newPath), store)
+      router.push(newPath)
+    } catch (error) {
+      ElMessage.error(
+        `${error instanceof Error ? error.message : String(error)}`
+      )
+    }
   }
 }
 
 // 获取路由,映射面包屑路径
 const breadcurmbItems = computed(() => {
   // 通过/分隔符取出路由的各个文件,通过filter过滤空字符
-  const pathArray = route.path.split("/").filter((p) => p)
+  const pathArray = route.path
+    .split("/")
+    .filter((p) => p)
+    .map(decodeURIComponent)
   const items = []
 
   // 路径不超过4个直接显示
@@ -148,7 +165,9 @@ watch(
   () => route.path,
   async (newPath) => {
     try {
-      await getFile("/" + (newPath || ""), store)
+      // 中文字符被重复编码,从而出现乱码
+      let decodedPath = decodeURIComponent("/" + (newPath || "/"))
+      await getFile(decodedPath, store)
     } catch (error) {
       ElMessage.error(
         `${error instanceof Error ? error.message : String(error)}`
@@ -156,13 +175,70 @@ watch(
     } finally {
       store.hiddenModeButton = true
       store.selectFiles = []
-      store.showPasteButton = { type: "", show: false }
-      store.hiddenDeleteButton = true
+      // store.showPasteButton = { type: "", show: false }
+      store.hiddenFilesHandlingButton = true
       store.hiddenRenameButton = true
     }
   },
   { immediate: true } //立即执行一次
 )
+
+const loadFiles = (copy: Boolean) => {
+  try {
+    let files = store.selectFiles.map((row) => row.name)
+    store.loadFilesName = files
+    store.originalPath = route.path
+    if (copy) {
+      editPasteButton("warning", store)
+      ElMessage.success("复制成功")
+    } else {
+      editPasteButton("danger", store)
+      ElMessage.success("剪切成功")
+    }
+  } catch (error) {
+    store.loadFilesName = []
+    store.originalPath = ""
+    ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
+  }
+}
+
+const copyOrMoveFiles = async () => {
+  if (store.loadFilesName.length === 0 && store.originalPath === "") {
+    ElMessage.error("没有选中文件")
+  } else {
+    try {
+      await ElMessageBox.confirm("确认复制/移动文件？", "Warning", {
+        confirmButtonText: "确认",
+        cancelButtonText: "返回",
+        type: "warning"
+      })
+      try {
+        if (store.showPasteButton.type === "warning") {
+          await copyFile(store.originalPath,route.path,store.loadFilesName)
+          ElMessage.success("复制成功")
+        } else if (store.showPasteButton.type === "danger") {
+          await moveFile(store.originalPath,route.path,store.loadFilesName)
+          ElMessage.success("移动成功")
+        } else {
+          ElMessage.warning("没有识别到操作")
+        }
+      } catch (error) {
+        ElMessage.error(
+          `${error instanceof Error ? error.message : String(error)}`
+        )
+      }
+    } catch (error) {
+      ElMessage.info("操作取消")
+    } finally {
+      store.loadFilesName = []
+      store.originalPath = ""
+      editPasteButton("",store)
+      getFile(route.path,store)
+    }
+  }
+}
+
+
 </script>
 
 <template>
@@ -213,7 +289,7 @@ watch(
               icon="Delete"
               title="删除文件"
               @click="confirmDelete"
-              :disabled="store.hiddenDeleteButton"
+              :disabled="store.hiddenFilesHandlingButton"
             ></el-button>
             <el-button
               type="primary"
@@ -231,7 +307,8 @@ watch(
               plain
               icon="CopyDocument"
               title="复制"
-              @click="editPasteButton('warning', store)"
+              @click="loadFiles(true)"
+              :disabled="store.hiddenFilesHandlingButton"
             ></el-button>
             <el-button
               :type="store.showPasteButton.type"
@@ -239,14 +316,15 @@ watch(
               icon="Checked"
               title="粘贴"
               :disabled="!store.showPasteButton.show"
-              @click="editPasteButton('', store)"
+              @click="copyOrMoveFiles"
             ></el-button>
             <el-button
               type="primary"
               plain
               icon="Scissor"
               title="剪切"
-              @click="editPasteButton('danger', store)"
+              @click="loadFiles(false)"
+              :disabled="store.hiddenFilesHandlingButton"
             ></el-button>
           </el-button-group>
         </el-col>

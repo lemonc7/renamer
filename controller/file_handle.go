@@ -10,8 +10,6 @@ import (
 	"github.com/lemonc7/renamer/utils"
 )
 
-// var req model.PathRequest
-
 // 获取目录下的文件列表
 func GetFiles(ctx *gin.Context) {
 	var req model.PathRequest
@@ -80,7 +78,7 @@ func DeleteFiles(ctx *gin.Context) {
 		})
 		return
 	}
-	for _,entry := range req.NameMaps {
+	for _, entry := range req.NameMaps {
 		// 检查文件或目录是否存在
 		if _, err := os.Stat(req.Path + "/" + entry.DirName); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -112,7 +110,7 @@ func CopyFiles(ctx *gin.Context) {
 		return
 	}
 
-	for _,entry := range req.NameMaps {
+	for _, entry := range req.NameMaps {
 		path := req.Path + "/" + entry.DirName
 		// 检查路径是否存在，是文件还是文件夹
 		info, err := os.Stat(path)
@@ -179,7 +177,8 @@ func MoveFiles(ctx *gin.Context) {
 		})
 		return
 	}
-	for _,entry := range req.NameMaps {
+
+	for _, entry := range req.NameMaps {
 		// 检查源路径是否存在，不存在就报错
 		path := req.Path + "/" + entry.DirName
 		info, err := os.Stat(path)

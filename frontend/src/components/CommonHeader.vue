@@ -3,9 +3,11 @@ import { useAllDataStore } from "../stores"
 import { useRoute } from "vue-router"
 import { getFile, renameFiles, renamePreview } from "../api/api"
 import router from "../router"
+import { editPasteButton } from "../utils/handler_button"
 
 const route = useRoute()
 const store = useAllDataStore()
+
 const modeConfirmButton = async () => {
   switch (store.modeSection) {
     case 1:
@@ -44,17 +46,25 @@ const confirmAutoRename = async () => {
   }
 }
 
-const refreshPage = () => {
+const refreshPage = async () => {
   let currentRoute = router.currentRoute.value.path
-  router.push("/ping").then(() => {
-    router.push(currentRoute)
-  })
+  // router.push("/ping").then(() => {
+  //   router.push(currentRoute)
+  // })
+  try {
+    await getFile(currentRoute, store)
+    ElMessage.success("刷新成功")
+  } catch (error) {
+    ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
+  } finally {
+    editPasteButton("",store)
+  }
 }
 </script>
 
 <template>
   <div class="header">
-    <router-link to="/home">
+    <router-link to="/">
       <el-button icon="house">主页</el-button>
     </router-link>
 

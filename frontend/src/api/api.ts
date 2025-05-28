@@ -34,9 +34,9 @@ export async function createDir(path: string) {
 // 删除文件/目录
 export async function deleteFile(path: string, files: string[]) {
   let nameMaps: NameMap[] = []
-  files.forEach((key) => {
+  files.forEach((item) => {
     nameMaps.push({
-      dirName: key,
+      dirName: item,
       filesName: []
     })
   })
@@ -49,36 +49,66 @@ export async function deleteFile(path: string, files: string[]) {
         nameMaps
       }
     })
-  } catch (error: any) {
+  } catch (error) {
     throw error
   }
 }
 
 // 复制文件
-export function copyFile(path: string, targetPath: string) {
-  return async () => {
+export async function copyFile(
+  path: string,
+  targetPath: string,
+  files: string[]
+) {
+  let nameMaps: NameMap[] = []
+  files.forEach((item) => {
+    nameMaps.push({
+      dirName: item,
+      filesName: []
+    })
+  })
+
+  try {
     await request({
       url: "/api/files/copy",
       method: "post",
       data: {
         path,
-        targetPath
+        targetPath,
+        nameMaps
       }
     })
+  } catch (error) {
+    throw error
   }
 }
 
 // 移动文件
-export function moveFile(path: string, targetPath: string) {
-  return async () => {
+export async function moveFile(
+  path: string,
+  targetPath: string,
+  files: string[]
+) {
+  let nameMaps: NameMap[] = []
+  files.forEach((item) => {
+    nameMaps.push({
+      dirName: item,
+      filesName: []
+    })
+  })
+  
+  try {
     await request({
       url: "/api/files/move",
       method: "post",
       data: {
         path,
-        targetPath
+        targetPath,
+        nameMaps
       }
     })
+  } catch (error) {
+    throw error
   }
 }
 
