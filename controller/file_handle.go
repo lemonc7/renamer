@@ -10,7 +10,6 @@ import (
 	"github.com/lemonc7/renamer/utils"
 )
 
-// 因为定义了map,如果还使用全局变量,容易产生缓存,会报错
 // var req model.PathRequest
 
 // 获取目录下的文件列表
@@ -81,10 +80,9 @@ func DeleteFiles(ctx *gin.Context) {
 		})
 		return
 	}
-
-	for key := range req.NameMaps {
+	for _,entry := range req.NameMaps {
 		// 检查文件或目录是否存在
-		if _, err := os.Stat(req.Path + "/" + key); err != nil {
+		if _, err := os.Stat(req.Path + "/" + entry.DirName); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
@@ -92,7 +90,7 @@ func DeleteFiles(ctx *gin.Context) {
 		}
 
 		// 删除文件
-		if err := os.RemoveAll(req.Path + "/" + key); err != nil {
+		if err := os.RemoveAll(req.Path + "/" + entry.DirName); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
@@ -114,8 +112,8 @@ func CopyFiles(ctx *gin.Context) {
 		return
 	}
 
-	for key := range req.NameMaps {
-		path := req.Path + "/" + key
+	for _,entry := range req.NameMaps {
+		path := req.Path + "/" + entry.DirName
 		// 检查路径是否存在，是文件还是文件夹
 		info, err := os.Stat(path)
 		if err != nil {
@@ -181,9 +179,9 @@ func MoveFiles(ctx *gin.Context) {
 		})
 		return
 	}
-	for key := range req.NameMaps {
+	for _,entry := range req.NameMaps {
 		// 检查源路径是否存在，不存在就报错
-		path := req.Path + "/" + key
+		path := req.Path + "/" + entry.DirName
 		info, err := os.Stat(path)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{

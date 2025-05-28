@@ -18,7 +18,6 @@ const modeConfirmButton = async () => {
       try {
         await renamePreview(route.path, dirs)
         store.previewRenameDialog = true
-        console.log(store.nameMaps)
       } catch (error) {
         ElMessage.error(
           `${error instanceof Error ? error.message : String(error)}`
@@ -37,13 +36,11 @@ const confirmAutoRename = async () => {
     await renameFiles(route.path, store.nameMaps)
     ElMessage.success("重命名成功")
     getFile(route.path, store)
-    
   } catch (error) {
     ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
   } finally {
     store.previewRenameDialog = false
-    console.log(store.nameMaps.nameMaps);
-    store.nameMaps = {}
+    store.nameMaps = []
   }
 }
 
@@ -53,7 +50,6 @@ const refreshPage = () => {
     router.push(currentRoute)
   })
 }
-
 </script>
 
 <template>
@@ -86,15 +82,15 @@ const refreshPage = () => {
         v-model="store.previewRenameDialog"
         title="重命名预览"
         width="700"
-        @close="((store.previewRenameDialog = false), (store.nameMaps = {}))"
+        @close="((store.previewRenameDialog = false), (store.nameMaps = []))"
       >
         <el-tabs type="border-card">
           <el-tab-pane
-            v-for="[key, items] in Object.entries(store.nameMaps.nameMaps)"
-            :label="key"
-            :key="key"
+            v-for="item in store.nameMaps"
+            :label="item.dirName"
+            :key="item.dirName"
           >
-            <el-table :data="Array.isArray(items) ? items : []">
+            <el-table :data="item.filesName">
               <el-table-column prop="oldName" label="原名称"></el-table-column>
               <el-table-column prop="newName" label="新名称"></el-table-column>
             </el-table>
@@ -105,7 +101,9 @@ const refreshPage = () => {
             <el-button @click="store.previewRenameDialog = false"
               >返回</el-button
             >
-            <el-button type="primary" @click="confirmAutoRename"> 确认 </el-button>
+            <el-button type="primary" @click="confirmAutoRename">
+              确认
+            </el-button>
           </div>
         </template>
       </el-dialog>

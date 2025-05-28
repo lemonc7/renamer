@@ -6,7 +6,7 @@ import (
 	"github.com/lemonc7/renamer/model"
 )
 
-func RenameFiles(path string, nameMaps []model.Names) error {
+func RenameFiles(path string, nameMaps []model.Name) error {
 
 	for _, entry := range nameMaps {
 		oldPath := path + "/" + entry.OldName

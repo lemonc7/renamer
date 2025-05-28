@@ -11,8 +11,10 @@ interface Names {
   newName: string
 }
 
-type NameMaps = Record<string,Names[]> 
-// type NameMaps = Map<string,Names[]> 
-  
+// type NameMaps = Record<string,Names[]> 
+interface NameMap {
+  dirName: string,
+  filesName: Names[]
+}
 
-export type { FileInfo, Names, NameMaps }
+export type { FileInfo, Names, NameMap }

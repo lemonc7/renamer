@@ -3,7 +3,7 @@ import { watch, computed } from "vue"
 import { useAllDataStore } from "../stores"
 import { useRoute, useRouter } from "vue-router"
 import { getFile, createDir, deleteFile, renameFiles } from "../api/api"
-import type { FileInfo, NameMaps } from "../model"
+import type { FileInfo, NameMap } from "../model"
 import { getSelections } from "../utils/get_selection"
 import { editPasteButton } from "../utils/handler_button"
 
@@ -66,14 +66,13 @@ const confirmRenameFile = async () => {
       inputErrorMessage: "无效的名称",
       inputValue: store.selectFiles[0].name
     })
-    let nameMap: NameMaps = {
-      "": [
-        {
-          oldName: store.selectFiles[0].name,
-          newName: value
-        }
-      ]
-    }
+    let nameMap: NameMap[] = [
+      {
+        dirName: "",
+        filesName: [{ oldName: store.selectFiles[0].name, newName: value }]
+      }
+    ]
+
     if (store.selectFiles[0].name !== value) {
       try {
         await renameFiles(route.path, nameMap)
@@ -91,9 +90,6 @@ const confirmRenameFile = async () => {
     ElMessage.info("操作取消")
   }
 }
-
-// 控制复选框是否可以选--->文件夹
-// const selectable = (row: FileInfo) => row.isDir
 
 // 点击文件夹后路由跳转
 const appendRoute = (file: FileInfo) => {
@@ -263,9 +259,7 @@ watch(
           (selection: FileInfo[]) => getSelections(selection, store)
         "
       >
-        <el-table-column
-          type="selection"
-        ></el-table-column>
+        <el-table-column type="selection"></el-table-column>
         <el-table-column label="名称" prop="name" width="600">
           <template #default="{ row }">
             <el-button

@@ -37,13 +37,14 @@ func RenamedPreview(ctx *gin.Context) {
 		})
 		return
 	}
-	newnameMaps := make(map[string][]model.Names)
+	var nameMaps []model.NameMap
+
 	// 获取文件信息
-	for key := range req.NameMaps {
+	for _, entry := range req.NameMaps {
 		// oldName存储原文件名，newName存储新文件名
-		var nameMaps []model.Names
+		var names []model.Name
 		var newNames []string
-		files, err := utils.GetFiles(req.Path + "/" + key)
+		files, err := utils.GetFiles(req.Path + "/" + entry.DirName)
 
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -66,8 +67,8 @@ func RenamedPreview(ctx *gin.Context) {
 					return
 				}
 				// 输出SxxExx文件名
-				renameFormat(key, &newName)
-				nameMaps = append(nameMaps, model.Names{
+				renameFormat(entry.DirName, &newName)
+				names = append(names, model.Name{
 					OldName: oldName,
 					NewName: newName,
 				})
@@ -75,7 +76,7 @@ func RenamedPreview(ctx *gin.Context) {
 			} else {
 				// 不需要重命名的文件名
 				if oldName != "error" {
-					nameMaps = append(nameMaps, model.Names{
+					names = append(names, model.Name{
 						OldName: oldName,
 						NewName: oldName,
 					})
@@ -91,13 +92,14 @@ func RenamedPreview(ctx *gin.Context) {
 			})
 			return
 		}
-		newnameMaps[key] = append(newnameMaps[key], nameMaps...)
+
+		nameMaps = append(nameMaps, model.NameMap{
+			DirName:   entry.DirName,
+			FilesName: names,
+		})
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"nameMaps": newnameMaps,
-	})
-
+	// 这里不传gin.H,这样前端获取的数据不符合预期
+	ctx.JSON(http.StatusOK, nameMaps)
 }
 
 // 确认重命名文件(前端预览重命名时,需要确认)
@@ -112,8 +114,8 @@ func RenamedConfirm(ctx *gin.Context) {
 	}
 
 	// 重命名文件
-	for key, value := range req.NameMaps {
-		if err := utils.RenameFiles(req.Path+"/"+key, value); err != nil {
+	for _, entry := range req.NameMaps {
+		if err := utils.RenameFiles(req.Path+"/"+entry.DirName, entry.FilesName); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})

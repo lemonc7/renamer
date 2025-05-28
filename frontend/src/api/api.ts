@@ -1,7 +1,7 @@
 import request from "./request"
 import { type AxiosResponse } from "axios"
 import { useAllDataStore } from "../stores"
-import type { FileInfo, NameMaps } from "../model"
+import type { FileInfo, NameMap } from "../model"
 
 // 获取文件目录
 export async function getFile(path: string, store = useAllDataStore()) {
@@ -33,9 +33,12 @@ export async function createDir(path: string) {
 
 // 删除文件/目录
 export async function deleteFile(path: string, files: string[]) {
-  let nameMaps: NameMaps = {}
+  let nameMaps: NameMap[] = []
   files.forEach((key) => {
-    nameMaps[key] = []
+    nameMaps.push({
+      dirName: key,
+      filesName: []
+    })
   })
   try {
     await request({
@@ -85,13 +88,16 @@ export async function renamePreview(
   dirs: string[],
   store = useAllDataStore()
 ) {
-  let nameMaps: NameMaps = {}
+  let nameMaps: NameMap[] = []
   dirs.forEach((key) => {
-    nameMaps[key] = []
+    nameMaps.push({
+      dirName: key,
+      filesName: []
+    })
   })
 
   try {
-    let res: AxiosResponse<NameMaps> = await request({
+    let res: AxiosResponse<NameMap[]> = await request({
       url: "/api/files/preview",
       method: "post",
       data: {
@@ -106,7 +112,7 @@ export async function renamePreview(
 }
 
 // 文件/目录重命名
-export async function renameFiles(path: string, nameMaps: NameMaps) {
+export async function renameFiles(path: string, nameMaps: NameMap[]) {
   try {
     await request({
       url: "/api/files/rename",

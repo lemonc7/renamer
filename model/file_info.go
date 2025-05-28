@@ -18,13 +18,18 @@ type FileInfo struct {
 // 预览重命名-RenamePreview---Path,NameMaps(key)
 // 确认重命名-RenameFiles---Path,NameMaps(key,value)
 type PathRequest struct {
-	Path       string             `json:"path" form:"path" binding:"required"`
-	TargetPath string             `json:"targetPath"`
-	NameMaps   map[string][]Names `json:"nameMaps"`
+	Path       string    `json:"path" form:"path" binding:"required"`
+	TargetPath string    `json:"targetPath"`
+	NameMaps   []NameMap `json:"nameMaps"`
 }
 
 // 重命名前后的文件名
-type Names struct {
+type Name struct {
 	OldName string `json:"oldName"`
 	NewName string `json:"newName"`
+}
+
+type NameMap struct {
+	DirName   string `json:"dirName"`
+	FilesName []Name `json:"filesName"`
 }
