@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { useAllDataStore } from "../stores"
 import { useRoute } from "vue-router"
-import { getFile, renameFiles, renamePreview } from "../api/api"
+import {
+  getFile,
+  removeTextsPreview,
+  renameFiles,
+  renamePreview,
+  replaceChinesePreview
+} from "../api/api"
 import router from "../router"
 import { editPasteButton } from "../utils/handler_button"
 
@@ -9,27 +15,45 @@ const route = useRoute()
 const store = useAllDataStore()
 
 const modeConfirmButton = async () => {
+  let dirs = store.selectFiles.filter((row) => row.isDir).map((row) => row.name)
+  try {
+    await handleModeAction(dirs)
+    store.modePreviewDialog = true
+  } catch (error) {
+    ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
+    store.modePreviewDialog = false
+  }
+}
+
+const handleModeAction = async (dirs: string[]) => {
   switch (store.modeSection) {
     case 1:
-      let dirs: string[] = []
-      store.selectFiles.forEach((row) => {
-        if (row.isDir) {
-          dirs.push(row.name)
-        }
-      })
+      return renamePreview(route.path, dirs, store)
+    case 2:
       try {
-        await renamePreview(route.path, dirs)
-        store.previewRenameDialog = true
-      } catch (error) {
-        ElMessage.error(
-          `${error instanceof Error ? error.message : String(error)}`
+        let { value } = await ElMessageBox.prompt(
+          "请输入需要删除的字符(多个用空格分隔)",
+          "Tip",
+          {
+            confirmButtonText: "确认",
+            cancelButtonText: "返回",
+            inputPattern: /^(?!\s*$)(?!.*\/).*$/,
+            inputErrorMessage: "不能为空或包含 / 字符"
+          }
         )
-        store.previewRenameDialog = false
+        let words = value
+          .split(/\s+/)
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0)
+        let uniqueWords = Array.from(new Set(words))
+        return removeTextsPreview(route.path, dirs, uniqueWords, store)
+      } catch (error) {
+        throw new Error("操作取消")
       }
-      break
+    case 3:
+      return replaceChinesePreview(route.path, dirs, store)
     default:
-      ElMessage.warning("功能待完成")
-      break
+      throw new Error("功能待完成")
   }
 }
 
@@ -41,23 +65,20 @@ const confirmAutoRename = async () => {
   } catch (error) {
     ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
   } finally {
-    store.previewRenameDialog = false
+    store.modePreviewDialog = false
     store.nameMaps = []
   }
 }
 
 const refreshPage = async () => {
   let currentRoute = router.currentRoute.value.path
-  // router.push("/ping").then(() => {
-  //   router.push(currentRoute)
-  // })
   try {
     await getFile(currentRoute, store)
     ElMessage.success("刷新成功")
   } catch (error) {
     ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
   } finally {
-    editPasteButton("",store)
+    editPasteButton("", store)
   }
 }
 </script>
@@ -89,17 +110,28 @@ const refreshPage = async () => {
 
       <!-- 重命名预览,选择需要重命名的文件 -->
       <el-dialog
-        v-model="store.previewRenameDialog"
+        v-model="store.modePreviewDialog"
         title="重命名预览"
         width="700"
-        @close="((store.previewRenameDialog = false), (store.nameMaps = []))"
+        @close="((store.modePreviewDialog = false), (store.nameMaps = []))"
       >
         <el-tabs type="border-card">
-          <el-tab-pane
-            v-for="item in store.nameMaps"
-            :label="item.dirName"
-            :key="item.dirName"
-          >
+          <el-tab-pane v-for="item in store.nameMaps" :key="item.dirName">
+            <template #label>
+              <el-tooltip
+                :content="item.dirName"
+                placement="top"
+                effect="light"
+              >
+                <span>
+                  {{
+                    item.dirName.length > 6
+                      ? item.dirName.slice(0, 6) + "..."
+                      : item.dirName
+                  }}
+                </span>
+              </el-tooltip>
+            </template>
             <el-table :data="item.filesName">
               <el-table-column prop="oldName" label="原名称"></el-table-column>
               <el-table-column prop="newName" label="新名称"></el-table-column>
@@ -108,9 +140,7 @@ const refreshPage = async () => {
         </el-tabs>
         <template #footer>
           <div class="mode-footer">
-            <el-button @click="store.previewRenameDialog = false"
-              >返回</el-button
-            >
+            <el-button @click="store.modePreviewDialog = false">返回</el-button>
             <el-button type="primary" @click="confirmAutoRename">
               确认
             </el-button>

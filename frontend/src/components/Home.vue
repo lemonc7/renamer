@@ -121,12 +121,17 @@ const breadcurmbItems = computed(() => {
     .filter((p) => p)
     .map(decodeURIComponent)
   const items = []
+  let stringShowLength = 8
 
   // 路径不超过4个直接显示
   if (pathArray.length <= 4) {
     pathArray.forEach((name, index) => {
       items.push({
-        name,
+        name:
+          name.length > stringShowLength
+            ? name.slice(0, stringShowLength) + "..."
+            : name,
+        fullName: name,
         //判断是否是最后一个元素,如果是就为空,不允许跳转,否则就通过slice选取文件路径,然后通过/分隔连接
         to:
           index === pathArray.length - 1
@@ -137,19 +142,28 @@ const breadcurmbItems = computed(() => {
   } else {
     // 超过4个就取第1个和最后3个跳转
     items.push({
-      name: pathArray[0],
+      name:
+        pathArray[0].length > stringShowLength
+          ? pathArray[0].slice(0, stringShowLength) + "..."
+          : pathArray[0],
+      fullName: pathArray[0],
       to: `/${pathArray[0]}`
     })
     // 中间的用省略号
     items.push({
       name: "...",
+      fullName: pathArray.slice(1,-3).join("/"),
       to: null
     })
     let lastItems = pathArray.slice(-3)
     lastItems.forEach((name, index) => {
       let originalIndex = pathArray.length - 3 + index
       items.push({
-        name,
+        name:
+          name.length > stringShowLength
+            ? name.slice(0, stringShowLength) + "..."
+            : name,
+        fullName: name,
         to:
           index === 2
             ? null
@@ -214,10 +228,10 @@ const copyOrMoveFiles = async () => {
       })
       try {
         if (store.showPasteButton.type === "warning") {
-          await copyFile(store.originalPath,route.path,store.loadFilesName)
+          await copyFile(store.originalPath, route.path, store.loadFilesName)
           ElMessage.success("复制成功")
         } else if (store.showPasteButton.type === "danger") {
-          await moveFile(store.originalPath,route.path,store.loadFilesName)
+          await moveFile(store.originalPath, route.path, store.loadFilesName)
           ElMessage.success("移动成功")
         } else {
           ElMessage.warning("没有识别到操作")
@@ -232,13 +246,11 @@ const copyOrMoveFiles = async () => {
     } finally {
       store.loadFilesName = []
       store.originalPath = ""
-      editPasteButton("",store)
-      getFile(route.path,store)
+      editPasteButton("", store)
+      getFile(route.path, store)
     }
   }
 }
-
-
 </script>
 
 <template>
@@ -252,7 +264,15 @@ const copyOrMoveFiles = async () => {
               :key="index"
               :to="item.to"
             >
-              {{ item.name }}
+              <el-tooltip
+                :content="item.fullName"
+                placement="top"
+                effect="light"
+              >
+                {{
+                  item.name
+                }}
+              </el-tooltip>
             </el-breadcrumb-item>
           </el-breadcrumb>
         </el-col>

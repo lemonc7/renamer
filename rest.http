@@ -52,10 +52,32 @@ POST http://localhost:7777/api/files/preview HTTP/1.1
 
 {
     "path": "/vol1/1000/tools/project/go/renamer",
-    "autoRename": false,
     "nameMaps": {
         "test2":[]
     }
+}
+
+### 预览移除中文结果
+POST http://localhost:7777/api/files/replaceChinese HTTP/1.1
+
+{
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "nameMaps": [{
+        "dirName":"test",
+        "filesName":[]
+    }]
+}
+
+### 预览移除文本结果
+POST http://localhost:7777/api/files/removeTexts HTTP/1.1
+
+{
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "removedTexts": ["test","测试"],
+    "nameMaps": [{
+        "dirName":"test",
+        "filesName":[]
+    }]
 }
 
 

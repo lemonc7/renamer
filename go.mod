@@ -6,6 +6,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.0
+	github.com/mozillazg/go-pinyin v0.20.0
 	github.com/spf13/viper v1.20.1
 )
 

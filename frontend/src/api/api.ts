@@ -96,7 +96,7 @@ export async function moveFile(
       filesName: []
     })
   })
-  
+
   try {
     await request({
       url: "/api/files/move",
@@ -119,9 +119,9 @@ export async function renamePreview(
   store = useAllDataStore()
 ) {
   let nameMaps: NameMap[] = []
-  dirs.forEach((key) => {
+  dirs.forEach((item) => {
     nameMaps.push({
-      dirName: key,
+      dirName: item,
       filesName: []
     })
   })
@@ -132,6 +132,66 @@ export async function renamePreview(
       method: "post",
       data: {
         path,
+        nameMaps
+      }
+    })
+    store.nameMaps = res.data
+  } catch (error) {
+    throw error
+  }
+}
+
+// 预览替换中文的结果
+export async function replaceChinesePreview(
+  path: string,
+  dirs: string[],
+  store = useAllDataStore()
+) {
+  let nameMaps: NameMap[] = []
+  dirs.forEach((item) => {
+    nameMaps.push({
+      dirName: item,
+      filesName: []
+    })
+  })
+
+  try {
+    let res: AxiosResponse<NameMap[]> = await request({
+      url: "/api/files/replaceChinese",
+      method: "post",
+      data: {
+        path,
+        nameMaps
+      }
+    })
+    store.nameMaps = res.data
+  } catch (error) {
+    throw error
+  }
+}
+
+// 预览移除文本的效果
+export async function removeTextsPreview(
+  path: string,
+  dirs: string[],
+  removedTexts: string[],
+  store = useAllDataStore()
+) {
+  let nameMaps: NameMap[] = []
+  dirs.forEach((item) => {
+    nameMaps.push({
+      dirName: item,
+      filesName: []
+    })
+  })
+
+  try {
+    let res: AxiosResponse<NameMap[]> = await request({
+      url: "/api/files/removeTexts",
+      method: "post",
+      data: {
+        path,
+        removedTexts,
         nameMaps
       }
     })

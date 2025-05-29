@@ -15,7 +15,7 @@ export const useAllDataStore = defineStore("allData", () => {
     },
     {
       value: 3,
-      label: "替换中文字符"
+      label: "替换中文"
     }
   ]
   const modeSection = ref(1)
@@ -41,7 +41,7 @@ export const useAllDataStore = defineStore("allData", () => {
 
   // 模式选择-确认-弹窗按钮
   const hiddenModeButton = ref(true)
-  const previewRenameDialog = ref(false)
+  const modePreviewDialog = ref(false)
 
   // 保存准备复制/移动的文件名
   const loadFilesName = ref<string[]>([])
@@ -56,7 +56,7 @@ export const useAllDataStore = defineStore("allData", () => {
     showPasteButton,
     hiddenFilesHandlingButton,
     hiddenRenameButton,
-    previewRenameDialog,
+    modePreviewDialog,
     hiddenModeButton,
     loadFilesName,
     originalPath
