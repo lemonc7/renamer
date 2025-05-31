@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -76,8 +77,10 @@ func DeleteFiles(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "必须提供path和nameMaps参数",
 		})
+		fmt.Printf("path:%v\nnameMaps:%v\n",req.Path,req.NameMaps)
 		return
 	}
+	fmt.Printf("path:%v\nnameMaps:%v\n",req.Path,req.NameMaps)
 	for _, entry := range req.NameMaps {
 		// 检查文件或目录是否存在
 		if _, err := os.Stat(req.Path + "/" + entry.DirName); err != nil {

@@ -189,7 +189,6 @@ watch(
     } finally {
       store.hiddenModeButton = true
       store.selectFiles = []
-      // store.showPasteButton = { type: "", show: false }
       store.hiddenFilesHandlingButton = true
       store.hiddenRenameButton = true
     }

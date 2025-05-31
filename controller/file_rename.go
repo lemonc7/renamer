@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"regexp"
@@ -35,9 +36,11 @@ func RenamedPreview(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "必须提供path和nameMaps参数",
 		})
+		fmt.Printf("path:%v\nnameMaps:%v\n", req.Path, req.NameMaps)
 		return
 	}
 	var nameMaps []model.NameMap
+	fmt.Printf("path:%v\nnameMaps:%v\n", req.Path, req.NameMaps)
 
 	// 获取文件信息
 	for _, entry := range req.NameMaps {

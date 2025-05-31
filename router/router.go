@@ -20,10 +20,17 @@ func SetupRouter() *gin.Engine {
 		})
 	})
 
+	// 重定向到home(通过home来访问前端---前端配置的base=/home,暂时没找到好方法)
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, "/home")
 	})
+	// 加载前端资源
 	r.StaticFS("/home", http.FS(dist.Static))
+
+	// 未知路由重新跳到/home,因为默认的路由是访问后端的API,暂时先这样弄
+	r.NoRoute(func(ctx *gin.Context) {
+		ctx.Redirect(http.StatusFound, "/home")
+	})
 
 	api := r.Group("/api/files")
 	{

@@ -7,9 +7,7 @@ import (
 )
 
 type Config struct {
-	Host    string
 	Port    string
-	WebPort string
 }
 
 var Server *Config

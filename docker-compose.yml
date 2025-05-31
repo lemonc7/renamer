@@ -1,0 +1,13 @@
+version: '3'
+services:
+  renamer:
+    image: "lemonc7/renamer:250531"
+    container_name: renamer
+    network_mode: bridge
+    volumes:
+      - "/vol2/1000/share/downloads:/home/downloads"
+      - "/vol2/1000/video:/home/video"
+    ports:
+      - 7777:7777
+    restart: always
+    
