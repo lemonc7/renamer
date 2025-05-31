@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lemonc7/renamer/controller"
+	"github.com/lemonc7/renamer/dist"
 	"github.com/lemonc7/renamer/middleware"
 )
 
@@ -18,6 +19,11 @@ func SetupRouter() *gin.Engine {
 			"message": "pong",
 		})
 	})
+
+	r.GET("/", func(ctx *gin.Context) {
+		ctx.Redirect(http.StatusFound, "/home")
+	})
+	r.StaticFS("/home", http.FS(dist.Static))
 
 	api := r.Group("/api/files")
 	{

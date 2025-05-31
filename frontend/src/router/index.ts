@@ -7,7 +7,7 @@ const routes = [
   },
   {
     path: "/",
-    redirect: "/vol2/1000/share/downloads"
+    redirect: "/home"
   },
   {
     path: "/ping",
