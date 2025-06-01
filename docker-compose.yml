@@ -7,6 +7,7 @@ services:
     volumes:
       - "/vol2/1000/share/downloads:/home/downloads"
       - "/vol2/1000/video:/home/video"
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - 7777:7777
     restart: always

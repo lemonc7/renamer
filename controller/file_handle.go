@@ -77,10 +77,10 @@ func DeleteFiles(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "必须提供path和nameMaps参数",
 		})
-		fmt.Printf("path:%v\nnameMaps:%v\n",req.Path,req.NameMaps)
+		fmt.Printf("path:%v\nnameMaps:%v\n", req.Path, req.NameMaps)
 		return
 	}
-	fmt.Printf("path:%v\nnameMaps:%v\n",req.Path,req.NameMaps)
+	fmt.Printf("path:%v\nnameMaps:%v\n", req.Path, req.NameMaps)
 	for _, entry := range req.NameMaps {
 		// 检查文件或目录是否存在
 		if _, err := os.Stat(req.Path + "/" + entry.DirName); err != nil {
@@ -110,8 +110,11 @@ func CopyFiles(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "必须提供path,targetPath和nameMaps参数",
 		})
+		fmt.Printf("path:%v\ntargetPath:%vnameMaps:%v", req.Path, req.TargetPath, req.NameMaps)
+
 		return
 	}
+	fmt.Printf("path:%v\ntargetPath:%vnameMaps:%v", req.Path, req.TargetPath, req.NameMaps)
 
 	for _, entry := range req.NameMaps {
 		path := req.Path + "/" + entry.DirName
@@ -178,8 +181,10 @@ func MoveFiles(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "必须提供path,targetPath和nameMaps参数",
 		})
+		fmt.Printf("path:%v\ntargetPath:%vnameMaps:%v", req.Path, req.TargetPath, req.NameMaps)
 		return
 	}
+	fmt.Printf("path:%v\ntargetPath:%vnameMaps:%v", req.Path, req.TargetPath, req.NameMaps)
 
 	for _, entry := range req.NameMaps {
 		// 检查源路径是否存在，不存在就报错

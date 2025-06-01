@@ -28,7 +28,7 @@ const modeConfirmButton = async () => {
 const handleModeAction = async (dirs: string[]) => {
   switch (store.modeSection) {
     case 1:
-      return renamePreview(route.path, dirs, store)
+      return renamePreview(decodeURIComponent(route.path), dirs, store)
     case 2:
       try {
         let { value } = await ElMessageBox.prompt(
@@ -46,12 +46,12 @@ const handleModeAction = async (dirs: string[]) => {
           .map((item) => item.trim())
           .filter((item) => item.length > 0)
         let uniqueWords = Array.from(new Set(words))
-        return removeTextsPreview(route.path, dirs, uniqueWords, store)
+        return removeTextsPreview(decodeURIComponent(route.path), dirs, uniqueWords, store)
       } catch (error) {
         throw new Error("操作取消")
       }
     case 3:
-      return replaceChinesePreview(route.path, dirs, store)
+      return replaceChinesePreview(decodeURIComponent(route.path), dirs, store)
     default:
       throw new Error("功能待完成")
   }
@@ -59,9 +59,9 @@ const handleModeAction = async (dirs: string[]) => {
 
 const confirmAutoRename = async () => {
   try {
-    await renameFiles(route.path, store.nameMaps)
+    await renameFiles(decodeURIComponent(route.path), store.nameMaps)
     ElMessage.success("重命名成功")
-    getFile(route.path, store)
+    getFile(decodeURIComponent(route.path), store)
   } catch (error) {
     ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
   } finally {

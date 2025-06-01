@@ -82,9 +82,9 @@ const confirmRenameFile = async () => {
 
     if (store.selectFiles[0].name !== value) {
       try {
-        await renameFiles(route.path, nameMap)
+        await renameFiles(decodeURIComponent(route.path), nameMap)
         ElMessage.success("重命名成功")
-        getFile(route.path, store)
+        getFile(decodeURIComponent(route.path), store)
       } catch (error) {
         ElMessage.error(
           `${error instanceof Error ? error.message : String(error)}`
@@ -152,7 +152,7 @@ const breadcurmbItems = computed(() => {
     // 中间的用省略号
     items.push({
       name: "...",
-      fullName: pathArray.slice(1,-3).join("/"),
+      fullName: pathArray.slice(1, -3).join("/"),
       to: null
     })
     let lastItems = pathArray.slice(-3)
@@ -227,10 +227,18 @@ const copyOrMoveFiles = async () => {
       })
       try {
         if (store.showPasteButton.type === "warning") {
-          await copyFile(store.originalPath, route.path, store.loadFilesName)
+          await copyFile(
+            store.originalPath,
+            decodeURIComponent(route.path),
+            store.loadFilesName
+          )
           ElMessage.success("复制成功")
         } else if (store.showPasteButton.type === "danger") {
-          await moveFile(store.originalPath, route.path, store.loadFilesName)
+          await moveFile(
+            store.originalPath,
+            decodeURIComponent(route.path),
+            store.loadFilesName
+          )
           ElMessage.success("移动成功")
         } else {
           ElMessage.warning("没有识别到操作")
@@ -268,9 +276,7 @@ const copyOrMoveFiles = async () => {
                 placement="top"
                 effect="light"
               >
-                {{
-                  item.name
-                }}
+                {{ item.name }}
               </el-tooltip>
             </el-breadcrumb-item>
           </el-breadcrumb>

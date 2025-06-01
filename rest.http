@@ -24,26 +24,26 @@ DELETE  http://localhost:7777/api/files HTTP/1.1
 }
 
 ### 复制文件
-POST http://localhost:7777/api/files/copy HTTP/1.1
+POST http://192.168.100.2:5261/api/files/copy HTTP/1.1
 
 {
-    "path": "/vol1/1000/tools/project/go/renamer",
-    "targetPath": "/vol1/1000/tools/project/go/renamer/test",
-    "nameMaps": {
-        "S02":[],
-        "S01.txt":[]
-    }
+    "path": "/home/downloads",
+    "targetPath": "/home/video/动漫",
+    "nameMaps": [{
+        "dirName": "S02"
+    }]
+
 }
-
 ### 移动文件
-POST http://localhost:7777/api/files/move HTTP/1.1
+POST http://192.168.100.2:5261/api/files/move HTTP/1.1
 
 {
-    "path": "/vol1/1000/tools/project/go/renamer",
-    "targetPath": "/vol1/1000/tools/project/go/renamer/test",
-    "nameMaps": {
-        "S02":[]
-    }
+    "path": "/home/downloads",
+    "targetPath": "/home/video/动漫",
+    "nameMaps": [{
+        "dirName": "S02"
+    }]
+
 }
 
 
