@@ -37,7 +37,7 @@ const handleModeAction = async (dirs: string[]) => {
           {
             confirmButtonText: "确认",
             cancelButtonText: "返回",
-            inputPattern: /^(?!\s*$)(?!.*\/).*$/,
+            inputPattern: /^(?!\s*$)(?!.*\/)[\s\S]*$/,
             inputErrorMessage: "不能为空或包含 / 字符"
           }
         )
