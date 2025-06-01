@@ -38,7 +38,7 @@ const handleModeAction = async (dirs: string[]) => {
             confirmButtonText: "确认",
             cancelButtonText: "返回",
             inputPattern: /^(?!\s*$)(?!.*\/)[\s\S]*$/,
-            inputErrorMessage: "不能包含 / 字符"
+            inputErrorMessage: "不能为空或包含/字符"
           }
         )
         let words = value
