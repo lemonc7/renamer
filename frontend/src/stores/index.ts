@@ -47,6 +47,9 @@ export const useAllDataStore = defineStore("allData", () => {
   const loadFilesName = ref<string[]>([])
   const originalPath = ref("")
 
+  // ElMessage弹窗时间
+  const elmsgShowTime = 3000
+
   return {
     modeOption,
     modeSection,
@@ -59,6 +62,7 @@ export const useAllDataStore = defineStore("allData", () => {
     modePreviewDialog,
     hiddenModeButton,
     loadFilesName,
-    originalPath
+    originalPath,
+    elmsgShowTime
   }
 })

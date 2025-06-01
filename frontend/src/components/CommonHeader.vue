@@ -20,7 +20,12 @@ const modeConfirmButton = async () => {
     await handleModeAction(dirs)
     store.modePreviewDialog = true
   } catch (error) {
-    ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
+    ElMessage({
+      showClose: true,
+      message: `${error instanceof Error ? error.message : String(error)}`,
+      type: "error",
+      duration: store.elmsgShowTime,
+    })
     store.modePreviewDialog = false
   }
 }
@@ -60,10 +65,20 @@ const handleModeAction = async (dirs: string[]) => {
 const confirmAutoRename = async () => {
   try {
     await renameFiles(route.path, store.nameMaps)
-    ElMessage.success("重命名成功")
+    ElMessage({
+      showClose: true,
+      message: "重命名成功",
+      type: "success",
+      duration: store.elmsgShowTime
+    })
     getFile(route.path, store)
   } catch (error) {
-    ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
+    ElMessage({
+      showClose: true,
+      message: `${error instanceof Error ? error.message : String(error)}`,
+      type: "error",
+      duration: store.elmsgShowTime
+    })
   } finally {
     store.modePreviewDialog = false
     store.nameMaps = []
@@ -74,9 +89,19 @@ const refreshPage = async () => {
   let currentRoute = router.currentRoute.value.path
   try {
     await getFile(currentRoute, store)
-    ElMessage.success("刷新成功")
+    ElMessage({
+      showClose: true,
+      message: "刷新成功",
+      type: "success",
+      duration: store.elmsgShowTime
+    })
   } catch (error) {
-    ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
+    ElMessage({
+      showClose: true,
+      message: `${error instanceof Error ? error.message : String(error)}`,
+      type: "error",
+      duration: store.elmsgShowTime
+    })
   } finally {
     editPasteButton("", store)
   }

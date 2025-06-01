@@ -35,36 +35,24 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
-    const res = response.data
-    if (res?.code && res?.code !== 200) {
-      console.warn("业务错误", res.message)
-      return Promise.reject(new Error(res.message))
-    }
     return response
   },
   (error) => {
-    const status = error.response?.status
-    switch (status) {
-      case 400:
-        console.error("请求参数错误")
-        break
-      // case 401:
-      //   console.error("未授权或token过期")
-      //   break
-      // case 403:
-      //   console.error("没有权限")
-      //   break
-      // case 404:
-      //   console.error("没有接口")
-      //   break
-      case 500:
-        console.error("服务器错误")
-        break
-      default:
-        console.error("其他错误")
-    }
+    if (error.response) {
+      const response = error.response
+      // 提取gin.H{"error": ...}中的错误信息
+      const backendError = response.data?.error || (typeof response.data === "string" ? response.data : null)
+      // 如果返回了error
+      if (backendError) {
+        return Promise.reject(new Error(`${backendError}`))
+      }
 
-    return Promise.reject(error)
+      // 如果没有明确的error字段,提供通用的错误信息
+      const statusText = response.statusText || "未知错误"
+      return Promise.reject(new Error(`${statusText}`))
+    }
+    // 处理没有服务器响应的情况
+    return Promise.reject(new Error("网络错误"))
   }
 )
 

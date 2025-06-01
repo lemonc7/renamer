@@ -29,15 +29,28 @@ const confirmCreate = async () => {
 
     try {
       await createDir(route.path + "/" + value)
-      ElMessage.success("创建成功")
+      ElMessage({
+        showClose: true,
+        message: "创建成功",
+        type: "success",
+        duration: store.elmsgShowTime
+      })
       getFile(route.path, store)
     } catch (error) {
-      ElMessage.error(
-        `${error instanceof Error ? error.message : String(error)}`
-      )
+      ElMessage({
+        showClose: true,
+        message: `${error instanceof Error ? error.message : String(error)}`,
+        type: "error",
+        duration: store.elmsgShowTime
+      })
     }
   } catch (error) {
-    ElMessage.info("操作取消")
+    ElMessage({
+      showClose: true,
+      message: "操作取消",
+      type: "info",
+      duration: store.elmsgShowTime
+    })
   }
 }
 
@@ -52,15 +65,28 @@ const confirmDelete = async () => {
 
     try {
       await deleteFile(route.path, files)
-      ElMessage.success("成功删除")
+      ElMessage({
+        showClose: true,
+        message: "删除成功",
+        type: "success",
+        duration: store.elmsgShowTime
+      })
       getFile(route.path, store)
     } catch (error) {
-      ElMessage.error(
-        `${error instanceof Error ? error.message : String(error)}`
-      )
+      ElMessage({
+        showClose: true,
+        message: `${error instanceof Error ? error.message : String(error)}`,
+        type: "error",
+        duration: store.elmsgShowTime
+      })
     }
   } catch (error) {
-    ElMessage.info("删除取消")
+    ElMessage({
+      showClose: true,
+      message: "删除取消",
+      type: "info",
+      duration: store.elmsgShowTime
+    })
   }
 }
 
@@ -83,18 +109,36 @@ const confirmRenameFile = async () => {
     if (store.selectFiles[0].name !== value) {
       try {
         await renameFiles(route.path, nameMap)
-        ElMessage.success("重命名成功")
+        ElMessage({
+          showClose: true,
+          message: "重命名成功",
+          type: "success",
+          duration: store.elmsgShowTime
+        })
         getFile(route.path, store)
       } catch (error) {
-        ElMessage.error(
-          `${error instanceof Error ? error.message : String(error)}`
-        )
+        ElMessage({
+          showClose: true,
+          message: `${error instanceof Error ? error.message : String(error)}`,
+          type: "error",
+          duration: store.elmsgShowTime
+        })
       }
     } else {
-      ElMessage.warning("新名称与旧名称一致")
+      ElMessage({
+        showClose: true,
+        message: "新旧名称一致",
+        type: "warning",
+        duration: store.elmsgShowTime
+      })
     }
   } catch (error) {
-    ElMessage.info("操作取消")
+    ElMessage({
+      showClose: true,
+      message: "操作取消",
+      type: "info",
+      duration: store.elmsgShowTime
+    })
   }
 }
 
@@ -106,9 +150,12 @@ const appendRoute = async (file: FileInfo) => {
       await getFile(newPath, store)
       router.push(newPath)
     } catch (error) {
-      ElMessage.error(
-        `${error instanceof Error ? error.message : String(error)}`
-      )
+      ElMessage({
+        showClose: true,
+        message: `${error instanceof Error ? error.message : String(error)}`,
+        type: "error",
+        duration: store.elmsgShowTime
+      })
     }
   }
 }
@@ -116,7 +163,10 @@ const appendRoute = async (file: FileInfo) => {
 // 获取路由,映射面包屑路径
 const breadcurmbItems = computed(() => {
   // 通过/分隔符取出路由的各个文件,通过filter过滤空字符
-  const pathArray = route.path.split("/").filter((p) => p).map(decodeURIComponent)
+  const pathArray = route.path
+    .split("/")
+    .filter((p) => p)
+    .map(decodeURIComponent)
   const items = []
   let stringShowLength = 8
 
@@ -178,9 +228,12 @@ watch(
     try {
       await getFile("/" + (newPath || "/"), store)
     } catch (error) {
-      ElMessage.error(
-        `${error instanceof Error ? error.message : String(error)}`
-      )
+      ElMessage({
+        showClose: true,
+        message: `${error instanceof Error ? error.message : String(error)}`,
+        type: "error",
+        duration: store.elmsgShowTime
+      })
     } finally {
       store.hiddenModeButton = true
       store.selectFiles = []
@@ -198,21 +251,41 @@ const loadFiles = (copy: Boolean) => {
     store.originalPath = route.path
     if (copy) {
       editPasteButton("warning", store)
-      ElMessage.success("复制成功")
+      ElMessage({
+        showClose: true,
+        message: "复制成功",
+        type: "success",
+        duration: store.elmsgShowTime
+      })
     } else {
       editPasteButton("danger", store)
-      ElMessage.success("剪切成功")
+      ElMessage({
+        showClose: true,
+        message: "剪切成功",
+        type: "success",
+        duration: store.elmsgShowTime
+      })
     }
   } catch (error) {
     store.loadFilesName = []
     store.originalPath = ""
-    ElMessage.error(`${error instanceof Error ? error.message : String(error)}`)
+    ElMessage({
+      showClose: true,
+      message: `${error instanceof Error ? error.message : String(error)}`,
+      type: "error",
+      duration: store.elmsgShowTime
+    })
   }
 }
 
 const copyOrMoveFiles = async () => {
   if (store.loadFilesName.length === 0 && store.originalPath === "") {
-    ElMessage.error("没有选中文件")
+    ElMessage({
+      showClose: true,
+      message: "没有选中文件",
+      type: "error",
+      duration: store.elmsgShowTime
+    })
   } else {
     try {
       await ElMessageBox.confirm("确认复制/移动文件？", "Warning", {
@@ -222,29 +295,44 @@ const copyOrMoveFiles = async () => {
       })
       try {
         if (store.showPasteButton.type === "warning") {
-          await copyFile(
-            store.originalPath,
-            route.path,
-            store.loadFilesName
-          )
-          ElMessage.success("复制成功")
+          await copyFile(store.originalPath, route.path, store.loadFilesName)
+          ElMessage({
+            showClose: true,
+            message: "复制成功",
+            type: "success",
+            duration: store.elmsgShowTime
+          })
         } else if (store.showPasteButton.type === "danger") {
-          await moveFile(
-            store.originalPath,
-            route.path,
-            store.loadFilesName
-          )
-          ElMessage.success("移动成功")
+          await moveFile(store.originalPath, route.path, store.loadFilesName)
+          ElMessage({
+            showClose: true,
+            message: "移动成功",
+            type: "success",
+            duration: store.elmsgShowTime
+          })
         } else {
-          ElMessage.warning("没有识别到操作")
+          ElMessage({
+            showClose: true,
+            message: "没有识别到操作",
+            type: "warning",
+            duration: store.elmsgShowTime
+          })
         }
       } catch (error) {
-        ElMessage.error(
-          `${error instanceof Error ? error.message : String(error)}`
-        )
+        ElMessage({
+          showClose: true,
+          message: `${error instanceof Error ? error.message : String(error)}`,
+          type: "error",
+          duration: store.elmsgShowTime
+        })
       }
     } catch (error) {
-      ElMessage.info("操作取消")
+      ElMessage({
+        showClose: true,
+        message: "操作取消",
+        type: "info",
+        duration: store.elmsgShowTime
+      })
     } finally {
       store.loadFilesName = []
       store.originalPath = ""
