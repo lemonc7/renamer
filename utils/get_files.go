@@ -1,7 +1,6 @@
 package utils
 
 import (
-	// "errors"
 	"os"
 	"path/filepath"
 	"slices"
@@ -34,9 +33,9 @@ func GetFiles(dir string) ([]model.FileInfo, error) {
 		} else {
 			size = humanize.Bytes(uint64(info.Size()))
 			ext := filepath.Ext(entry.Name())
-			if len(ext)== len(entry.Name()) {
+			if len(ext) == len(entry.Name()) {
 				fileType = ""
-			}else {
+			} else {
 				fileType = strings.Replace(ext, ".", "", 1)
 			}
 		}
