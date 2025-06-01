@@ -82,9 +82,9 @@ const confirmRenameFile = async () => {
 
     if (store.selectFiles[0].name !== value) {
       try {
-        await renameFiles(decodeURIComponent(route.path), nameMap)
+        await renameFiles(route.path, nameMap)
         ElMessage.success("重命名成功")
-        getFile(decodeURIComponent(route.path), store)
+        getFile(route.path, store)
       } catch (error) {
         ElMessage.error(
           `${error instanceof Error ? error.message : String(error)}`
@@ -103,7 +103,7 @@ const appendRoute = async (file: FileInfo) => {
   if (file.isDir) {
     let newPath = `${route.path}/${file.name}`.replace(/\/+/g, "/")
     try {
-      await getFile(decodeURIComponent(newPath), store)
+      await getFile(newPath, store)
       router.push(newPath)
     } catch (error) {
       ElMessage.error(
@@ -116,10 +116,7 @@ const appendRoute = async (file: FileInfo) => {
 // 获取路由,映射面包屑路径
 const breadcurmbItems = computed(() => {
   // 通过/分隔符取出路由的各个文件,通过filter过滤空字符
-  const pathArray = route.path
-    .split("/")
-    .filter((p) => p)
-    .map(decodeURIComponent)
+  const pathArray = route.path.split("/").filter((p) => p).map(decodeURIComponent)
   const items = []
   let stringShowLength = 8
 
@@ -179,9 +176,7 @@ watch(
   () => route.path,
   async (newPath) => {
     try {
-      // 中文字符被重复编码,从而出现乱码
-      let decodedPath = decodeURIComponent("/" + (newPath || "/"))
-      await getFile(decodedPath, store)
+      await getFile("/" + (newPath || "/"), store)
     } catch (error) {
       ElMessage.error(
         `${error instanceof Error ? error.message : String(error)}`
@@ -229,14 +224,14 @@ const copyOrMoveFiles = async () => {
         if (store.showPasteButton.type === "warning") {
           await copyFile(
             store.originalPath,
-            decodeURIComponent(route.path),
+            route.path,
             store.loadFilesName
           )
           ElMessage.success("复制成功")
         } else if (store.showPasteButton.type === "danger") {
           await moveFile(
             store.originalPath,
-            decodeURIComponent(route.path),
+            route.path,
             store.loadFilesName
           )
           ElMessage.success("移动成功")

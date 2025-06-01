@@ -19,7 +19,6 @@ func GetFiles(ctx *gin.Context) {
 		})
 		return
 	}
-
 	files, err := utils.GetFiles(req.Path)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

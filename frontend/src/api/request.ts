@@ -9,14 +9,28 @@ const service = axios.create({
   }
 })
 
-// // 请求拦截器
-// service.interceptors.request.use(function (config) {
-//     // 在发送请求之前做些什么
-//     return config;
-//   }, function (error) {
-//     // 对请求错误做些什么
-//     return Promise.reject(error);
-//   });
+// 请求拦截器
+service.interceptors.request.use(
+  (config) => {
+    if (config.method === "get" && config.params.path) {
+      config.params.path = decodeURIComponent(config.params.path)
+    }
+
+    if (config.data) {
+      if (typeof config.data.path === "string") {
+        config.data.path = decodeURIComponent(config.data.path)
+      }
+      if (typeof config.data.targetPath === "string") {
+        config.data.targetPath = decodeURIComponent(config.data.targetPath)
+      }
+    }
+    return config
+  },
+  (error) => {
+    // 对请求错误做些什么
+    return Promise.reject(error)
+  }
+)
 
 // 响应拦截器
 service.interceptors.response.use(
@@ -34,15 +48,15 @@ service.interceptors.response.use(
       case 400:
         console.error("请求参数错误")
         break
-      case 401:
-        console.error("未授权或token过期")
-        break
-      case 403:
-        console.error("没有权限")
-        break
-      case 404:
-        console.error("没有接口")
-        break
+      // case 401:
+      //   console.error("未授权或token过期")
+      //   break
+      // case 403:
+      //   console.error("没有权限")
+      //   break
+      // case 404:
+      //   console.error("没有接口")
+      //   break
       case 500:
         console.error("服务器错误")
         break
