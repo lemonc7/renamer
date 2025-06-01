@@ -23,7 +23,7 @@ const confirmCreate = async () => {
     let { value } = await ElMessageBox.prompt("请输入文件夹名称", "Tip", {
       confirmButtonText: "确认",
       cancelButtonText: "返回",
-      inputPattern: /^[^\s\/\0]+$/,
+      inputPattern: /^(?!\s*$)(?!.*\/)[\s\S]*$/,
       inputErrorMessage: "无效的名称"
     })
 
@@ -69,7 +69,7 @@ const confirmRenameFile = async () => {
     let { value } = await ElMessageBox.prompt("请输入新名称", "Tip", {
       confirmButtonText: "确认",
       cancelButtonText: "返回",
-      inputPattern: /^[^\s\/\0]+$/,
+      inputPattern: /^(?!\s*$)(?!.*\/)[\s\S]*$/,
       inputErrorMessage: "无效的名称",
       inputValue: store.selectFiles[0].name
     })

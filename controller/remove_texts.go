@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lemonc7/renamer/model"
@@ -22,7 +23,7 @@ func RemoveTexts(ctx *gin.Context) {
 	var nameMaps []model.NameMap
 	// 获取文件信息
 	for _, entry := range req.NameMaps {
-		files, err := utils.GetFiles(req.Path + "/" + entry.DirName)
+		files, err := utils.GetFiles(filepath.Join(req.Path,entry.DirName))
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lemonc7/renamer/model"
@@ -24,7 +25,7 @@ func ReplaceChinesePreview(ctx *gin.Context) {
 	for _, entry := range req.NameMaps {
 		var names []model.Name
 		var newNames []string
-		files, err := utils.GetFiles(req.Path + "/" + entry.DirName)
+		files, err := utils.GetFiles(filepath.Join(req.Path,entry.DirName))
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),

@@ -44,7 +44,7 @@ func RenamedPreview(ctx *gin.Context) {
 		// oldName存储原文件名，newName存储新文件名
 		var names []model.Name
 		var newNames []string
-		files, err := utils.GetFiles(req.Path + "/" + entry.DirName)
+		files, err := utils.GetFiles(filepath.Join(req.Path,entry.DirName))
 
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -115,7 +115,7 @@ func RenamedConfirm(ctx *gin.Context) {
 
 	// 重命名文件
 	for _, entry := range req.NameMaps {
-		if err := utils.RenameFiles(req.Path+"/"+entry.DirName, entry.FilesName); err != nil {
+		if err := utils.RenameFiles(filepath.Join(req.Path,entry.DirName), entry.FilesName); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
