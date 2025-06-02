@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/dustin/go-humanize"
@@ -48,6 +49,20 @@ func GetFiles(dir string) ([]model.FileInfo, error) {
 			ModTime: info.ModTime().Format("2006-01-02 15:04:05"),
 		})
 	}
+	// 整理文件排序,文件夹优先,名称a-z
+	sort.Slice(files,func(i, j int) bool {
+		a, b := files[i],files[j]
+		
+		// 文件夹优先
+		// 比较不同类型
+		if a.IsDir != b.IsDir {
+			return a.IsDir
+		}
+
+		// 类型相同,就比较名称a~z
+		return strings.ToLower(a.Name) < strings.ToLower(b.Name)
+	})
+
 	return files, nil
 }
 
