@@ -61,10 +61,9 @@ const confirmDelete = async () => {
       cancelButtonText: "返回",
       type: "warning"
     })
-    let files = store.selectFiles.map((row) => row.name)
 
     try {
-      await deleteFile(route.path, files)
+      await deleteFile(route.path, store)
       ElMessage({
         showClose: true,
         message: "删除成功",
@@ -295,7 +294,7 @@ const copyOrMoveFiles = async () => {
       })
       try {
         if (store.showPasteButton.type === "warning") {
-          await copyFile(store.originalPath, route.path, store.loadFilesName)
+          await copyFile(route.path, store)
           ElMessage({
             showClose: true,
             message: "复制成功",
@@ -303,7 +302,7 @@ const copyOrMoveFiles = async () => {
             duration: store.elmsgShowTime
           })
         } else if (store.showPasteButton.type === "danger") {
-          await moveFile(store.originalPath, route.path, store.loadFilesName)
+          await moveFile(route.path, store)
           ElMessage({
             showClose: true,
             message: "移动成功",

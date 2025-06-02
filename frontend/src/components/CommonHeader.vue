@@ -15,11 +15,40 @@ const route = useRoute()
 const store = useAllDataStore()
 
 const modeConfirmButton = async () => {
-  let dirs = store.selectFiles.filter((row) => row.isDir).map((row) => row.name)
   try {
-    await handleModeAction(dirs)
-    if (store.modeSection !== 4) {
-      store.modePreviewDialog = true
+    switch (store.modeSection) {
+      case 1:
+        await renamePreview(route.path, store)
+        store.modePreviewDialog = true
+        break
+      case 2:
+        store.showTidySeriesDialog = true
+        break
+      case 3:
+        let { value } = await ElMessageBox.prompt(
+          "请输入需要删除的文本(多个用空格删除)",
+          "Tip",
+          {
+            confirmButtonText: "确认",
+            cancelButtonText: "取消",
+            inputPattern: /^(?!\s*$)(?!.*\/)[\s\S]*$/,
+            inputErrorMessage: "不能为空或包含/字符"
+          }
+        )
+        let words = value
+          .split(/\s+/)
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0)
+        let uniqueWords = Array.from(new Set(words))
+        await removeTextsPreview(route.path, uniqueWords, store)
+        store.modePreviewDialog = true
+        break
+      case 4:
+        await replaceChinesePreview(route.path, store)
+        store.modePreviewDialog = true
+        break
+      default:
+        throw new Error("未知错误")
     }
   } catch (error) {
     ElMessage({
@@ -32,45 +61,10 @@ const modeConfirmButton = async () => {
   }
 }
 
-const handleModeAction = async (dirs: string[]) => {
-  switch (store.modeSection) {
-    case 1:
-      return renamePreview(route.path, dirs, store)
-    case 2:
-      try {
-        let { value } = await ElMessageBox.prompt(
-          "请输入需要删除的字符(多个用空格分隔)",
-          "Tip",
-          {
-            confirmButtonText: "确认",
-            cancelButtonText: "返回",
-            inputPattern: /^(?!\s*$)(?!.*\/)[\s\S]*$/,
-            inputErrorMessage: "不能为空或包含/字符"
-          }
-        )
-        let words = value
-          .split(/\s+/)
-          .map((item) => item.trim())
-          .filter((item) => item.length > 0)
-        let uniqueWords = Array.from(new Set(words))
-        return removeTextsPreview(route.path, dirs, uniqueWords, store)
-      } catch (error) {
-        throw new Error("操作取消")
-      }
-    case 3:
-      return replaceChinesePreview(route.path, dirs, store)
-    case 4:
-      store.showTidySeriesDialog = true
-      break
-    default:
-      throw new Error("功能待完成")
-  }
-}
-
 const confirmAutoRename = async () => {
   try {
-    if ((store.modeSection = 4)) {
-      await renameFiles(route.path + "/" + store.series, store.nameMaps)
+    if ((store.modeSection = 2)) {
+      await renameFiles(route.path + "/" + store.seriesRename, store.nameMaps)
     } else {
       await renameFiles(route.path, store.nameMaps)
     }
@@ -91,7 +85,7 @@ const confirmAutoRename = async () => {
   } finally {
     store.modePreviewDialog = false
     store.nameMaps = []
-    store.series = ""
+    store.seriesRename = ""
   }
 }
 

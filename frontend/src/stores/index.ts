@@ -11,15 +11,15 @@ export const useAllDataStore = defineStore("allData", () => {
     },
     {
       value: 2,
-      label: "移除指定文本"
+      label: "重命名+整理"
     },
     {
       value: 3,
-      label: "替换中文"
+      label: "移除指定文本"
     },
     {
       value: 4,
-      label: "重命名+整理"
+      label: "替换中文"
     }
   ]
   const modeSection = ref(1)
@@ -56,6 +56,8 @@ export const useAllDataStore = defineStore("allData", () => {
 
   // 整理剧集时输入的剧集名
   const series = ref("")
+  // 确认重命名暂存的剧集名
+  const seriesRename = ref("")
 
   // 重命名整理的弹窗
   const showTidySeriesDialog = ref(false)
@@ -75,6 +77,7 @@ export const useAllDataStore = defineStore("allData", () => {
     originalPath,
     elmsgShowTime,
     series,
-    showTidySeriesDialog
+    showTidySeriesDialog,
+    seriesRename
   }
 })

@@ -1,20 +1,26 @@
 <template>
   <el-dialog
     v-model="store.showTidySeriesDialog"
-    title="整理剧集目录"
+    title="整理剧集"
     width="500px"
     @close="cancel"
   >
-    <el-form label-width="100px">
-      <el-form-item label="剧集名">
+    <el-form>
+      <el-form-item>
         <el-input v-model="store.series" placeholder="请输入剧集名" />
       </el-form-item>
 
       <el-form-item
         v-for="item in store.selectFiles.filter((p) => p.isDir)"
         :key="item.name"
-        :label="item.name"
+        label-width="150px"
       >
+        <template #label>
+          <el-tooltip :content="item.name" placement="top" effect="light">
+            <span class="form-label">{{ item.name }}</span>
+          </el-tooltip>
+        </template>
+
         <el-select v-model="item.season" placeholder="请选择季数">
           <el-option
             v-for="n in 100"
@@ -28,69 +34,73 @@
 
     <template #footer>
       <el-button @click="cancel">取消</el-button>
-      <el-button type="primary" @click="confirmTidySeries" :disabled="hiddenConfirmButton">确定</el-button>
+      <el-button
+        type="primary"
+        @click="confirmTidySeries"
+        :disabled="hiddenConfirmButton"
+        >确定</el-button
+      >
     </template>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue"
-import { createDir, moveFile, renameFiles, renamePreview } from "../api/api"
-import type { NameMap } from "../model"
+import { tidyAndRenamePreview } from "../api/api"
 import { useAllDataStore } from "../stores"
 import { useRoute } from "vue-router"
 const store = useAllDataStore()
 const route = useRoute()
 
-
 const hiddenConfirmButton = computed(() => {
-  if (!store.series || store.selectFiles.some(item => item.isDir && !item.season)) {
+  if (
+    !store.series ||
+    store.selectFiles.some((item) => item.isDir && !item.season)
+  ) {
     return true
-  } 
+  }
   return false
 })
 
 const confirmTidySeries = async () => {
-  let nameMaps: NameMap[] = []
-  let dirs: string[] = []
-  store.selectFiles
-    .filter((p) => p.isDir && p.season)
-    .forEach((item) => {
-      nameMaps.push({
-        dirName: "",
-        filesName: [
-          {
-            oldName: item.name,
-            newName: item.season!
-          }
-        ]
-      })
-      dirs.push(item.season!)
-    })
   try {
-    await renameFiles(route.path, nameMaps)
-    await createDir(route.path + "/" + store.series)
-    await moveFile(route.path, route.path + "/" + store.series, dirs)
-    await renamePreview(route.path + "/" + store.series, dirs, store)
+    await tidyAndRenamePreview(route.path, store)
     store.modePreviewDialog = true
   } catch (error) {
-    throw error
-  } finally {
-    store.showTidySeriesDialog = false
-    store.selectFiles.forEach((item) => {
-      if (item.isDir) {
-        item.season = ""
-      }
+    ElMessage({
+      showClose: true,
+      message: `${error instanceof Error ? error.message : String(error)}`,
+      type: "error",
+      duration: store.elmsgShowTime
     })
+  } finally {
+    store.seriesRename = store.series
+    store.showTidySeriesDialog = false
+    store.series = ""
+    store.selectFiles
+      .filter((item) => item.isDir)
+      .forEach((item) => {
+        item.season = ""
+      })
   }
 }
 
 function cancel() {
   store.showTidySeriesDialog = false
-  store.selectFiles.forEach((item) => {
-    if (item.isDir) {
+  store.selectFiles
+    .filter((item) => item.isDir)
+    .forEach((item) => {
       item.season = ""
-    }
-  })
+    })
+  store.series = ""
 }
 </script>
+
+<style lang="less" scoped>
+.form-label {
+  display: inline-block;
+  max-width: 150px;
+  overflow: hidden;  // 超出部分不显示
+  white-space: nowrap;  // 禁止换行
+}
+</style>

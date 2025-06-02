@@ -14,7 +14,6 @@ interface Names {
 
 interface NameMap {
   dirName: string,
-  season?: string
   filesName?: Names[]
 }
 

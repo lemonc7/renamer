@@ -32,13 +32,10 @@ export async function createDir(path: string) {
 }
 
 // 删除文件/目录
-export async function deleteFile(path: string, files: string[]) {
-  let nameMaps: NameMap[] = []
-  files.forEach((item) => {
-    nameMaps.push({
-      dirName: item
-    })
-  })
+export async function deleteFile(path: string, store = useAllDataStore()) {
+  let nameMaps: NameMap[] = store.selectFiles.map((item) => ({
+    dirName: item.name
+  }))
   try {
     await request({
       url: "/api/files",
@@ -54,24 +51,16 @@ export async function deleteFile(path: string, files: string[]) {
 }
 
 // 复制文件
-export async function copyFile(
-  path: string,
-  targetPath: string,
-  files: string[]
-) {
-  let nameMaps: NameMap[] = []
-  files.forEach((item) => {
-    nameMaps.push({
-      dirName: item
-    })
-  })
-
+export async function copyFile(targetPath: string, store = useAllDataStore()) {
+  let nameMaps: NameMap[] = store.loadFilesName.map((item) => ({
+    dirName: item
+  }))
   try {
     await request({
       url: "/api/files/copy",
       method: "post",
       data: {
-        path,
+        path: store.originalPath,
         targetPath,
         nameMaps
       }
@@ -82,24 +71,17 @@ export async function copyFile(
 }
 
 // 移动文件
-export async function moveFile(
-  path: string,
-  targetPath: string,
-  files: string[]
-) {
-  let nameMaps: NameMap[] = []
-  files.forEach((item) => {
-    nameMaps.push({
-      dirName: item
-    })
-  })
+export async function moveFile(targetPath: string, store = useAllDataStore()) {
+  let nameMaps: NameMap[] = store.loadFilesName.map((item) => ({
+    dirName: item
+  }))
 
   try {
     await request({
       url: "/api/files/move",
       method: "post",
       data: {
-        path,
+        path: store.originalPath,
         targetPath,
         nameMaps
       }
@@ -110,18 +92,12 @@ export async function moveFile(
 }
 
 // 预览重命名结果
-export async function renamePreview(
-  path: string,
-  dirs: string[],
-  store = useAllDataStore()
-) {
-  let nameMaps: NameMap[] = []
-  dirs.forEach((item) => {
-    nameMaps.push({
-      dirName: item
-    })
-  })
-
+export async function renamePreview(path: string, store = useAllDataStore()) {
+  let nameMaps: NameMap[] = store.selectFiles
+    .filter((row) => row.isDir)
+    .map((row) => ({
+      dirName: row.name
+    }))
   try {
     let res: AxiosResponse<NameMap[]> = await request({
       url: "/api/files/preview",
@@ -140,16 +116,13 @@ export async function renamePreview(
 // 预览替换中文的结果
 export async function replaceChinesePreview(
   path: string,
-  dirs: string[],
   store = useAllDataStore()
 ) {
-  let nameMaps: NameMap[] = []
-  dirs.forEach((item) => {
-    nameMaps.push({
-      dirName: item
-    })
-  })
-
+  let nameMaps: NameMap[] = store.selectFiles
+    .filter((row) => row.isDir)
+    .map((row) => ({
+      dirName: row.name
+    }))
   try {
     let res: AxiosResponse<NameMap[]> = await request({
       url: "/api/files/replaceChinese",
@@ -168,17 +141,14 @@ export async function replaceChinesePreview(
 // 预览移除文本的效果
 export async function removeTextsPreview(
   path: string,
-  dirs: string[],
   removedTexts: string[],
   store = useAllDataStore()
 ) {
-  let nameMaps: NameMap[] = []
-  dirs.forEach((item) => {
-    nameMaps.push({
-      dirName: item
-    })
-  })
-
+  let nameMaps: NameMap[] = store.selectFiles
+    .filter((row) => row.isDir)
+    .map((row) => ({
+      dirName: row.name
+    }))
   try {
     let res: AxiosResponse<NameMap[]> = await request({
       url: "/api/files/removeTexts",
@@ -206,6 +176,60 @@ export async function renameFiles(path: string, nameMaps: NameMap[]) {
         nameMaps
       }
     })
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function tidyAndRenamePreview(
+  path: string,
+  store = useAllDataStore()
+) {
+  let renameMaps: NameMap[] = []
+  let moveMaps: NameMap[] = []
+  store.selectFiles
+    .filter((item) => item.isDir && item.season)
+    .forEach((item) => {
+      renameMaps.push({
+        dirName: "",
+        filesName: [
+          {
+            oldName: item.name,
+            newName: item.season!
+          }
+        ]
+      })
+
+      moveMaps.push({
+        dirName: item.season!
+      })
+    })
+  let targetPath = path + "/" + store.series
+  try {
+    // 先整理命名季数
+    await renameFiles(path, renameMaps)
+    // 创建剧集文件夹
+    await createDir(targetPath)
+    // 将季文件夹移动到剧集文件夹
+    await request({
+      url: "/api/files/move",
+      method: "post",
+      data: {
+        path,
+        targetPath,
+        nameMaps: moveMaps
+      }
+    })
+    // 预览整理后的重命名结果
+    let res: AxiosResponse<NameMap[]> = await request({
+      url: "/api/files/preview",
+      method: "post",
+      data: {
+        path: targetPath,
+        nameMaps: moveMaps
+      }
+    })
+    store.nameMaps = res.data
   } catch (error) {
     throw error
   }
