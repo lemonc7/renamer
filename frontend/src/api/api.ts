@@ -181,10 +181,7 @@ export async function renameFiles(path: string, nameMaps: NameMap[]) {
   }
 }
 
-export async function tidySeries(
-  path: string,
-  store = useAllDataStore()
-) {
+export async function tidySeries(path: string, store = useAllDataStore()) {
   let renameMaps: NameMap[] = []
   let moveMaps: NameMap[] = []
   store.selectFiles
@@ -204,22 +201,24 @@ export async function tidySeries(
         dirName: item.season!
       })
     })
-  let targetPath = path + "/" + store.series
   try {
     // 先整理重命名季数
     await renameFiles(path, renameMaps)
-    // 创建剧集文件夹
-    await createDir(targetPath)
-    // 将季文件夹移动到剧集文件夹
-    await request({
-      url: "/api/files/move",
-      method: "post",
-      data: {
-        path,
-        targetPath,
-        nameMaps: moveMaps
-      }
-    })
+    if (store.series) {
+      let targetPath = path + "/" + store.series
+      // 创建剧集文件夹
+      await createDir(targetPath)
+      // 将季文件夹移动到剧集文件夹
+      await request({
+        url: "/api/files/move",
+        method: "post",
+        data: {
+          path,
+          targetPath,
+          nameMaps: moveMaps
+        }
+      })
+    }
   } catch (error) {
     throw error
   }

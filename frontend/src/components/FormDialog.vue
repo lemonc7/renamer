@@ -53,10 +53,7 @@ const store = useAllDataStore()
 const route = useRoute()
 
 const hiddenConfirmButton = computed(() => {
-  if (
-    !store.series ||
-    store.selectFiles.some((item) => item.isDir && !item.season)
-  ) {
+  if (store.selectFiles.some((item) => item.isDir && !item.season)) {
     return true
   }
   return false
@@ -81,7 +78,7 @@ const confirmTidySeries = async () => {
   } finally {
     store.showTidySeriesDialog = false
     store.series = ""
-    getFile(route.path,store)
+    getFile(route.path, store)
   }
 }
 
@@ -100,7 +97,7 @@ function cancel() {
 .form-label {
   display: inline-block;
   max-width: 150px;
-  overflow: hidden;  // 超出部分不显示
-  white-space: nowrap;  // 禁止换行
+  overflow: hidden; // 超出部分不显示
+  white-space: nowrap; // 禁止换行
 }
 </style>
