@@ -181,7 +181,7 @@ export async function renameFiles(path: string, nameMaps: NameMap[]) {
   }
 }
 
-export async function tidyAndRenamePreview(
+export async function tidySeries(
   path: string,
   store = useAllDataStore()
 ) {
@@ -206,7 +206,7 @@ export async function tidyAndRenamePreview(
     })
   let targetPath = path + "/" + store.series
   try {
-    // 先整理命名季数
+    // 先整理重命名季数
     await renameFiles(path, renameMaps)
     // 创建剧集文件夹
     await createDir(targetPath)
@@ -220,16 +220,6 @@ export async function tidyAndRenamePreview(
         nameMaps: moveMaps
       }
     })
-    // 预览整理后的重命名结果
-    let res: AxiosResponse<NameMap[]> = await request({
-      url: "/api/files/preview",
-      method: "post",
-      data: {
-        path: targetPath,
-        nameMaps: moveMaps
-      }
-    })
-    store.nameMaps = res.data
   } catch (error) {
     throw error
   }

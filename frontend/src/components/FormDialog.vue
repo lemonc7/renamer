@@ -46,7 +46,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue"
-import { tidyAndRenamePreview } from "../api/api"
+import { getFile, tidySeries } from "../api/api"
 import { useAllDataStore } from "../stores"
 import { useRoute } from "vue-router"
 const store = useAllDataStore()
@@ -64,8 +64,13 @@ const hiddenConfirmButton = computed(() => {
 
 const confirmTidySeries = async () => {
   try {
-    await tidyAndRenamePreview(route.path, store)
-    store.modePreviewDialog = true
+    await tidySeries(route.path, store)
+    ElMessage({
+      showClose: true,
+      message: "整理完成",
+      type: "success",
+      duration: store.elmsgShowTime
+    })
   } catch (error) {
     ElMessage({
       showClose: true,
@@ -74,14 +79,9 @@ const confirmTidySeries = async () => {
       duration: store.elmsgShowTime
     })
   } finally {
-    store.seriesRename = store.series
     store.showTidySeriesDialog = false
     store.series = ""
-    store.selectFiles
-      .filter((item) => item.isDir)
-      .forEach((item) => {
-        item.season = ""
-      })
+    getFile(route.path,store)
   }
 }
 

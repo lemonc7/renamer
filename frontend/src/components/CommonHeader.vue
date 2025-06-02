@@ -45,7 +45,6 @@ const modeConfirmButton = async () => {
         break
       case 4:
         await replaceChinesePreview(route.path, store)
-        store.modePreviewDialog = true
         break
       default:
         throw new Error("未知错误")
@@ -63,11 +62,7 @@ const modeConfirmButton = async () => {
 
 const confirmAutoRename = async () => {
   try {
-    if ((store.modeSection = 2)) {
-      await renameFiles(route.path + "/" + store.seriesRename, store.nameMaps)
-    } else {
-      await renameFiles(route.path, store.nameMaps)
-    }
+    await renameFiles(route.path, store.nameMaps)
     ElMessage({
       showClose: true,
       message: "重命名成功",
@@ -85,7 +80,6 @@ const confirmAutoRename = async () => {
   } finally {
     store.modePreviewDialog = false
     store.nameMaps = []
-    store.seriesRename = ""
   }
 }
 
