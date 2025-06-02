@@ -9,6 +9,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/lemonc7/renamer/model"
+	"github.com/mozillazg/go-pinyin"
 )
 
 // 获取给定目录下的文件信息，返回文件信息切片
@@ -49,21 +50,44 @@ func GetFiles(dir string) ([]model.FileInfo, error) {
 			ModTime: info.ModTime().Format("2006-01-02 15:04:05"),
 		})
 	}
+
+	args := pinyin.NewArgs()
 	// 整理文件排序,文件夹优先,名称a-z
-	sort.Slice(files,func(i, j int) bool {
-		a, b := files[i],files[j]
-		
+	sort.Slice(files, func(i, j int) bool {
+		a, b := files[i], files[j]
+
 		// 文件夹优先
 		// 比较不同类型
 		if a.IsDir != b.IsDir {
 			return a.IsDir
 		}
 
-		// 类型相同,就比较名称a~z
-		return strings.ToLower(a.Name) < strings.ToLower(b.Name)
+		keyA := getSortKey(a.Name, args)
+		keyB := getSortKey(b.Name, args)
+
+		// 比较名称a~z
+		return keyA < keyB
 	})
 
 	return files, nil
+}
+
+func getSortKey(name string, args pinyin.Args) string {
+	if name == "" {
+		return ""
+	}
+	// 汉字取第一个拼音
+	first := []rune(name)[0]
+	if first >= '\u4e00' && first <= '\u9fff' {
+		py := pinyin.Pinyin(string(first), args)
+		if len(py) > 0 && len(py[0]) > 0 {
+			return py[0][0]
+		}
+
+	}
+	// 英文变小写返回
+	return strings.ToLower(string(name))
+
 }
 
 // 只保留指定后缀名的文件,并排除已经按规则命名的文件,通过bool值来控制string后续是否要处理
