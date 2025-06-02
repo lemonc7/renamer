@@ -18,13 +18,15 @@ const modeConfirmButton = async () => {
   let dirs = store.selectFiles.filter((row) => row.isDir).map((row) => row.name)
   try {
     await handleModeAction(dirs)
-    store.modePreviewDialog = true
+    if (store.modeSection !== 4) {
+      store.modePreviewDialog = true
+    }
   } catch (error) {
     ElMessage({
       showClose: true,
       message: `${error instanceof Error ? error.message : String(error)}`,
       type: "error",
-      duration: store.elmsgShowTime,
+      duration: store.elmsgShowTime
     })
     store.modePreviewDialog = false
   }
@@ -57,6 +59,9 @@ const handleModeAction = async (dirs: string[]) => {
       }
     case 3:
       return replaceChinesePreview(route.path, dirs, store)
+    case 4:
+      store.showTidySeriesDialog = true
+      break
     default:
       throw new Error("功能待完成")
   }
@@ -64,7 +69,11 @@ const handleModeAction = async (dirs: string[]) => {
 
 const confirmAutoRename = async () => {
   try {
-    await renameFiles(route.path, store.nameMaps)
+    if ((store.modeSection = 4)) {
+      await renameFiles(route.path + "/" + store.series, store.nameMaps)
+    } else {
+      await renameFiles(route.path, store.nameMaps)
+    }
     ElMessage({
       showClose: true,
       message: "重命名成功",
@@ -82,6 +91,7 @@ const confirmAutoRename = async () => {
   } finally {
     store.modePreviewDialog = false
     store.nameMaps = []
+    store.series = ""
   }
 }
 
@@ -106,6 +116,8 @@ const refreshPage = async () => {
     editPasteButton("", store)
   }
 }
+
+import FormDialog from "./FormDialog.vue"
 </script>
 
 <template>
@@ -113,7 +125,7 @@ const refreshPage = async () => {
     <router-link to="/">
       <el-button icon="house">主页</el-button>
     </router-link>
-
+    <FormDialog />
     <div>
       <el-select v-model="store.modeSection" style="width: 180px">
         <el-option

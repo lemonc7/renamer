@@ -36,8 +36,7 @@ export async function deleteFile(path: string, files: string[]) {
   let nameMaps: NameMap[] = []
   files.forEach((item) => {
     nameMaps.push({
-      dirName: item,
-      filesName: []
+      dirName: item
     })
   })
   try {
@@ -63,8 +62,7 @@ export async function copyFile(
   let nameMaps: NameMap[] = []
   files.forEach((item) => {
     nameMaps.push({
-      dirName: item,
-      filesName: []
+      dirName: item
     })
   })
 
@@ -92,8 +90,7 @@ export async function moveFile(
   let nameMaps: NameMap[] = []
   files.forEach((item) => {
     nameMaps.push({
-      dirName: item,
-      filesName: []
+      dirName: item
     })
   })
 
@@ -121,8 +118,7 @@ export async function renamePreview(
   let nameMaps: NameMap[] = []
   dirs.forEach((item) => {
     nameMaps.push({
-      dirName: item,
-      filesName: []
+      dirName: item
     })
   })
 
@@ -150,8 +146,7 @@ export async function replaceChinesePreview(
   let nameMaps: NameMap[] = []
   dirs.forEach((item) => {
     nameMaps.push({
-      dirName: item,
-      filesName: []
+      dirName: item
     })
   })
 
@@ -180,8 +175,7 @@ export async function removeTextsPreview(
   let nameMaps: NameMap[] = []
   dirs.forEach((item) => {
     nameMaps.push({
-      dirName: item,
-      filesName: []
+      dirName: item
     })
   })
 

@@ -4,6 +4,7 @@ interface FileInfo {
   size: string
   isDir: boolean
   modTime: string
+  season?: string
 }
 
 interface Names {
@@ -11,10 +12,10 @@ interface Names {
   newName: string
 }
 
-// type NameMaps = Record<string,Names[]> 
 interface NameMap {
   dirName: string,
-  filesName: Names[]
+  season?: string
+  filesName?: Names[]
 }
 
 export type { FileInfo, Names, NameMap }

@@ -16,6 +16,10 @@ export const useAllDataStore = defineStore("allData", () => {
     {
       value: 3,
       label: "替换中文"
+    },
+    {
+      value: 4,
+      label: "重命名+整理"
     }
   ]
   const modeSection = ref(1)
@@ -50,6 +54,12 @@ export const useAllDataStore = defineStore("allData", () => {
   // ElMessage弹窗时间
   const elmsgShowTime = 3000
 
+  // 整理剧集时输入的剧集名
+  const series = ref("")
+
+  // 重命名整理的弹窗
+  const showTidySeriesDialog = ref(false)
+
   return {
     modeOption,
     modeSection,
@@ -63,6 +73,8 @@ export const useAllDataStore = defineStore("allData", () => {
     hiddenModeButton,
     loadFilesName,
     originalPath,
-    elmsgShowTime
+    elmsgShowTime,
+    series,
+    showTidySeriesDialog
   }
 })
