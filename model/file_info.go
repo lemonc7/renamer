@@ -1,5 +1,7 @@
 package model
 
+import "github.com/go-playground/validator/v10"
+
 // 获取的文件信息
 type FileInfo struct {
 	Name    string `json:"name"`
@@ -20,10 +22,18 @@ type FileInfo struct {
 // 移除指定文本并预览-RemoveTextsPreview---Path,NameMaps(dirmName)
 // 确认重命名-RenameFiles---Path,NameMaps(dirName,filesName)
 type PathRequest struct {
-	Path         string    `json:"path" form:"path" binding:"required"`
-	TargetPath   string    `json:"targetPath"`
-	NameMaps     []NameMap `json:"nameMaps"`
-	RemovedTexts []string  `json:"removedTexts"`
+	Path         string    `json:"path" query:"path" validate:"required"`
+	TargetPath   string    `json:"targetPath,omitempty"`
+	NameMaps     []NameMap `json:"nameMaps,omitempty"`
+	RemovedTexts []string  `json:"removedTexts,omitempty"`
+}
+
+type CustomValidator struct {
+	Validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i any) error {
+	return cv.Validator.Struct(i)
 }
 
 // 重命名前后的文件名

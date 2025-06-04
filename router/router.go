@@ -2,48 +2,52 @@ package router
 
 import (
 	"net/http"
+	"strings"
 
-	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/lemonc7/renamer/controller"
-	"github.com/lemonc7/renamer/dist"
-	"github.com/lemonc7/renamer/middleware"
+	"github.com/lemonc7/renamer/model"
 )
 
-func SetupRouter() *gin.Engine {
-	r := gin.Default()
-	// 得先 Use 中间件，才能使用中间件的功能
-	r.Use(middleware.Cors())
-	r.Use(middleware.ErrorLogger())
-	r.GET("/ping", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
+func SetupRouter() *echo.Echo {
+	app := echo.New()
+
+	app.Use(middleware.CORS())
+	app.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `${time_rfc3339} | ${remote_ip} | ${status} | ${latency_human} | ${method} ${uri}` + "\n",
+	}))
+
+	// 注册验证参数的方法
+	validate := validator.New()
+	app.Validator = &model.CustomValidator{Validator: validate}
+
+	app.GET("/ping", func(c echo.Context) error {
+		return c.String(http.StatusOK, "pong")
 	})
 
-	// 重定向到home(通过home来访问前端---前端配置的base=/home,暂时没找到好方法)
-	r.GET("/", func(ctx *gin.Context) {
-		ctx.Redirect(http.StatusFound, "/home")
+	api := app.Group("/api/files")
+	api.GET("", controller.GetFiles)
+	api.POST("", controller.CreateDirs)
+	api.DELETE("", controller.DeleteFiles)
+	api.POST("/copy", controller.CopyFiles)
+	api.POST("/move", controller.MoveFiles)
+	api.POST("/preview", controller.RenamedPreview)
+	api.POST("/removeTexts", controller.RemoveTextsPreview)
+	api.POST("/replaceChinese", controller.ReplaceChinesePreview)
+	api.POST("/rename", controller.RenamedConfirm)
+
+	// 加载静态资源
+	app.Static("/assets", "./dist/assets")
+
+	// 非api请求返回到index.html
+	app.GET("/*", func(c echo.Context) error {
+		if strings.HasPrefix(c.Request().URL.Path, "/api/") {
+			return echo.ErrNotFound
+		}
+		return c.File("./dist/index.html")
 	})
-	// 加载前端资源
-	r.StaticFS("/home", http.FS(dist.Static))
 
-	// 未知路由重新跳到/home,因为默认的路由是访问后端的API,暂时先这样弄
-	r.NoRoute(func(ctx *gin.Context) {
-		ctx.Redirect(http.StatusFound, "/home")
-	})
-
-	api := r.Group("/api/files")
-	{
-		api.GET("", controller.GetFiles)
-		api.POST("", controller.CreateDirs)
-		api.DELETE("", controller.DeleteFiles)
-		api.POST("/copy", controller.CopyFiles)
-		api.POST("/move", controller.MoveFiles)
-		api.POST("/preview", controller.RenamedPreview)
-		api.POST("/rename", controller.RenamedConfirm)
-		api.POST("/replaceChinese", controller.ReplaceChinesePreview)
-		api.POST("/removeTexts", controller.RemoveTextsPreview)
-	}
-
-	return r
+	return app
 }

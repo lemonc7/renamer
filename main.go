@@ -5,9 +5,8 @@ import (
 	"github.com/lemonc7/renamer/router"
 )
 
-// gin框架
 func main() {
 	config.InitConfig()
-	r := router.SetupRouter()
-	r.Run(":"+config.Server.Port)
+	app := router.SetupRouter()
+	app.Logger.Fatal(app.Start(":"+config.Server.Port))
 }

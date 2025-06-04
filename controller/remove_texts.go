@@ -3,29 +3,33 @@ package controller
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"github.com/lemonc7/renamer/model"
 	"github.com/lemonc7/renamer/utils"
 )
 
 // 移除文件名中的指定字符串
-func RemoveTextsPreview(ctx *gin.Context) {
-	var req model.PathRequest
-	// 绑定JSON请求参数到结构体
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "必须提供path,nameMaps和removeTexts参数",
-		})
-		return
-	}
+func RemoveTextsPreview(c echo.Context) error {
+	req := new(model.PathRequest)
 
-	nameMaps, err := utils.RemoveTexts(req)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
 		})
-		return
 	}
 
-	ctx.JSON(http.StatusOK, nameMaps)
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
+			"error": err.Error(),
+		})
+	}
+
+	nameMaps, err := utils.RemoveTexts(*req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, nameMaps)
 }

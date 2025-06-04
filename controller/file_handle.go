@@ -3,123 +3,141 @@ package controller
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"github.com/lemonc7/renamer/model"
 	"github.com/lemonc7/renamer/utils"
 )
 
-// 获取目录下的文件列表
-func GetFiles(ctx *gin.Context) {
-	var req model.PathRequest
-	// 绑定Query请求参数到结构体
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "必须提供path参数",
-		})
-		return
-	}
-	files, err := utils.GetFiles(req.Path)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
+// 获取目录下的文件夹
+func GetFiles(c echo.Context) error {
+	req := new(model.PathRequest)
+
+	// 绑定参数
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
 		})
-		return
+	}
+	// 校验参数
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
+			"error": err.Error(),
+		})
 	}
 
-	// 返回JSON响应数据
-	ctx.JSON(http.StatusOK, files)
+	files, err := utils.GetFiles(req.Path)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, files)
+
 }
 
-// 根据路径创建文件夹(父文件夹必须存在)
-func CreateDirs(ctx *gin.Context) {
-	var req model.PathRequest
-	// 绑定JSON请求参数到结构体
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "必须提供path参数",
+// 创建文件夹(父文件夹必须存在)
+func CreateDirs(c echo.Context) error {
+	req := new(model.PathRequest)
+	// 绑定参数
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": err.Error(),
 		})
-		return
+	}
+
+	// 校验参数
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
+			"error": err.Error(),
+		})
 	}
 
 	if err := utils.CreateDirs(req.Path); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
+		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": err.Error(),
 		})
-		return
 	}
 
-	// 返回成功信息
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "目录创建成功",
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "创建成功",
 	})
 }
 
-// 根据路径删除文件或目录
-func DeleteFiles(ctx *gin.Context) {
-	var req model.PathRequest
-	// 绑定JSON请求参数到结构体
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "必须提供path和nameMaps参数",
-		})
-		return
-	}
-
-	if err := utils.DeleteFiles(req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+func DeleteFiles(c echo.Context) error {
+	req := new(model.PathRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
 		})
-		return
+	}
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
+			"error": err.Error(),
+		})
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
+	if err := utils.DeleteFiles(*req); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
 		"message": "删除成功",
 	})
+
 }
 
 // 复制文件
-func CopyFiles(ctx *gin.Context) {
-	var req model.PathRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "必须提供path,targetPath和nameMaps参数",
-		})
-		return
-	}
+func CopyFiles(c echo.Context) error {
+	req := new(model.PathRequest)
 
-	if err := utils.CopyFiles(req); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
 		})
-		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
+			"error": err.Error(),
+		})
+	}
+	if err := utils.CopyFiles(*req); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
 		"message": "复制成功",
 	})
-
 }
 
 // 移动文件
-func MoveFiles(ctx *gin.Context) {
-	var req model.PathRequest
-	// 绑定JSON请求参数到结构体
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "必须提供path,targetPath和nameMaps参数",
-		})
-		return
-	}
+func MoveFiles(c echo.Context) error {
+	req := new(model.PathRequest)
 
-	if err := utils.MoveFiles(req); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
 		})
-		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if err := utils.MoveFiles(*req); err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
 		"message": "移动成功",
 	})
-
 }

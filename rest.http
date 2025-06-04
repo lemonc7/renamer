@@ -3,43 +3,49 @@ GET http://localhost:7777/ping HTTP/1.1
 Content-Type: Application/json
 
 ### 获取文件目录
-GET  http://localhost:7777/api/files?path=/vol2/1000/share/downloads/media/水浒传 HTTP/1.1
+GET  http://localhost:7777/api/files?path=/vol1/1000/tools/project/go/renamer HTTP/1.1
 
 ### 创建文件目录
 POST http://localhost:7777/api/files HTTP/1.1
+Content-Type: application/json
 
 {
     "path": "/vol1/1000/tools/project/go/renamer/S01"
 }
 
 ### 删除文件
-DELETE  http://localhost:7777/api/files HTTP/1.1
+DELETE http://localhost:7777/api/files HTTP/1.1
+Content-Type: application/json
 
 {
     "path": "/vol1/1000/tools/project/go/renamer",
-    "nameMaps": {
-        "test":[],
-        "test1":[]
-    }
+    "nameMaps": [{
+        "dirName": "S01"
+    },
+    {
+        "dirName": "S02"
+    }]
 }
 
 ### 复制文件
-POST http://192.168.100.2:5261/api/files/copy HTTP/1.1
+POST http://localhost:7777/api/files/copy HTTP/1.1
+Content-Type: application/json
 
 {
-    "path": "/home/downloads",
-    "targetPath": "/home/video/动漫",
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "targetPath": "/vol1/1000/tools/project/go/renamer/S02",
     "nameMaps": [{
-        "dirName": "S02"
+        "dirName": "S01"
     }]
 
 }
 ### 移动文件
-POST http://192.168.100.2:5261/api/files/move HTTP/1.1
+POST http://localhost:7777/api/files/move HTTP/1.1
+Content-Type: application/json
 
 {
-    "path": "/home/downloads",
-    "targetPath": "/home/video/动漫",
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "targetPath": "/vol1/1000/tools/project/go/renamer/S01",
     "nameMaps": [{
         "dirName": "S02"
     }]
@@ -49,54 +55,55 @@ POST http://192.168.100.2:5261/api/files/move HTTP/1.1
 
 ### 预览重命名结果
 POST http://localhost:7777/api/files/preview HTTP/1.1
-
-{
-    "path": "/vol1/1000/tools/project/go/renamer",
-    "nameMaps": {
-        "test2":[]
-    }
-}
-
-### 预览移除中文结果
-POST http://localhost:7777/api/files/replaceChinese HTTP/1.1
+Content-Type: application/json
 
 {
     "path": "/vol1/1000/tools/project/go/renamer",
     "nameMaps": [{
-        "dirName":"test",
-        "filesName":[]
+        "dirName": "S01"
+    }]
+}
+
+### 预览移除中文结果
+POST http://localhost:7777/api/files/replaceChinese HTTP/1.1
+Content-Type: application/json
+
+{
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "nameMaps": [{
+        "dirName":"S01"
     }]
 }
 
 ### 预览移除文本结果
 POST http://localhost:7777/api/files/removeTexts HTTP/1.1
+Content-Type: application/json
 
 {
     "path": "/vol1/1000/tools/project/go/renamer",
     "removedTexts": ["test","测试"],
     "nameMaps": [{
-        "dirName":"test",
-        "filesName":[]
+        "dirName":"S01"
     }]
 }
 
 
 ### 确认重命名
 POST http://localhost:7777/api/files/rename HTTP/1.1
+Content-Type: application/json
 
 {
-    "path": "/vol1/1000/tools/project/go/renamer/test2",
-    "nameMaps": {
-        "": [
-        {
-            "oldName": "test3",
-            "newName": "test1"
+    "path": "/vol1/1000/tools/project/go/renamer",
+    "nameMaps": [{
+        "dirName": "S01",
+        "filesName": [{
+            "oldName": "测试1.mp4",
+            "newName": "S01E01.mp4"
         },
         {
-            "oldName": "1.mp4",
-            "newName": "2.mp4"
-        }
-        ]
-    }
+            "oldName": "测试2.mp4",
+            "newName": "S01E02.mp4"
+        }]
+    }]
 }
 
