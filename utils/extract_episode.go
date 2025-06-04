@@ -18,7 +18,7 @@ func ignoreRules(filenameWithoutExt string) bool {
 }
 
 // 按规则提取集数
-func ExtractEpisode(filename string) (string, error) {
+func extractEpisode(filename string) (string, error) {
 	// 获取文件名，无后缀
 	ext := filepath.Ext(filename)
 	filenameWithoutExt := filename[:len(filename)-len(ext)]

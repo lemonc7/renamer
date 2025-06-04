@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func ElementRepeat[T comparable](els []T) error {
+func elementRepeat[T comparable](els []T) error {
 	seen := make(map[T]struct{})
 	for _, value := range els {
 		if _, ok := seen[value]; ok {

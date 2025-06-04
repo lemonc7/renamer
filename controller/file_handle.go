@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lemonc7/renamer/model"
@@ -42,18 +41,7 @@ func CreateDirs(ctx *gin.Context) {
 		return
 	}
 
-	// 检查目录是否存在
-	_, err := os.Stat(req.Path)
-	// 返回错误信息: 目录已存在
-	if err == nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "目录已存在: " + req.Path,
-		})
-		return
-	}
-
-	// 创建目录
-	if err := os.Mkdir(req.Path, 0755); err != nil {
+	if err := utils.CreateDirs(req.Path); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})

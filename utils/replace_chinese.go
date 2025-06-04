@@ -1,12 +1,13 @@
 package utils
 
 import (
+	"path/filepath"
 	"strings"
 	"unicode"
 
+	"github.com/lemonc7/renamer/model"
 	"github.com/mozillazg/go-pinyin"
 )
-
 
 var zhPunctMap = map[rune]string{
 	'，': ",", '。': ".", '！': "!", '？': "?",
@@ -15,7 +16,7 @@ var zhPunctMap = map[rune]string{
 	'‘': "'", '’': "'", '、': ",", '—': "-", '…': "...",
 }
 
-func ConvertToPinyin(s string) string {
+func convertToPinyin(s string) string {
 	args := pinyin.NewArgs()
 	args.Style = pinyin.Normal
 
@@ -39,4 +40,44 @@ func ConvertToPinyin(s string) string {
 		}
 	}
 	return b.String()
+}
+
+func ReplaceChinese(req model.PathRequest) ([]model.NameMap, error) {
+	var nameMaps []model.NameMap
+
+	// 获取文件信息
+	for _, entry := range req.NameMaps {
+		var names []model.Name
+		var newNames []string
+		files, err := GetFiles(filepath.Join(req.Path, entry.DirName))
+		if err != nil {
+			return nameMaps, err
+		}
+
+		// 遍历文件信息
+		for _, file := range files {
+			if !file.IsDir {
+				newName := convertToPinyin(file.Name)
+				newNames = append(newNames, newName)
+				names = append(names, model.Name{
+					OldName: file.Name,
+					NewName: newName,
+				})
+			}
+		}
+
+		// 新名称重复就报错
+		if err := elementRepeat(newNames); err != nil {
+			return nameMaps, err
+		}
+
+		nameMaps = append(nameMaps, model.NameMap{
+			DirName:   entry.DirName,
+			FilesName: names,
+		})
+
+	}
+
+	return nameMaps, nil
+
 }

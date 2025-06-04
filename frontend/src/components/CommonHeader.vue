@@ -45,6 +45,7 @@ const modeConfirmButton = async () => {
         break
       case 4:
         await replaceChinesePreview(route.path, store)
+        store.modePreviewDialog = true
         break
       default:
         throw new Error("未知错误")

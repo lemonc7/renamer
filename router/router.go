@@ -42,7 +42,7 @@ func SetupRouter() *gin.Engine {
 		api.POST("/preview", controller.RenamedPreview)
 		api.POST("/rename", controller.RenamedConfirm)
 		api.POST("/replaceChinese", controller.ReplaceChinesePreview)
-		api.POST("/removeTexts", controller.RemoveTexts)
+		api.POST("/removeTexts", controller.RemoveTextsPreview)
 	}
 
 	return r
