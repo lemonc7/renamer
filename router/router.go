@@ -3,7 +3,6 @@ package router
 import (
 	"bytes"
 	"net/http"
-	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -32,7 +31,7 @@ func SetupRouter() *echo.Echo {
 			if c.Response().Status >= 400 {
 				return buf.WriteString("\033[31m[ERROR]\033[0m")
 			} else {
-				return buf.WriteString("\033[32m [INFO]\033[0m")
+				return buf.WriteString("\033[32m[INFO] \033[0m")
 			}
 		},
 	}))
@@ -59,11 +58,8 @@ func SetupRouter() *echo.Echo {
 	// 加载静态资源
 	app.Static("/assets", "./dist/assets")
 
-	// 非api请求返回到index.html
+	// 路由优先级: 静态路由 > 静态资源加载 > 通配路由; 不需要显式处理,直接通配跳转到index.html
 	app.GET("/*", func(c echo.Context) error {
-		if strings.HasPrefix(c.Request().URL.Path, "/api/") {
-			return echo.ErrNotFound
-		}
 		return c.File("./dist/index.html")
 	})
 
