@@ -181,6 +181,8 @@ export async function renameFiles(path: string, nameMaps: NameMap[]) {
   }
 }
 
+
+// 整理剧集
 export async function tidySeries(path: string, store = useAllDataStore()) {
   let renameMaps: NameMap[] = []
   let moveMaps: NameMap[] = []
