@@ -2,6 +2,7 @@ package router
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -9,28 +10,59 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/lemonc7/renamer/controller"
 
-	"github.com/lemonc7/renamer/middlewares"
 	"github.com/lemonc7/renamer/model"
 )
 
 func SetupRouter() *echo.Echo {
 	app := echo.New()
 
+	// 全局处理错误
+	app.HTTPErrorHandler = func(err error, c echo.Context) {
+		// 默认错误码
+		code := http.StatusInternalServerError
+		var msg any
+		// 判断err类型,转化为字符串
+		switch he := err.(type) {
+		case *echo.HTTPError:
+			code = he.Code
+			msg = fmt.Sprintf("%v", he.Message)
+		default:
+			msg = err.Error()
+		}
+
+		// 打印error到终端
+		if code >= 500 {
+			fmt.Printf("\033[31m[ERROR]\033[0m %v\n", msg)
+		} else {
+			fmt.Printf("\033[33m[WARN] \033[0m %v\n", msg)
+		}
+		
+		// 返回响应
+		c.JSON(code, echo.Map{
+			"error": msg,
+		})
+	}
+
 	// 跨域
 	app.Use(middleware.CORS())
 	// 异常恢复
 	app.Use(middleware.Recover())
 
-	// error信息打印
-	app.Use(middlewares.ErrorLogger())
 	// 日志打印
 	app.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format:           "${custom} ${time_custom} | ${status} | ${remote_ip} | ${latency_human} | ${method} ${uri}\n",
 		CustomTimeFormat: "2006/01/02 - 15:04:05",
 		CustomTagFunc: func(c echo.Context, buf *bytes.Buffer) (int, error) {
-			if c.Response().Status >= 400 {
+			status := c.Response().Status
+			
+			switch {
+			case status >= 500:
+				// 服务器错误
 				return buf.WriteString("\033[31m[ERROR]\033[0m")
-			} else {
+			case status >= 400:
+				// 客户端错误
+				return buf.WriteString("\033[33m[WARN] \033[0m")
+			default:
 				return buf.WriteString("\033[32m[INFO] \033[0m")
 			}
 		},
