@@ -14,16 +14,16 @@ func GetFiles(c echo.Context) error {
 
 	// 绑定参数
 	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	// 校验参数
 	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity,err)
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
 
 	files, err := utils.GetFiles(req.Path)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, files)
@@ -35,16 +35,16 @@ func CreateDirs(c echo.Context) error {
 	req := new(model.PathRequest)
 	// 绑定参数
 	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	// 校验参数
 	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity,err)
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
 
 	if err := utils.CreateDirs(req.Path); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -56,15 +56,15 @@ func DeleteFiles(c echo.Context) error {
 	req := new(model.PathRequest)
 	// 绑定参数
 	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	// 校验参数
 	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity,err)
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
 
 	if err := utils.DeleteFiles(*req); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -79,15 +79,15 @@ func CopyFiles(c echo.Context) error {
 
 	// 绑定参数
 	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	// 校验参数
 	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity,err)
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
 
 	if err := utils.CopyFiles(*req); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -100,15 +100,15 @@ func MoveFiles(c echo.Context) error {
 	req := new(model.PathRequest)
 	// 绑定参数
 	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	// 校验参数
 	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity,err)
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
 
 	if err := utils.MoveFiles(*req); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{

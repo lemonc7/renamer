@@ -225,7 +225,7 @@ watch(
   () => route.path,
   async (newPath) => {
     try {
-      await getFile((newPath || "/"), store)
+      await getFile(newPath || "/", store)
     } catch (error) {
       ElMessage({
         showClose: true,

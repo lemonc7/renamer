@@ -13,16 +13,16 @@ func RemoveTextsPreview(c echo.Context) error {
 	req := new(model.PathRequest)
 
 	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity,err)
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
 
 	nameMaps, err := utils.RemoveTexts(*req)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, nameMaps)

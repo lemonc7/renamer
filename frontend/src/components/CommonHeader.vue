@@ -157,11 +157,7 @@ const refreshPage = async () => {
                 </span>
               </el-tooltip>
             </template>
-            <el-tooltip
-              content="剧集偏移"
-              placement="top"
-              effect="light"
-            >
+            <el-tooltip content="剧集偏移" placement="top" effect="light">
               <el-input-number
                 v-model="item.episodeOffset"
                 v-show="store.modeSection == 1"
