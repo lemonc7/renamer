@@ -2,7 +2,6 @@ version: '3'
 services:
   renamer:
     image: "lemonc7/renamer:250531"
-    tty: true
     container_name: renamer
     network_mode: bridge
     volumes:

@@ -10,6 +10,7 @@ import {
 } from "../api/api"
 import router from "../router"
 import { editPasteButton } from "../utils/handler_button"
+import FormDialog from "./FormDialog.vue"
 
 const route = useRoute()
 const store = useAllDataStore()
@@ -105,8 +106,6 @@ const refreshPage = async () => {
     editPasteButton("", store)
   }
 }
-
-import FormDialog from "./FormDialog.vue"
 </script>
 
 <template>
@@ -137,8 +136,8 @@ import FormDialog from "./FormDialog.vue"
       <!-- 重命名预览,选择需要重命名的文件 -->
       <el-dialog
         v-model="store.modePreviewDialog"
-        title="重命名预览"
         width="700"
+        :show-close="false"
         @close="((store.modePreviewDialog = false), (store.nameMaps = []))"
       >
         <el-tabs type="border-card">
@@ -158,18 +157,33 @@ import FormDialog from "./FormDialog.vue"
                 </span>
               </el-tooltip>
             </template>
+            <el-tooltip
+              content="剧集偏移"
+              placement="top"
+              effect="light"
+            >
+              <el-input-number
+                v-model="item.episodeOffset"
+                v-show="store.modeSection == 1"
+              ></el-input-number>
+            </el-tooltip>
             <el-table :data="item.filesName">
               <el-table-column prop="oldName" label="原名称"></el-table-column>
               <el-table-column prop="newName" label="新名称"></el-table-column>
             </el-table>
           </el-tab-pane>
         </el-tabs>
-        <template #footer>
-          <div class="mode-footer">
-            <el-button @click="store.modePreviewDialog = false">返回</el-button>
-            <el-button type="primary" @click="confirmAutoRename">
-              确认
-            </el-button>
+        <template #header>
+          <div class="mode-header">
+            <span class="mode-title">重命名预览</span>
+            <div>
+              <el-button @click="store.modePreviewDialog = false">
+                返回
+              </el-button>
+              <el-button type="primary" @click="confirmAutoRename">
+                确认
+              </el-button>
+            </div>
           </div>
         </template>
       </el-dialog>
@@ -186,5 +200,14 @@ import FormDialog from "./FormDialog.vue"
   width: 100%;
   height: 100%;
   justify-content: space-between;
+}
+
+.mode-header {
+  display: flex;
+  justify-content: space-between;
+
+  .mode-title {
+    font-size: 20px;
+  }
 }
 </style>

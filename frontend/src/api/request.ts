@@ -2,7 +2,10 @@ import axios from "axios"
 
 // 创建一个实例
 const service = axios.create({
+  // 实际生产api
   baseURL: "/",
+  // 开发测试api
+  // baseURL: "http://192.168.100.2:7777/",
   timeout: 3000,
   headers: {
     "Content-Type": "application/json;charset=UTF-8"
@@ -41,7 +44,9 @@ service.interceptors.response.use(
     if (error.response) {
       const response = error.response
       // 提取gin.H{"error": ...}中的错误信息
-      const backendError = response.data?.error || (typeof response.data === "string" ? response.data : null)
+      const backendError =
+        response.data?.error ||
+        (typeof response.data === "string" ? response.data : null)
       // 如果返回了error
       if (backendError) {
         return Promise.reject(new Error(`${backendError}`))

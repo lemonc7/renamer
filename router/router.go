@@ -23,28 +23,27 @@ func SetupRouter() *echo.Echo {
 
 	// 日志打印
 	app.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogStatus:   true,
 		LogURI:      true,
 		LogRemoteIP: true,
 		LogLatency:  true,
 		LogMethod:   true,
 		LogError:    true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			// 解析error信息
+			code, errMsg := parseError(v.Error)
 			fmt.Printf("[INFO]  %v | %v | %-15v | %12v | %-6v %v\n",
 				v.StartTime.Format("2006/01/02 - 15:04:05"),
-				v.Status,
+				code,
 				v.RemoteIP,
 				v.Latency,
 				v.Method,
 				v.URI,
 			)
-
-			_, errMsg := parseError(v.Error)
-
+			
 			// 打印error到终端
-			if v.Status >= 500 {
+			if code >= 500 {
 				fmt.Printf("\033[31m[ERROR]\033[0m %s\n", errMsg)
-			} else if v.Status >= 400 {
+			} else if code >= 400 {
 				fmt.Printf("\033[33m[WARN] \033[0m %s\n", errMsg)
 			}
 
@@ -77,6 +76,7 @@ func SetupRouter() *echo.Echo {
 			"message": "pong",
 		})
 	})
+	
 	api := app.Group("/api/files")
 	api.GET("", controller.GetFiles)
 	api.POST("", controller.CreateDirs)
@@ -91,7 +91,7 @@ func SetupRouter() *echo.Echo {
 	// 加载静态资源
 	app.Static("/assets", "./dist/assets")
 
-	// 路由优先级: 静态路由 > 静态资源加载 > 通配路由; 不需要显式处理,直接通配跳转到index.html
+	// 路由优先级: 静态路由(/xxx) > 参数路由(/xxx/:xx) > 匹配路由(/*); 不需要显式处理,直接通配跳转到index.html
 	app.GET("/*", func(c echo.Context) error {
 		return c.File("./dist/index.html")
 	})
@@ -99,8 +99,9 @@ func SetupRouter() *echo.Echo {
 	return app
 }
 
-// 处理错误信息
+// 处理错误信息,兼容error,*echo.HTTPError(code,error),*echo.HTTPError(code,string)
 func parseError(err error) (code int, msg string) {
+	// 如果已经响应,直接返回code 200(防止日志出错)
 	if err == nil {
 		return http.StatusOK, ""
 	}
@@ -120,7 +121,7 @@ func parseError(err error) (code int, msg string) {
 		return code, msg
 	}
 
-	// 处理标准error
+	// 处理标准error, code默认500
 	code = http.StatusInternalServerError
 	msg = err.Error()
 	return code, msg

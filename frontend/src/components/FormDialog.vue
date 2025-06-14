@@ -1,8 +1,8 @@
 <template>
   <el-dialog
     v-model="store.showTidySeriesDialog"
-    title="整理剧集"
     width="500px"
+    :show-close="false"
     @close="cancel"
   >
     <el-form>
@@ -32,14 +32,19 @@
       </el-form-item>
     </el-form>
 
-    <template #footer>
-      <el-button @click="cancel">取消</el-button>
-      <el-button
-        type="primary"
-        @click="confirmTidySeries"
-        :disabled="hiddenConfirmButton"
-        >确定</el-button
-      >
+    <template #header>
+      <div class="mode-header">
+        <span class="mode-title">剧集整理</span>
+        <div>
+          <el-button @click="cancel">取消</el-button>
+          <el-button
+            type="primary"
+            @click="confirmTidySeries"
+            :disabled="hiddenConfirmButton"
+            >确定
+          </el-button>
+        </div>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -99,5 +104,14 @@ function cancel() {
   max-width: 150px;
   overflow: hidden; // 超出部分不显示
   white-space: nowrap; // 禁止换行
+}
+
+.mode-header {
+  display: flex;
+  justify-content: space-between;
+
+  .mode-title {
+    font-size: 20px;
+  }
 }
 </style>

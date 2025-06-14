@@ -13,7 +13,8 @@ interface Names {
 }
 
 interface NameMap {
-  dirName: string,
+  dirName: string
+  episodeOffset?: number
   filesName?: Names[]
 }
 

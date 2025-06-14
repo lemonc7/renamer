@@ -14,16 +14,16 @@ func RenamedPreview(c echo.Context) error {
 	req := new(model.PathRequest)
 
 	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity,err)
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
 
 	nameMaps, err := utils.RenamePreview(*req)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError,err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, nameMaps)
@@ -34,16 +34,16 @@ func RenamedConfirm(c echo.Context) error {
 	req := new(model.PathRequest)
 
 	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity,err)
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
 	}
 
 	for _, entry := range req.NameMaps {
-		if err := utils.RenameFiles(filepath.Join(req.Path, entry.DirName), entry.FilesName); err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError,err)
+		if err := utils.RenameFiles(filepath.Join(req.Path, entry.DirName), entry.EpisodeOffset, entry.FilesName); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
 	}
 

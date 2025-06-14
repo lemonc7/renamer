@@ -43,6 +43,7 @@ type Name struct {
 }
 
 type NameMap struct {
-	DirName   string `json:"dirName"`
-	FilesName []Name `json:"filesName"`
+	DirName       string `json:"dirName"`
+	EpisodeOffset int    `json:"episodeOffset"`
+	FilesName     []Name `json:"filesName"`
 }

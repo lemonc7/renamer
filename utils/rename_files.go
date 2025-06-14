@@ -1,18 +1,25 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 
 	"github.com/lemonc7/renamer/model"
 )
 
-func RenameFiles(path string, nameMaps []model.Name) error {
-
-	for _, entry := range nameMaps {
+func RenameFiles(path string, episodeOffset int, names []model.Name) error {
+	for _, entry := range names {
 		oldPath := filepath.Join(path, entry.OldName)
-		newPath := filepath.Join(path, entry.NewName)
+		// 根据offset获取新名称
+		newName, err := updateEpisode(entry.NewName, episodeOffset)
+		if err != nil {
+			return err
+		}
+		newPath := filepath.Join(path, newName)
+		// 新旧名称不一致时才重命名
 		if newPath != oldPath {
 			if err := os.Rename(oldPath, newPath); err != nil {
 				return err
@@ -93,4 +100,32 @@ func renameFormat(dir string, episode *string) {
 		*episode = "S01E" + *episode
 	}
 
+}
+
+func updateEpisode(name string, offset int) (string, error) {
+	// 没有集数偏移, 直接返回
+	if offset == 0 {
+		return name, nil
+	}
+
+	ext := filepath.Ext(name)
+	nameWithoutExt := name[:len(name)-len(ext)]
+	// string格式应该是SxxExx(x...),直接提取第5位到最后1位字符---需要保证字符不小于5
+	if len(nameWithoutExt) < 5 {
+		return "", fmt.Errorf("invalid episode type: %s", name)
+	}
+
+	episodeStr := nameWithoutExt[4:]
+	episode, err := strconv.Atoi(episodeStr)
+	if err != nil {
+		return "", err
+	}
+
+	// 集数偏移
+	newEpisode := episode + offset
+	if newEpisode < 1 {
+		return "", fmt.Errorf("episode %s will be <1 after offset", name)
+	}
+
+	return fmt.Sprintf("%s%02d%s", nameWithoutExt[:4], newEpisode, ext), nil
 }
