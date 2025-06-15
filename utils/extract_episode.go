@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -80,6 +79,6 @@ func extractEpisode(filename string) (string, error) {
 		return matches[len(matches)-1] + ext, nil
 	}
 
-	return "", errors.New("未匹配到集数")
-
+	// 未匹配到集数,返回空字符
+	return "", nil
 }

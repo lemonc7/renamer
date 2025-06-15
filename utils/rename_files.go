@@ -45,12 +45,16 @@ func RenamePreview(req model.PathRequest) ([]model.NameMap, error) {
 		// 遍历文件信息
 		for _, file := range files {
 			// 获取待处理的文件
-			ignore, oldName := GetPendingFile(file)
-			if ignore {
+			needRename, oldName := GetPendingFile(file)
+			if needRename {
 				// 需要重命名的文件
 				newName, err := extractEpisode(oldName)
 				if err != nil {
 					return nameMaps, err
+				}
+				// 
+				if newName == "" {
+					continue
 				}
 				// 输出SxxExx标准命名格式
 				renameFormat(entry.DirName, &newName)

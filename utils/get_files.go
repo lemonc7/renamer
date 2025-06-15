@@ -98,11 +98,7 @@ func GetPendingFile(file model.FileInfo) (bool, string) {
 		// 只保留指定后缀名的文件
 		if slices.Contains(matchExts, file.Type) {
 			// 排除已经按规则命名的文件
-			if ignoreRules(fileNameWithoutExt) {
-				return false, file.Name
-			} else {
-				return true, file.Name
-			}
+			return !ignoreRules(fileNameWithoutExt), file.Name
 		}
 	}
 	return false, "error"

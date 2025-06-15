@@ -1,8 +1,8 @@
 package utils
 
 var matchExts = []string {
-	"flv","mkv","mp4","avi","rmvb","m2ts","wmv","nfo",
-	"srt","ass","ssa","sub","smi",
+	"flv","mkv","mp4","avi","m2ts","wmv","rmvb",
+	"srt","ass","ssa","sub","smi","jpg","nfo",
 }
 
 var ignorePattens = []string{
