@@ -1,12 +1,12 @@
 version: '3'
 services:
   renamer:
-    image: "lemonc7/renamer:250531"
+    image: "lemonc7/renamer:latest"
     container_name: renamer
     network_mode: bridge
     volumes:
-      - "/vol2/1000/share/downloads:/home/downloads"
-      - "/vol2/1000/video:/home/video"
+      - "/path/downloads:/home/downloads"  # 更改路径
+      - "/path/video:/home/video"  # 更改路径
       - /etc/localtime:/etc/localtime:ro
     ports:
       - 7777:7777
