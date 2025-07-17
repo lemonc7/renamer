@@ -39,7 +39,7 @@ func SetupRouter() *echo.Echo {
 				v.Method,
 				v.URI,
 			)
-			
+
 			// 打印error到终端
 			if code >= 500 {
 				fmt.Printf("\033[31m[ERROR]\033[0m %s\n", errMsg)
@@ -76,7 +76,7 @@ func SetupRouter() *echo.Echo {
 			"message": "pong",
 		})
 	})
-	
+
 	api := app.Group("/api/files")
 	api.GET("", controller.GetFiles)
 	api.POST("", controller.CreateDirs)
