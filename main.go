@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -32,4 +33,5 @@ func main() {
 		app.Logger.Fatal(err)
 	}
 
+	log.Println("server shutdown")
 }
