@@ -4,18 +4,24 @@ import { useLocation } from "react-router"
 import Table from "../../components/Table"
 import { useEffect } from "react"
 import { getFiles } from "../../api/api"
-import { useFileListStore } from "../../stores/useFileList"
 
 const Main: React.FC = () => {
   const location = useLocation()
-  const fileList = useFileListStore((state) => state.fileList)
   useEffect(() => {
-    getFiles(location.pathname)
+    const fetchFiles = async () => {
+      try {
+        await getFiles(location.pathname)
+      } catch (error) {
+        console.error("获取文件失败", error)
+      }
+    }
+    fetchFiles()
   }, [location.pathname])
+
   const {
     token: { colorBgContainer, borderRadiusLG }
   } = theme.useToken()
-  console.log(fileList)
+
   return (
     <div
       style={{
