@@ -27,7 +27,6 @@ func GetFiles(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, files)
-
 }
 
 // 创建文件夹(父文件夹必须存在)

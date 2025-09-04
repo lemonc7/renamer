@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -31,13 +32,14 @@ func SetupRouter() *echo.Echo {
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
 			// 解析error信息
 			code, errMsg := parseError(v.Error)
+			reqPath := formatRequestPath(c, v)
 			fmt.Printf("[INFO]  %v | %v | %-15v | %12v | %-6v %v\n",
 				v.StartTime.Format("2006/01/02 - 15:04:05"),
 				code,
 				v.RemoteIP,
 				v.Latency,
 				v.Method,
-				v.URI,
+				reqPath,
 			)
 
 			// 打印error到终端
@@ -125,5 +127,20 @@ func parseError(err error) (code int, msg string) {
 	code = http.StatusInternalServerError
 	msg = err.Error()
 	return code, msg
+}
 
+func formatRequestPath(c echo.Context, v middleware.RequestLoggerValues) string {
+	base := "/api/files"
+
+	if c.Request().Method == "GET" && c.Path() == base {
+		if path := c.QueryParam("path"); path != "" {
+			decodedPath, err := url.QueryUnescape(path)
+			if err != nil {
+				decodedPath = path
+			}
+			return base + "?path=" + decodedPath
+		}
+	}
+
+	return v.URI
 }

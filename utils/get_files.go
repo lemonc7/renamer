@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/dustin/go-humanize"
+	"github.com/google/uuid"
 	"github.com/lemonc7/renamer/model"
 	"github.com/mozillazg/go-pinyin"
 )
@@ -43,6 +44,7 @@ func GetFiles(dir string) ([]model.FileInfo, error) {
 		}
 
 		files = append(files, model.FileInfo{
+			ID:      uuid.NewString(),
 			Name:    entry.Name(),
 			Size:    size,
 			Type:    fileType,

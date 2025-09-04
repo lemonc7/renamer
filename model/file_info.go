@@ -4,6 +4,7 @@ import "github.com/go-playground/validator/v10"
 
 // 获取的文件信息
 type FileInfo struct {
+	ID      string `json:"id"`
 	Name    string `json:"name"`
 	Type    string `json:"type"`
 	Size    string `json:"size"`
