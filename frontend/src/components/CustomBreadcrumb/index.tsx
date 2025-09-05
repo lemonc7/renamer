@@ -1,8 +1,8 @@
 import { useLocation, useNavigate } from "react-router"
-import { Breadcrumb as AntdBreadcrumb } from "antd"
+import { Breadcrumb } from "antd"
 import type React from "react"
 
-const Breadcrumb: React.FC = () => {
+const CustomBreadcrumb: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const pathSnippets = location.pathname.split("/").filter((i) => i)
@@ -17,7 +17,7 @@ const Breadcrumb: React.FC = () => {
       key: url
     }
   })
-  return <AntdBreadcrumb style={{ margin: "16px 0" }} items={items} />
+  return <Breadcrumb style={{ margin: "16px 0" }} items={items} />
 }
 
-export default Breadcrumb
+export default CustomBreadcrumb

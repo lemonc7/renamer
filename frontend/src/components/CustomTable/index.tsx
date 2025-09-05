@@ -1,14 +1,14 @@
 import type { TableColumnsType } from "antd"
 import React from "react"
 import type { FileInfo } from "../../models"
-import { Table as AntdTable } from "antd"
+import { Table } from "antd"
 import { useFileListStore } from "../../stores/useFileList"
 import type { TableRowSelection } from "antd/es/table/interface"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
 import { FolderOutlined, FileOutlined } from "@ant-design/icons"
 import { useLocation, useNavigate } from "react-router"
 
-const Table: React.FC = () => {
+const CustomTable: React.FC = () => {
   const fileList = useFileListStore((state) => state.fileList)
   const fileMap = useFileListStore((state) => state.fileMap)
   const { selectedFiles, setSelectedFiles } = useSelectedFilesStore()
@@ -22,7 +22,9 @@ const Table: React.FC = () => {
       render: (text: string, record: FileInfo) => {
         const handleClick = () => {
           if (record.isDir) {
-            const newPath = `${location.pathname.replace(/\/$/, "")}/${record.name}`
+            const newPath = `${location.pathname.replace(/\/$/, "")}/${
+              record.name
+            }`
             navigate(newPath)
           }
         }
@@ -30,7 +32,7 @@ const Table: React.FC = () => {
           <span
             onClick={handleClick}
             style={{
-              cursor: record.isDir ? "pointer" : "default",
+              cursor: record.isDir ? "pointer" : "default"
             }}
           >
             {record.isDir ? (
@@ -67,13 +69,13 @@ const Table: React.FC = () => {
       )
     },
     selections: [
-      AntdTable.SELECTION_ALL,
-      AntdTable.SELECTION_INVERT,
-      AntdTable.SELECTION_NONE
+      Table.SELECTION_ALL,
+      Table.SELECTION_INVERT,
+      Table.SELECTION_NONE
     ]
   }
   return (
-    <AntdTable<FileInfo>
+    <Table<FileInfo>
       rowKey={(file) => file.id}
       columns={columns}
       dataSource={fileList}
@@ -83,4 +85,4 @@ const Table: React.FC = () => {
   )
 }
 
-export default Table
+export default CustomTable

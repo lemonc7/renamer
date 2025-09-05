@@ -1,7 +1,7 @@
 import { theme } from "antd"
 import type React from "react"
 import { useLocation } from "react-router"
-import Table from "../../components/Table"
+import CustomTable from "../../components/CustomTable"
 import { useEffect } from "react"
 import { getFiles } from "../../api/api"
 
@@ -31,7 +31,7 @@ const Main: React.FC = () => {
         borderRadius: borderRadiusLG
       }}
     >
-      <Table />
+      <CustomTable />
     </div>
   )
 }

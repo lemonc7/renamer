@@ -1,5 +1,5 @@
 import { createBrowserRouter, redirect } from "react-router"
-import Layout from "../pages/Layout"
+import CustomLayout from "../pages/Layout"
 
 const router = createBrowserRouter([
   {
@@ -12,7 +12,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/*",
-    Component: Layout
+    Component: CustomLayout
   }
 ])
 
