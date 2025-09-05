@@ -3,7 +3,6 @@ package router
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -134,11 +133,12 @@ func formatRequestPath(c echo.Context, v middleware.RequestLoggerValues) string 
 
 	if c.Request().Method == "GET" && c.Path() == base {
 		if path := c.QueryParam("path"); path != "" {
-			decodedPath, err := url.QueryUnescape(path)
-			if err != nil {
-				decodedPath = path
-			}
-			return base + "?path=" + decodedPath
+			// 前端解码过了
+			// decodedPath, err := url.QueryUnescape(path)
+			// if err != nil {
+			// 	decodedPath = path
+			// }
+			return base + "?path=" + path
 		}
 	}
 

@@ -8,6 +8,29 @@ const service = axios.create({
   }
 })
 
+// 请求拦截器
+service.interceptors.request.use(
+  (config) => {
+    // 对请求中的path进行解码,防止乱码
+    if (config.method === "get" && config.params.path) {
+      config.params.path = decodeURIComponent(config.params.path)
+    }
+
+    if (config.data) {
+      if (typeof config.data.path === "string") {
+        config.data.path = decodeURIComponent(config.data.path)
+      }
+      if (typeof config.data.targetPath === "string") {
+        config.data.targetPath = decodeURIComponent(config.data.targetPath)
+      }
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {

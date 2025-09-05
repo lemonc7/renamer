@@ -1,0 +1,13 @@
+/* 面包屑字体风格 */
+.breadcrumb-item {
+  cursor: pointer;
+  transition: color 0.2s;
+  color: #000;       /* 默认黑色 */
+  font-weight: 400;   /* 默认正常字体 */
+}
+
+/* 悬停高亮 */
+.breadcrumb-item:hover {
+  color: #1890ff;     /* 悬停蓝色 */
+  font-weight: 500;   /* 悬停加粗 */
+}
