@@ -1,18 +1,19 @@
 import { Layout } from "antd"
-import { Header, Content, Footer } from "antd/es/layout/layout"
+import { Content, Footer } from "antd/es/layout/layout"
 import type React from "react"
 import CustomBreadcrumb from "../../components/CustomBreadcrumb"
 import Main from "../Main"
+import CustomHeader from "../../components/CustomHeader"
+import { useRefresh } from "../../stores/useRefresh"
 
 const CustomLayout: React.FC = () => {
+  const refreshKey = useRefresh((state) => state.refreshKey)
   return (
     <Layout>
-      <Header style={{ display: "flex", alignItems: "center" }}>
-        <div className="demo-logo" />
-      </Header>
+      <CustomHeader/>
       <Content style={{ padding: "0 48px" }}>
         <CustomBreadcrumb />
-        <Main />
+        <Main key={refreshKey}/>
       </Content>
       <Footer style={{ textAlign: "center" }}>
         Ant Design ©{new Date().getFullYear()} Created by Ant UED

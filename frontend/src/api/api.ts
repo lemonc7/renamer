@@ -57,7 +57,7 @@ export async function copyFiles(targetPath: string) {
     url: "/api/files/copy",
     method: "post",
     data: {
-      path: useSavedPath.getState().path,
+      path: useSavedPath.getState().savedPath,
       targetPath,
       nameMaps
     }
@@ -75,7 +75,7 @@ export async function moveFiles(targetPath: string) {
     url: "/api/files/move",
     method: "post",
     data: {
-      path: useSavedPath.getState().path,
+      path: useSavedPath.getState().savedPath,
       targetPath,
       nameMaps
     }
@@ -144,7 +144,7 @@ export async function removeTextsPreview(path: string, removedTexts: string[]) {
 }
 
 // 文件重命名
-export async function renameFiles(path: string, nameMaps: NameMap[]) {
+export async function renameFile(path: string, nameMaps: NameMap[]) {
   await request({
     url: "/api/files/rename",
     method: "post",
@@ -178,7 +178,7 @@ export async function tidySeries(path: string) {
       })
     })
 
-  await renameFiles(path, renameMaps)
+  await renameFile(path, renameMaps)
   const series = useSavedSeries.getState().savedSeries
   if (series) {
     const targetPath = path + "/" + series

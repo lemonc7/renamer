@@ -12,7 +12,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/*",
-    Component: CustomLayout
+    Component: CustomLayout,
   }
 ])
 

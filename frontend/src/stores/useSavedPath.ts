@@ -1,11 +1,11 @@
 import { create } from "zustand"
 
 interface SavedPath {
-  path: string
-  setPath: (path: string) => void
+  savedPath: string
+  setSavedPath: (path: string) => void
 }
 
 export const useSavedPath = create<SavedPath>((set) => ({
-  path: "",
-  setPath: (path: string) => set({ path })
+  savedPath: "",
+  setSavedPath: (path: string) => set({ savedPath: path })
 }))

@@ -19,4 +19,13 @@ interface NameMap {
   filesName?: Names[]
 }
 
-export type { FileInfo, Names, NameMap }
+export const OperationMode = {
+  Rename: "剧集重命名",
+  TidySeries: "整理剧集",
+  ReplaceChinese: "替换中文",
+  RemoveTexts: "移除文本"
+} as const
+
+export type OperationMode = (typeof OperationMode)[keyof typeof OperationMode]
+
+export type { FileInfo, Names, NameMap, }
