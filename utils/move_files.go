@@ -16,7 +16,7 @@ func MoveFiles(req model.PathRequest) error {
 		targetPath := filepath.Join(req.TargetPath, entry.DirName)
 
 		if info, err := os.Stat(targetPath); err == nil && !info.IsDir() {
-			return fmt.Errorf("target file exists: %s", info.Name())
+			return fmt.Errorf("目标文件已存在: %s", info.Name())
 		} else if err != nil && !os.IsNotExist(err) {
 			return err
 		}

@@ -8,7 +8,7 @@ func elementRepeat[T comparable](els []T) error {
 	seen := make(map[T]struct{})
 	for _, value := range els {
 		if _, ok := seen[value]; ok {
-			return fmt.Errorf("element is repeated: %v", value)
+			return fmt.Errorf("元素重复: %v", value)
 		}
 		seen[value] = struct{}{}
 	}

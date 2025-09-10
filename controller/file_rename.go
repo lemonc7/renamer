@@ -42,7 +42,7 @@ func RenamedConfirm(c echo.Context) error {
 	}
 
 	for _, entry := range req.NameMaps {
-		if err := utils.RenameFiles(filepath.Join(req.Path, entry.DirName), entry.EpisodeOffset, entry.FilesName); err != nil {
+		if err := utils.RenameFiles(filepath.Join(req.Path, entry.DirName), entry.FilesName); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
 	}
