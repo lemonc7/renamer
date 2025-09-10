@@ -10,13 +10,12 @@ const CustomLayout: React.FC = () => {
   const refreshKey = useRefresh((state) => state.refreshKey)
   return (
     <Layout>
-      <CustomHeader/>
+      <CustomHeader />
       <Content style={{ padding: "0 48px" }}>
         <CustomBreadcrumb />
-        <Main key={refreshKey}/>
+        <Main key={refreshKey} />
       </Content>
-      <Footer style={{ textAlign: "center" }}>
-      </Footer>
+      <Footer style={{ textAlign: "center" }}></Footer>
     </Layout>
   )
 }

@@ -1,11 +1,9 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 
 	"github.com/lemonc7/renamer/model"
 )
@@ -60,14 +58,10 @@ func RenamePreview(req model.PathRequest) ([]model.NameMap, error) {
 				}
 				// 输出SxxExx标准命名格式
 				renameFormat(entry.DirName, &newName)
-				// 更新剧集偏移
-				newNameWithOffset, err := updateEpisode(newName, entry.EpisodeOffset)
-				if err != nil {
-					return nameMaps, err
-				}
+
 				names = append(names, model.Name{
 					OldName: oldName,
-					NewName: newNameWithOffset,
+					NewName: newName,
 				})
 			} else {
 				// 不需要重命名的文件
@@ -103,32 +97,4 @@ func renameFormat(dir string, episode *string) {
 		*episode = "S01E" + *episode
 	}
 
-}
-
-func updateEpisode(name string, offset int) (string, error) {
-	// 没有集数偏移, 直接返回
-	if offset == 0 {
-		return name, nil
-	}
-
-	ext := filepath.Ext(name)
-	nameWithoutExt := name[:len(name)-len(ext)]
-	// string格式应该是SxxExx(x...),直接提取第5位到最后1位字符---需要保证字符不小于5
-	if len(nameWithoutExt) < 5 {
-		return "", fmt.Errorf("无效格式: %s", name)
-	}
-
-	episodeStr := nameWithoutExt[4:]
-	episode, err := strconv.Atoi(episodeStr)
-	if err != nil {
-		return "", err
-	}
-
-	// 集数偏移
-	newEpisode := episode + offset
-	if newEpisode < 1 {
-		return "", fmt.Errorf("偏移后的剧集[%s]会小于1", name)
-	}
-
-	return fmt.Sprintf("%s%02d%s", nameWithoutExt[:4], newEpisode, ext), nil
 }

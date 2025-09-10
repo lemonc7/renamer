@@ -1,5 +1,5 @@
 import { message, Modal } from "antd"
-import React from "react"
+import React, { useState } from "react"
 import { useLocation } from "react-router"
 import { OperationMode } from "../../models"
 import { renameFiles } from "../../api/api"
@@ -17,6 +17,12 @@ const Preview: React.FC<{
   const [messageApi, contextHolder] = message.useMessage()
   const nameMaps = usePreviewRename((state) => state.nameMaps)
   const refresh = useRefresh((state) => state.setRefreshKey)
+  const [offsets, setOffsets] = useState<Record<string, number>>({})
+
+  const handleClose = () => {
+    onClose()
+    setOffsets({})
+  }
 
   const handleRename = async () => {
     try {
@@ -30,7 +36,7 @@ const Preview: React.FC<{
       })
       console.error(msg)
     } finally {
-      onClose()
+      handleClose()
     }
   }
 
@@ -42,11 +48,11 @@ const Preview: React.FC<{
         centered
         open={open}
         onOk={handleRename}
-        onCancel={onClose}
+        onCancel={handleClose}
         okText="确认"
         cancelText="取消"
       >
-        <PreviewTabs />
+        <PreviewTabs mode={mode} offsets={offsets} setOffsets={setOffsets} />
       </Modal>
     </>
   )

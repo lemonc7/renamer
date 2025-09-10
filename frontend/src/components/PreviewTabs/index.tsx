@@ -1,16 +1,18 @@
 import {
   Button,
   InputNumber,
+  message,
   Table,
   Tabs,
   Tooltip,
   type TableColumnsType,
   type TabsProps
 } from "antd"
-import React from "react"
+import React, { useRef } from "react"
 import { usePreviewRename } from "../../stores/usePreviewRename"
-import type { Names } from "../../models"
+import { OperationMode, type Names } from "../../models"
 import { ReloadOutlined } from "@ant-design/icons"
+import { updateEpisode } from "../../utils/updateEpisode"
 
 const PreviewTables: React.FC<{ names: Names[] }> = ({ names }) => {
   const columns: TableColumnsType<Names> = [
@@ -31,17 +33,57 @@ const PreviewTables: React.FC<{ names: Names[] }> = ({ names }) => {
   )
 }
 
-const PreviewTabs: React.FC = () => {
+const PreviewTabs: React.FC<{
+  mode: OperationMode
+  offsets: Record<string, number>
+  setOffsets: React.Dispatch<React.SetStateAction<Record<string, number>>>
+}> = ({ mode, offsets, setOffsets }) => {
   const { nameMaps, setNameMaps } = usePreviewRename()
+  const [messageApi, contextHolder] = message.useMessage()
+  const cacheNames = useRef<Record<string, string[]>>({})
+
+  if (Object.keys(cacheNames.current).length === 0) {
+    nameMaps.forEach((item) => {
+      cacheNames.current[item.dirName] =
+        item.filesName?.map((file) => file.newName) ?? []
+    })
+  }
 
   const updateOffset = (dirName: string, value: number | string | null) => {
     if (typeof value !== "number" || !Number.isInteger(value)) return
+    setOffsets((prev) => ({ ...prev, [dirName]: value }))
+  }
 
-    setNameMaps((prev) =>
-      prev.map((item) =>
-        item.dirName === dirName ? { ...item, episodeOffset: value } : item
+  const handleUpdate = (dirName: string) => {
+    const offset = offsets[dirName] || 0
+    try {
+      setNameMaps((prev) =>
+        prev.map((item) => {
+          if (item.dirName !== dirName) return item
+
+          const updatedFiles = item.filesName?.map((file, index) => {
+            const baseName =
+              cacheNames.current[dirName]?.[index] ?? file.newName
+            return {
+              ...file,
+              newName: updateEpisode(baseName, offset)
+            }
+          })
+
+          return {
+            ...item,
+            filesName: updatedFiles
+          }
+        })
       )
-    )
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error)
+      messageApi.open({
+        type: "error",
+        content: msg
+      })
+      console.error(msg)
+    }
   }
 
   const items: TabsProps["items"] = nameMaps.map((item) => ({
@@ -49,32 +91,40 @@ const PreviewTabs: React.FC = () => {
     label: item.dirName,
     children: (
       <div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "10px"
-          }}
-        >
-          <Tooltip title="集数偏移">
-            <InputNumber
-              value={item.episodeOffset}
-              changeOnWheel
-              precision={0}
-              step={1}
-              onChange={(value) => updateOffset(item.dirName, value)}
-            />
-          </Tooltip>
-          <Button style={{ marginLeft: 10 }} icon={<ReloadOutlined />} >
-            更新
-          </Button>
-        </div>
+        {mode === OperationMode.Rename && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px"
+            }}
+          >
+            <Tooltip title="集数偏移">
+              <InputNumber
+                value={offsets[item.dirName] ?? 0}
+                changeOnWheel
+                precision={0}
+                step={1}
+                onChange={(value) => updateOffset(item.dirName, value)}
+              />
+            </Tooltip>
+            <Button
+              style={{ marginLeft: 10 }}
+              icon={<ReloadOutlined />}
+              onClick={() => handleUpdate(item.dirName)}
+            >
+              更新
+            </Button>
+          </div>
+        )}
+
         <PreviewTables names={item.filesName ?? []} />
       </div>
     )
   }))
   return (
     <div>
+      {contextHolder}
       <Tabs items={items} />
     </div>
   )

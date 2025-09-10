@@ -39,7 +39,6 @@ const Main: React.FC = () => {
       <div
         style={{
           background: colorBgContainer,
-          minHeight: 500,
           padding: 24,
           borderRadius: borderRadiusLG
         }}
