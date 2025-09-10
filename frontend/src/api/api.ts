@@ -7,6 +7,7 @@ import { useSavedFilesStore } from "../stores/useSavedFiles"
 import { useSavedPath } from "../stores/useSavedPath"
 import { usePreviewRename } from "../stores/usePreviewRename"
 import { useSavedSeries } from "../stores/useSavedSeries"
+import { joinPath } from "../utils/path"
 
 // 获取文件目录
 export async function getFiles(path: string) {
@@ -144,7 +145,7 @@ export async function removeTextsPreview(path: string, removedTexts: string[]) {
 }
 
 // 文件重命名
-export async function renameFile(path: string, nameMaps: NameMap[]) {
+export async function renameFiles(path: string, nameMaps: NameMap[]) {
   await request({
     url: "/api/files/rename",
     method: "post",
@@ -178,10 +179,10 @@ export async function tidySeries(path: string) {
       })
     })
 
-  await renameFile(path, renameMaps)
+  await renameFiles(path, renameMaps)
   const series = useSavedSeries.getState().savedSeries
   if (series) {
-    const targetPath = path + "/" + series
+    const targetPath = joinPath(path, [series])
 
     await createDir(targetPath)
     await request({

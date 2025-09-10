@@ -51,7 +51,7 @@ const FileHandle: React.FC = () => {
   }
 
   return (
-    <div>
+    <>
       {contextHolder}
       <Button
         icon={<FolderAddOutlined />}
@@ -136,7 +136,7 @@ const FileHandle: React.FC = () => {
         onClose={() => setPasteDialog(false)}
         pasteType={pasteType}
       />
-    </div>
+    </>
   )
 }
 

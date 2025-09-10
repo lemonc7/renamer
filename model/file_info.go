@@ -20,7 +20,7 @@ type FileInfo struct {
 // 移动文件-MoveFiles---Path,TargetPath,NameMaps(dirName)
 // 预览重命名-RenamePreview---Path,NameMaps(dirName)
 // 移除中文预览-RemoveChinesePreview---Path,NameMaps(dirName)
-// 移除指定文本并预览-RemoveTextsPreview---Path,NameMaps(dirmName)
+// 移除指定文本并预览-RemoveTextsPreview---Path,NameMaps(dirName)
 // 确认重命名-RenameFiles---Path,NameMaps(dirName,filesName)
 type PathRequest struct {
 	Path         string    `json:"path" query:"path" validate:"required"`

@@ -61,22 +61,74 @@ const CustomTable: React.FC = () => {
 
   const rowSelection: TableRowSelection<FileInfo> = {
     selectedRowKeys: selectedFiles.map((file) => file.id),
-    onChange: (keys) => {
+    onChange: (keys: React.Key[]) => {
       setSelectedFiles(
-        (keys as string[])
-          .map((id) => fileMap.get(id)!)
+        keys
+          .map((id) => fileMap.get(String(id)))
           .filter((f): f is FileInfo => !!f)
       )
     },
     selections: [
-      Table.SELECTION_ALL,
-      Table.SELECTION_INVERT,
-      Table.SELECTION_NONE
+      {
+        key: "all",
+        text: "全选",
+        onSelect: (changeableRowKeys: React.Key[]) => {
+          setSelectedFiles(
+            changeableRowKeys
+              .map((id) => fileMap.get(String(id)))
+              .filter((f): f is FileInfo => !!f)
+          )
+        }
+      },
+      {
+        key: "invert",
+        text: "反选",
+        onSelect: (changeableRowKeys: React.Key[]) => {
+          const selectedSet = new Set(selectedFiles.map((f) => f.id))
+          const inverted = changeableRowKeys.filter(
+            (id) => !selectedSet.has(String(id))
+          )
+          setSelectedFiles(
+            inverted
+              .map((id) => fileMap.get(String(id)))
+              .filter((f): f is FileInfo => !!f)
+          )
+        }
+      },
+      {
+        key: "none",
+        text: "取消全选",
+        onSelect: () => {
+          setSelectedFiles([])
+        }
+      },
+      {
+        key: "allDirs",
+        text: "全选文件夹",
+        onSelect: (changeableRowKeys: React.Key[]) => {
+          setSelectedFiles(
+            changeableRowKeys
+              .map((id) => fileMap.get(String(id)))
+              .filter((f): f is FileInfo => !!f && f.isDir)
+          )
+        }
+      },
+      {
+        key: "allFiles",
+        text: "全选文件",
+        onSelect: (changeableRowKeys: React.Key[]) => {
+          setSelectedFiles(
+            changeableRowKeys
+              .map((id) => fileMap.get(String(id)))
+              .filter((f): f is FileInfo => !!f && !f.isDir)
+          )
+        }
+      }
     ]
   }
   return (
     <Table<FileInfo>
-      rowKey={(file) => file.id}
+      rowKey={(file) => file.id as string}
       columns={columns}
       dataSource={fileList}
       pagination={false}

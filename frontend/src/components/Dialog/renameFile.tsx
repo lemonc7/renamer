@@ -1,7 +1,7 @@
 import { Input, message, Modal, type InputRef } from "antd"
 import React, { useEffect, useRef, useState } from "react"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
-import { renameFile } from "../../api/api"
+import { renameFiles } from "../../api/api"
 import { joinPath } from "../../utils/path"
 import { useLocation } from "react-router"
 import type { NameMap } from "../../models"
@@ -29,10 +29,6 @@ const RenameFile: React.FC<{ open: boolean; onClose: () => void }> = ({
   }, [open, selectedFiles])
 
   const handleOK = async () => {
-    if (selectedFiles.length !== 1) {
-      messageApi.error("请选择一个文件")
-      return
-    }
     try {
       const nameMap: NameMap[] = [
         {
@@ -45,7 +41,7 @@ const RenameFile: React.FC<{ open: boolean; onClose: () => void }> = ({
           ]
         }
       ]
-      await renameFile(joinPath(location.pathname, []), nameMap)
+      await renameFiles(joinPath(location.pathname, []), nameMap)
       messageApi.success("重命名成功")
       onClose()
       refresh()
@@ -60,7 +56,6 @@ const RenameFile: React.FC<{ open: boolean; onClose: () => void }> = ({
     <>
       {contextHolder}
       <Modal
-        className="custom-disabled-button"
         title="文件重命名"
         centered
         open={open}
