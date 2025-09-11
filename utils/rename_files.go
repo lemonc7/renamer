@@ -10,11 +10,11 @@ import (
 
 func RenameFiles(path string, names []model.Name) error {
 	// 新名称重复就报错
-	newNames := make([]string, len(names))
-	for i, name := range names {
-		newNames[i] = name.NewName
+	newNames := make([]string, 0, len(names))
+	for _, name := range names {
+		newNames = append(newNames, name.NewName)
 	}
-	if err := elementRepeat(newNames); err != nil {
+	if err := IsElementRepeat(newNames); err != nil {
 		return err
 	}
 

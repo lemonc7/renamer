@@ -17,10 +17,15 @@ const CustomBreadcrumb: React.FC = () => {
 
     const allItems = pathSnippets.map((segment, index) => {
       const url = `/${pathSnippets.slice(0, index + 1).join("/")}`
+      const isLast = index === pathSnippets.length - 1
       return {
         key: url,
         title: (
-          <span className="breadcrumb-item" onClick={() => navigate(url)}>
+          <span
+            className={`breadcrumb-item ${isLast ? "last" : ""}`}
+            onClick={() => !isLast && navigate(url)}
+            // style={{ fontWeight: isLast ? "bolder" : "normal" }}
+          >
             {segment}
           </span>
         ),

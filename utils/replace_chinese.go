@@ -67,7 +67,7 @@ func ReplaceChinese(req model.PathRequest) ([]model.NameMap, error) {
 		}
 
 		// 新名称重复就报错
-		if err := elementRepeat(newNames); err != nil {
+		if err := IsElementRepeat(newNames); err != nil {
 			return nameMaps, err
 		}
 

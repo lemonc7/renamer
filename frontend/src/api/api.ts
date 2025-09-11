@@ -158,8 +158,15 @@ export async function renameFiles(path: string, nameMaps: NameMap[]) {
 
 // 整理剧集
 export async function tidySeries(path: string) {
+  const series = useSavedSeries.getState().savedSeries
+  if (!series) {
+    throw new Error("请先设置剧集名称")
+  }
+
+  const targetPath = joinPath(path, [series])
+  await createDir(targetPath)
+
   const renameMaps: NameMap[] = []
-  const moveMaps: NameMap[] = []
   useSelectedFilesStore
     .getState()
     .selectedFiles.filter((item) => item.isDir && item.season)
@@ -169,30 +176,11 @@ export async function tidySeries(path: string) {
         filesName: [
           {
             oldName: item.name,
-            newName: item.season!
+            newName: series + "/" + item.season!
           }
         ]
-      })
-
-      moveMaps.push({
-        dirName: item.season!
       })
     })
 
   await renameFiles(path, renameMaps)
-  const series = useSavedSeries.getState().savedSeries
-  if (series) {
-    const targetPath = joinPath(path, [series])
-
-    await createDir(targetPath)
-    await request({
-      url: "/api/files/move",
-      method: "post",
-      data: {
-        path,
-        targetPath,
-        nameMaps: moveMaps
-      }
-    })
-  }
 }

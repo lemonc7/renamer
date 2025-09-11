@@ -1,4 +1,4 @@
-import { message, theme } from "antd"
+import { theme } from "antd"
 import type React from "react"
 import { useLocation } from "react-router"
 import CustomTable from "../../components/CustomTable"
@@ -6,28 +6,29 @@ import { useEffect, useState } from "react"
 import { getFiles } from "../../api/api"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
 import NotFound from "../NotFound"
+import { useSavedSeries } from "../../stores/useSavedSeries"
 
 const Main: React.FC = () => {
   const location = useLocation()
-  const [messageApi, contextHolder] = message.useMessage()
   const [error, setError] = useState<Error | null>(null)
   const setSelectedFiles = useSelectedFilesStore(
     (state) => state.setSelectedFiles
   )
+  const setSeries = useSavedSeries((state) => state.setSavedSeries)
   useEffect(() => {
     setSelectedFiles([])
+    setSeries("")
     setError(null)
     const fetchFiles = async () => {
       try {
         await getFiles(location.pathname)
       } catch (error) {
-        messageApi.error("获取文件失败")
         console.error("获取文件失败", error)
         setError(error as Error)
       }
     }
     fetchFiles()
-  }, [location.pathname, setSelectedFiles, messageApi])
+  }, [location.pathname, setSelectedFiles,setSeries])
 
   const {
     token: { colorBgContainer, borderRadiusLG }
@@ -35,7 +36,6 @@ const Main: React.FC = () => {
 
   return (
     <>
-      {contextHolder}
       <div
         style={{
           background: colorBgContainer,

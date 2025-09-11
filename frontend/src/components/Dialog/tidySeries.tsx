@@ -1,5 +1,5 @@
 import { Input, message, Modal, Select, Tooltip } from "antd"
-import React from "react"
+import React, { useMemo } from "react"
 import { tidySeries } from "../../api/api"
 import { useLocation } from "react-router"
 import { joinPath } from "../../utils/path"
@@ -30,23 +30,36 @@ const TidySeries: React.FC<{ open: boolean; onClose: () => void }> = ({
     setSelectedFiles(updated)
   }
 
+  const duplicateSeasons = useMemo(() => {
+    const seasons = selectedDirs.map((file) => file.season).filter(Boolean)
+    return new Set(
+      seasons.filter((season, index) => seasons.indexOf(season) !== index)
+    )
+  }, [selectedDirs])
+
   const handleOK = async () => {
+    if (duplicateSeasons.size > 0) {
+      messageApi.error({
+        content: `${Array.from(duplicateSeasons).join(",")} 季数重复`
+      })
+      return
+    }
+
     try {
       await tidySeries(joinPath(location.pathname, []))
       messageApi.success({
         content: "整理完成"
       })
+      refresh()
+      setSelectedFiles([])
+      onClose()
+      setSavedSeries("")
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error)
       messageApi.error({
         content: msg
       })
       console.error(error)
-    } finally {
-      onClose()
-      refresh()
-      setSelectedFiles([])
-      setSavedSeries("")
     }
   }
 
@@ -87,6 +100,7 @@ const TidySeries: React.FC<{ open: boolean; onClose: () => void }> = ({
                 value={file.season}
                 placeholder="选择季"
                 onChange={(season) => updateSeasons(file.id, season)}
+                status={duplicateSeasons.has(file.season) ? "error" : undefined}
               />
               <Tooltip title={file.name} placement="right">
                 <span
