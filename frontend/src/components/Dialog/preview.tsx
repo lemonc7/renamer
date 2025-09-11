@@ -1,5 +1,5 @@
 import { message, Modal } from "antd"
-import React, { useState } from "react"
+import React from "react"
 import { useLocation } from "react-router"
 import { OperationMode } from "../../models"
 import { renameFiles } from "../../api/api"
@@ -17,7 +17,7 @@ const Preview: React.FC<{
   const [messageApi, contextHolder] = message.useMessage()
   const nameMaps = usePreviewRename((state) => state.nameMaps)
   const refresh = useRefresh((state) => state.setRefreshKey)
-  const [offsets, setOffsets] = useState<Record<string, number>>({})
+  const [offsets, setOffsets] = React.useState<Record<string, number>>({})
 
   const handleClose = () => {
     onClose()

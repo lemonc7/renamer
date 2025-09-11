@@ -1,5 +1,5 @@
 import { Input, type InputRef, message, Modal } from "antd"
-import React, { useEffect, useRef } from "react"
+import React from "react"
 import { createDir } from "../../api/api"
 import { useLocation } from "react-router"
 import { joinPath } from "../../utils/path"
@@ -13,9 +13,9 @@ const CreateDir: React.FC<{ open: boolean; onClose: () => void }> = ({
   const location = useLocation()
   const [messageApi, contextHolder] = message.useMessage()
   const refresh = useRefresh((state) => state.setRefreshKey)
-  const inputRef = useRef<InputRef>(null)
+  const inputRef = React.useRef<InputRef>(null)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (open) {
       setTimeout(() => {
         inputRef.current?.focus()

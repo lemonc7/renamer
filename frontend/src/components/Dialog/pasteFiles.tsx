@@ -56,7 +56,7 @@ const PasteFiles: React.FC<{
         okText="确定"
         cancelText="取消"
       >
-        <InfoCircleOutlined style={{ marginRight: 8, color: "orange" }} />
+        <InfoCircleOutlined className="mx-2 !text-yellow-500" />
         {`${title}文件将覆盖原文件,是否继续?`}
       </Modal>
     </>

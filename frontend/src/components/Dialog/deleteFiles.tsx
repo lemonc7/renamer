@@ -49,7 +49,7 @@ const DeleteFiles: React.FC<{ open: boolean; onClose: () => void }> = ({
         okText="确认"
         cancelText="取消"
       >
-        <InfoCircleOutlined style={{ marginRight: 8, color: "red" }} />
+        <InfoCircleOutlined className="mx-2 !text-red-600" />
         确认删除所选文件么(无法撤销)？
       </Modal>
     </>

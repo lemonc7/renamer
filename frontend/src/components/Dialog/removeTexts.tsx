@@ -1,5 +1,5 @@
 import { Input, type InputRef, message, Modal } from "antd"
-import React, { useEffect, useRef, useState } from "react"
+import React from "react"
 import { removeTextsPreview } from "../../api/api"
 import { useLocation } from "react-router"
 import { joinPath } from "../../utils/path"
@@ -10,13 +10,13 @@ const RemoveTexts: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
   onClose
 }) => {
-  const [inputValue, setInputValue] = useState("")
+  const [inputValue, setInputValue] = React.useState("")
   const [messageApi, contextHolder] = message.useMessage()
-  const inputRef = useRef<InputRef>(null)
+  const inputRef = React.useRef<InputRef>(null)
   const location = useLocation()
-  const [showPreview, setShowPreview] = useState(false)
+  const [showPreview, setShowPreview] = React.useState(false)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (open) {
       setTimeout(() => {
         inputRef.current?.focus()

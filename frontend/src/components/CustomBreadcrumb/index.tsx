@@ -4,7 +4,7 @@ import { Dropdown, type MenuProps } from "antd"
 
 const MAX_BREADCRUMB_ITEMS = 4
 
-const CustomBreadcrumb: React.FC = () => {
+const CustomBreadcrumb: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -33,9 +33,6 @@ const CustomBreadcrumb: React.FC = () => {
       {item.label}
     </span>
   )
-
-  // 判断是否手机端
-  const isMobile = window.innerWidth < 640
 
   let itemsToRender: React.ReactNode[] = []
 

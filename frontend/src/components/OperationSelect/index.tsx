@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import { OperationMode } from "../../models"
 import { Button, message, Select } from "antd"
 import { CheckOutlined } from "@ant-design/icons"
@@ -13,8 +13,8 @@ import RemoveTexts from "../Dialog/removeTexts"
 const { Option } = Select
 
 const OperationSelect: React.FC = () => {
-  const [mode, setMode] = useState<OperationMode>(OperationMode.Rename)
-  const [showDialog, setShowDialog] = useState(false)
+  const [mode, setMode] = React.useState<OperationMode>(OperationMode.Rename)
+  const [showDialog, setShowDialog] = React.useState(false)
   const selectedFiles = useSelectedFilesStore((state) => state.selectedFiles)
   const location = useLocation()
   const [messageApi, contextHolder] = message.useMessage()
@@ -73,9 +73,7 @@ const OperationSelect: React.FC = () => {
   return (
     <>
       {contextHolder}
-      <div
-        className="flex items-center justify-center"
-      >
+      <div className="flex items-center justify-center">
         <Select
           value={mode}
           onChange={(value: OperationMode) => setMode(value)}

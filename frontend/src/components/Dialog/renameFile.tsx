@@ -1,5 +1,5 @@
 import { Input, message, Modal, type InputRef } from "antd"
-import React, { useEffect, useRef, useState } from "react"
+import React from "react"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
 import { renameFiles } from "../../api/api"
 import { joinPath } from "../../utils/path"
@@ -14,11 +14,11 @@ const RenameFile: React.FC<{ open: boolean; onClose: () => void }> = ({
   const [messageApi, contextHolder] = message.useMessage()
   const location = useLocation()
   const { selectedFiles, setSelectedFiles } = useSelectedFilesStore()
-  const [inputValue, setInputValue] = useState("")
+  const [inputValue, setInputValue] = React.useState("")
   const refresh = useRefresh((state) => state.setRefreshKey)
-  const inputRef = useRef<InputRef>(null)
+  const inputRef = React.useRef<InputRef>(null)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (open && selectedFiles.length === 1) {
       setInputValue(selectedFiles[0].name)
       setTimeout(() => {

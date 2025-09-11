@@ -1,52 +1,26 @@
 import type { TableColumnsType } from "antd"
 import React from "react"
 import type { FileInfo } from "../../models"
-import { Table } from "antd"
+import { Table, Tooltip } from "antd"
 import { useFileListStore } from "../../stores/useFileList"
 import type { TableRowSelection } from "antd/es/table/interface"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
 import { FolderOutlined, FileOutlined } from "@ant-design/icons"
 import { useLocation, useNavigate } from "react-router"
 
-const CustomTable: React.FC = () => {
+const CustomTable: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const fileList = useFileListStore((state) => state.fileList)
   const fileMap = useFileListStore((state) => state.fileMap)
   const { selectedFiles, setSelectedFiles } = useSelectedFilesStore()
-  const location = useLocation()
-  const navigate = useNavigate()
-
-  const isMobile = window.innerWidth < 640
 
   const columns: TableColumnsType<FileInfo> = []
   columns.push({
     title: "名称",
     dataIndex: "name",
     width: isMobile ? "70%" : "60%",
-    render: (text: string, record: FileInfo) => {
-      const handleClick = () => {
-        if (record.isDir) {
-          const newPath = `${location.pathname.replace(/\/$/, "")}/${
-            record.name
-          }`
-          navigate(newPath)
-        }
-      }
-      return (
-        <div
-          onClick={handleClick}
-          className={`flex items-center ${
-            record.isDir ? "cursor-pointer" : "cursor-default"
-          }`}
-        >
-          {record.isDir ? (
-            <FolderOutlined className="mx-2" />
-          ) : (
-            <FileOutlined className="mx-2" />
-          )}
-          <span className="truncate max-w-[66vw]">{text}</span>
-        </div>
-      )
-    }
+    render: (text: string, record: FileInfo) => (
+      <RenderFileName name={text} record={record} />
+    )
   })
   columns.push({
     title: "大小",
@@ -144,6 +118,45 @@ const CustomTable: React.FC = () => {
         sticky
       />
     </div>
+  )
+}
+
+const RenderFileName: React.FC<{
+  name: string
+  record: FileInfo
+}> = ({ name, record }) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleClick = () => {
+    if (record.isDir) {
+      const newPath = `${location.pathname.replace(/\/$/, "")}/${record.name}`
+      navigate(newPath)
+    }
+  }
+
+  const content = (
+    <div
+      onClick={handleClick}
+      className={`flex items-center ${
+        record.isDir ? "cursor-pointer" : "cursor-default"
+      }`}
+    >
+      {record.isDir ? (
+        <FolderOutlined className="mx-2" />
+      ) : (
+        <FileOutlined className="mx-2" />
+      )}
+      <span className="block overflow-hidden whitespace-nowrap text-ellipsis">
+        {name}
+      </span>
+    </div>
+  )
+
+  return (
+    <Tooltip title={name} placement="topLeft" mouseEnterDelay={0.5}>
+      {content}
+    </Tooltip>
   )
 }
 

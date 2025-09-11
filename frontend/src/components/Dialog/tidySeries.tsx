@@ -1,5 +1,5 @@
 import { Input, message, Modal, Select, Tooltip } from "antd"
-import React, { useMemo } from "react"
+import React from "react"
 import { tidySeries } from "../../api/api"
 import { useLocation } from "react-router"
 import { joinPath } from "../../utils/path"
@@ -30,7 +30,7 @@ const TidySeries: React.FC<{ open: boolean; onClose: () => void }> = ({
     setSelectedFiles(updated)
   }
 
-  const duplicateSeasons = useMemo(() => {
+  const duplicateSeasons = React.useMemo(() => {
     const seasons = selectedDirs.map((file) => file.season).filter(Boolean)
     return new Set(
       seasons.filter((season, index) => seasons.indexOf(season) !== index)
@@ -88,29 +88,19 @@ const TidySeries: React.FC<{ open: boolean; onClose: () => void }> = ({
           placeholder="请输入剧集名称"
           allowClear
         />
-        <div style={{ marginTop: 16 }}>
+        <div className="mt-4">
           {selectedDirs.map((file) => (
-            <div
-              key={file.id}
-              style={{ display: "flex", alignItems: "center", marginBottom: 8 }}
-            >
+            <div key={file.id} className="flex items-center mt-2">
               <Select
-                style={{ width: 100, marginRight: 8 }}
+                className="!w-24 !mr-2"
                 options={seasonOptions}
                 value={file.season}
                 placeholder="选择季"
                 onChange={(season) => updateSeasons(file.id, season)}
                 status={duplicateSeasons.has(file.season) ? "error" : undefined}
               />
-              <Tooltip title={file.name} placement="right">
-                <span
-                  style={{
-                    flex: 1,
-                    overflow: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis"
-                  }}
-                >
+              <Tooltip title={file.name} placement="topLeft" mouseEnterDelay={1}>
+                <span className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
                   {file.name}
                 </span>
               </Tooltip>

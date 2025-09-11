@@ -8,7 +8,7 @@ import {
   type TableColumnsType,
   type TabsProps
 } from "antd"
-import React, { useRef } from "react"
+import React from "react"
 import { usePreviewRename } from "../../stores/usePreviewRename"
 import { OperationMode, type Names } from "../../models"
 import { ReloadOutlined } from "@ant-design/icons"
@@ -18,17 +18,32 @@ const PreviewTables: React.FC<{ names: Names[] }> = ({ names }) => {
   const columns: TableColumnsType<Names> = [
     {
       title: "原名称",
-      dataIndex: "oldName"
+      dataIndex: "oldName",
+      width: "60%",
+      render: (text: string) => (
+        <Tooltip title={text} placement="topLeft">
+          <span className="block overflow-hidden whitespace-nowrap text-ellipsis">
+            {text}
+          </span>
+        </Tooltip>
+      )
     },
     {
       title: "新名称",
-      dataIndex: "newName"
+      dataIndex: "newName",
+      width: "40%"
     }
   ]
 
   return (
-    <div>
-      <Table<Names> columns={columns} dataSource={names} rowKey={"oldName"} />
+    <div className="max-h-[66vh] overflow-auto">
+      <Table<Names>
+        columns={columns}
+        dataSource={names}
+        rowKey={"oldName"}
+        pagination={false}
+        sticky
+      />
     </div>
   )
 }
@@ -40,7 +55,7 @@ const PreviewTabs: React.FC<{
 }> = ({ mode, offsets, setOffsets }) => {
   const { nameMaps, setNameMaps } = usePreviewRename()
   const [messageApi, contextHolder] = message.useMessage()
-  const cacheNames = useRef<Record<string, string[]>>({})
+  const cacheNames = React.useRef<Record<string, string[]>>({})
 
   if (Object.keys(cacheNames.current).length === 0) {
     nameMaps.forEach((item) => {
@@ -92,13 +107,7 @@ const PreviewTabs: React.FC<{
     children: (
       <div>
         {mode === OperationMode.Rename && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "10px"
-            }}
-          >
+          <div className="flex items-center mb-2.5">
             <Tooltip title="集数偏移">
               <InputNumber
                 value={offsets[item.dirName] ?? 0}
@@ -109,7 +118,7 @@ const PreviewTabs: React.FC<{
               />
             </Tooltip>
             <Button
-              style={{ marginLeft: 10 }}
+              className="ml-4"
               icon={<ReloadOutlined />}
               onClick={() => handleUpdate(item.dirName)}
             >

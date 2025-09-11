@@ -1,20 +1,20 @@
-import type React from "react"
+import React from "react"
 import { useLocation } from "react-router"
 import CustomTable from "../../components/CustomTable"
-import { useEffect, useState } from "react"
 import { getFiles } from "../../api/api"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
 import NotFound from "../NotFound"
 import { useSavedSeries } from "../../stores/useSavedSeries"
+import ButtonGroups from "../../components/FileHandle/buttonGroups"
 
-const Main: React.FC = () => {
+const Main: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const location = useLocation()
-  const [error, setError] = useState<Error | null>(null)
+  const [error, setError] = React.useState<Error | null>(null)
   const setSelectedFiles = useSelectedFilesStore(
     (state) => state.setSelectedFiles
   )
   const setSeries = useSavedSeries((state) => state.setSavedSeries)
-  useEffect(() => {
+  React.useEffect(() => {
     setSelectedFiles([])
     setSeries("")
     setError(null)
@@ -31,7 +31,16 @@ const Main: React.FC = () => {
 
   return (
     <>
-      {error !== null ? <NotFound /> : <CustomTable key={location.pathname} />}
+      {error !== null ? (
+        <NotFound />
+      ) : (
+        <>
+          <CustomTable key={location.pathname} isMobile={isMobile} />
+        </>
+      )}
+      <div className="inline-block sm:hidden">
+        <ButtonGroups />
+      </div>
     </>
   )
 }

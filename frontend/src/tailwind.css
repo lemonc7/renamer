@@ -17,5 +17,5 @@
 }
 
 .disabled-button:disabled {
-  @apply bg-white text-gray-500 border-white opacity-70;
+  @apply bg-white text-gray-500 border-gray-400 opacity-70;
 }
