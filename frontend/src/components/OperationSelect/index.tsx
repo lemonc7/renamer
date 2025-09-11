@@ -74,27 +74,22 @@ const OperationSelect: React.FC = () => {
     <>
       {contextHolder}
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
+        className="flex items-center justify-center"
       >
         <Select
           value={mode}
           onChange={(value: OperationMode) => setMode(value)}
-          style={{ width: 160 }}
+          className="w-28 sm:w-40"
         >
           {options}
         </Select>
         <Button
-          className="custom-disabled-button"
+          className="disabled-button mx-2 sm:mx-4"
           icon={<CheckOutlined />}
-          style={{ marginLeft: 10 }}
           onClick={handleButton}
           disabled={selectedFiles.filter((item) => item.isDir).length === 0}
         >
-          确认
+          <span className="hidden sm:inline-block">确认</span>
         </Button>
         {DialogComponent}
       </div>

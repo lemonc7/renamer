@@ -1,22 +1,27 @@
 import React from "react"
-import { Header } from "antd/es/layout/layout"
 import OperationSelect from "../OperationSelect"
 import FileNavigate from "../FileNavigate"
 import FileHandle from "../FileHandle"
 
-const CustomHeader: React.FC = () => {
+const CustomHeader: React.FC<{ className?: string }> = ({ className }) => {
   return (
-    <Header style={{ display: "flex", alignItems: "center", backgroundColor: "gray" }}>
-      <div style={{ flex: 1, textAlign: "left" }}>
+    <div
+      className={`
+        flex items-center bg-gray-500 h-16 px-4 ${
+          className || ""
+        } sm:px-6 md:px-8
+        `}
+    >
+      <div className="flex-1 text-left">
         <FileNavigate />
       </div>
-      <div style={{ flex: 1, textAlign: "center" }}>
+      <div className="flex-1 text-center">
         <OperationSelect />
       </div>
-      <div style={{ flex: 1, textAlign: "right" }}>
+      <div className="flex-1 text-right">
         <FileHandle />
       </div>
-    </Header>
+    </div>
   )
 }
 

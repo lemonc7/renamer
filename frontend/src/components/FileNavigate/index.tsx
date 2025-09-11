@@ -18,28 +18,32 @@ const FileNavigate: React.FC = () => {
     <div>
       {contextHolder}
       <Button icon={<HomeOutlined />} onClick={() => navigate("/home")}>
-        主页
+        <span className="hidden sm:inline-block">主页</span>
       </Button>
-      <Button
-        onClick={() => {
-          refresh()
-          messageApi.success({
-            content: "刷新成功"
-          })
-        }}
-        icon={<ReloadOutlined />}
-        style={{ marginLeft: 10 }}
-      >
-        刷新
-      </Button>
-      <Space.Compact style={{ marginLeft: 20 }}>
-        <Button icon={<LeftOutlined />} onClick={() => navigate(-1)}>
-          后退
+      <div className="ml-2 !hidden sm:!inline-block">
+        <Button
+          onClick={() => {
+            refresh()
+            messageApi.success({
+              content: "刷新成功"
+            })
+          }}
+          icon={<ReloadOutlined />}
+        >
+          刷新
         </Button>
-        <Button icon={<RightOutlined />} onClick={() => navigate(1)}>
-          前进
-        </Button>
-      </Space.Compact>
+      </div>
+
+      <div className="ml-4 hidden sm:inline-block">
+        <Space.Compact>
+          <Button icon={<LeftOutlined />} onClick={() => navigate(-1)}>
+            后退
+          </Button>
+          <Button icon={<RightOutlined />} onClick={() => navigate(1)}>
+            前进
+          </Button>
+        </Space.Compact>
+      </div>
     </div>
   )
 }

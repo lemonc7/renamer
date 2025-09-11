@@ -1,5 +1,4 @@
-import { Layout, theme } from "antd"
-import { Content } from "antd/es/layout/layout"
+import { Layout } from "antd"
 import type React from "react"
 import CustomBreadcrumb from "../../components/CustomBreadcrumb"
 import Main from "../Main"
@@ -8,29 +7,23 @@ import { useRefresh } from "../../stores/useRefresh"
 import CustomFooter from "../../components/CustomFooter"
 
 const CustomLayout: React.FC = () => {
-  const {
-    token: { colorBgContainer, borderRadiusLG }
-  } = theme.useToken()
   const refreshKey = useRefresh((state) => state.refreshKey)
   return (
-    <Layout>
+    <Layout className="h-screen flex flex-col">
       <CustomHeader />
-      <Content style={{ padding: "0 48px" }}>
-        <div style={{ padding: "16px 0" }}>
+      <div className="px-4 sm:px-12">
+        <div className="py-4">
           <CustomBreadcrumb />
         </div>
         <div
+          className="flex flex-col"
           style={{
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-            display: "flex",
-            flexDirection: "column",
-            height: "calc(100vh - 64px - 48px - 64px - 32px)"
+            height: "calc(100vh - 64px - 32px - 64px)"
           }}
         >
           <Main key={refreshKey} />
         </div>
-      </Content>
+      </div>
       <CustomFooter />
     </Layout>
   )

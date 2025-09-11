@@ -15,49 +15,56 @@ const CustomTable: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const columns: TableColumnsType<FileInfo> = [
-    {
-      title: "名称",
-      dataIndex: "name",
-      render: (text: string, record: FileInfo) => {
-        const handleClick = () => {
-          if (record.isDir) {
-            const newPath = `${location.pathname.replace(/\/$/, "")}/${
-              record.name
-            }`
-            navigate(newPath)
-          }
+  const isMobile = window.innerWidth < 640
+
+  const columns: TableColumnsType<FileInfo> = []
+  columns.push({
+    title: "名称",
+    dataIndex: "name",
+    width: isMobile ? "70%" : "60%",
+    render: (text: string, record: FileInfo) => {
+      const handleClick = () => {
+        if (record.isDir) {
+          const newPath = `${location.pathname.replace(/\/$/, "")}/${
+            record.name
+          }`
+          navigate(newPath)
         }
-        return (
-          <span
-            onClick={handleClick}
-            style={{
-              cursor: record.isDir ? "pointer" : "default"
-            }}
-          >
-            {record.isDir ? (
-              <FolderOutlined style={{ marginRight: 4 }} />
-            ) : (
-              <FileOutlined style={{ marginRight: 4 }} />
-            )}
-            {text}
-          </span>
-        )
       }
-    },
-    {
-      title: "类型",
-      dataIndex: "type"
-    },
-    {
-      title: "大小",
-      dataIndex: "size"
-    },
-    {
-      title: "修改时间",
-      dataIndex: "modTime"
+      return (
+        <div
+          onClick={handleClick}
+          className={`flex items-center ${
+            record.isDir ? "cursor-pointer" : "cursor-default"
+          }`}
+        >
+          {record.isDir ? (
+            <FolderOutlined className="mx-2" />
+          ) : (
+            <FileOutlined className="mx-2" />
+          )}
+          <span className="truncate max-w-[66vw]">{text}</span>
+        </div>
+      )
     }
-  ]
+  })
+  columns.push({
+    title: "大小",
+    dataIndex: "size",
+    width: isMobile ? "30%" : "10%"
+  })
+  if (!isMobile) {
+    columns.push({
+      title: "类型",
+      dataIndex: "type",
+      width: isMobile ? undefined : "10%"
+    })
+    columns.push({
+      title: "修改时间",
+      dataIndex: "modTime",
+      width: isMobile ? undefined : "20%"
+    })
+  }
 
   const rowSelection: TableRowSelection<FileInfo> = {
     selectedRowKeys: selectedFiles.map((file) => file.id),
@@ -127,7 +134,7 @@ const CustomTable: React.FC = () => {
     ]
   }
   return (
-    <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+    <div className="flex-1 min-h-0 overflow-auto">
       <Table<FileInfo>
         rowKey={(file) => file.id as string}
         columns={columns}

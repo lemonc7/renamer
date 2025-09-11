@@ -1,4 +1,4 @@
-import { Button, Divider, message, Space, Tooltip } from "antd"
+import { Button, message, Space, Tooltip } from "antd"
 import React, { useState } from "react"
 import {
   CopyOutlined,
@@ -11,7 +11,6 @@ import {
 import CreateDir from "../Dialog/createDir"
 import DeleteFiles from "../Dialog/deleteFiles"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
-import "./index.css"
 import RenameFile from "../Dialog/renameFile"
 import PasteFiles from "../Dialog/pasteFiles"
 import { useSavedFilesStore } from "../../stores/useSavedFiles"
@@ -53,89 +52,80 @@ const FileHandle: React.FC = () => {
   return (
     <>
       {contextHolder}
-      <Button
-        icon={<FolderAddOutlined />}
-        onClick={() => setShowCreateDirDialog(true)}
-      >
-        新建文件夹
-      </Button>
-      {/* 创建文件夹-对话框 */}
-      <CreateDir
-        open={showCreateDirDialog}
-        onClose={() => setShowCreateDirDialog(false)}
-      />
-      <Divider
-        type="vertical"
-        style={{ height: "36px", backgroundColor: "white", margin: "0 8px" }}
-      />
-      <Space.Compact>
-        <Tooltip title="文件重命名">
-          <Button
-            className="custom-disabled-button"
-            icon={<EditOutlined />}
-            style={{ width: 50 }}
-            onClick={() => setRenameFileDialog(true)}
-            disabled={selectedFiles.length !== 1}
-          />
-        </Tooltip>
-        <Tooltip title="删除文件">
-          <Button
-            className="custom-disabled-button"
-            icon={<DeleteOutlined />}
-            style={{ width: 50 }}
-            onClick={() => setDeleteFilesDialog(true)}
-            disabled={selectedFiles.length === 0}
-          />
-        </Tooltip>
-      </Space.Compact>
-      {/* 重命名文件-对话框 */}
-      <RenameFile
-        open={showRenameFileDialog}
-        onClose={() => setRenameFileDialog(false)}
-      />
-      {/* 删除文件-对话框 */}
-      <DeleteFiles
-        open={showDeleteFilesDialog}
-        onClose={() => setDeleteFilesDialog(false)}
-      />
-      <Divider
-        type="vertical"
-        style={{ height: "36px", backgroundColor: "white", margin: "0 8px" }}
-      />
-      <Space.Compact>
-        <Tooltip title="复制">
-          <Button
-            className="custom-disabled-button"
-            icon={<CopyOutlined />}
-            style={{ width: 50 }}
-            onClick={() => handleSaveSelectedFiles("copy")}
-            disabled={selectedFiles.length === 0}
-          />
-        </Tooltip>
-        <Tooltip title="剪切">
-          <Button
-            className="custom-disabled-button"
-            icon={<ScissorOutlined />}
-            style={{ width: 50 }}
-            onClick={() => handleSaveSelectedFiles("cut")}
-            disabled={selectedFiles.length === 0}
-          />
-        </Tooltip>
-        <Tooltip title="粘贴">
-          <Button
-            className="custom-disabled-button"
-            icon={<SnippetsOutlined />}
-            style={{ width: 50 }}
-            onClick={() => setPasteDialog(true)}
-            disabled={savedFiles.length === 0}
-          />
-        </Tooltip>
-      </Space.Compact>
       <PasteFiles
         open={showPasteDialog}
         onClose={() => setPasteDialog(false)}
         pasteType={pasteType}
       />
+      <div className="flex items-center justify-end w-full space-x-2">
+        <Button
+          icon={<FolderAddOutlined />}
+          onClick={() => setShowCreateDirDialog(true)}
+        >
+          <span className="hidden sm:inline-block">新建文件夹</span>
+        </Button>
+        {/* 创建文件夹-对话框 */}
+        <CreateDir
+          open={showCreateDirDialog}
+          onClose={() => setShowCreateDirDialog(false)}
+        />
+        <div className="hidden sm:inline-block">
+          <Space.Compact className="mx-4">
+            <Tooltip title="文件重命名">
+              <Button
+                className="disabled-button !w-12"
+                icon={<EditOutlined />}
+                onClick={() => setRenameFileDialog(true)}
+                disabled={selectedFiles.length !== 1}
+              />
+            </Tooltip>
+            <Tooltip title="删除文件">
+              <Button
+                className="disabled-button !w-12"
+                icon={<DeleteOutlined />}
+                onClick={() => setDeleteFilesDialog(true)}
+                disabled={selectedFiles.length === 0}
+              />
+            </Tooltip>
+          </Space.Compact>
+          {/* 重命名文件-对话框 */}
+          <RenameFile
+            open={showRenameFileDialog}
+            onClose={() => setRenameFileDialog(false)}
+          />
+          {/* 删除文件-对话框 */}
+          <DeleteFiles
+            open={showDeleteFilesDialog}
+            onClose={() => setDeleteFilesDialog(false)}
+          />
+          <Space.Compact>
+            <Tooltip title="复制">
+              <Button
+                className="disabled-button !w-12"
+                icon={<CopyOutlined />}
+                onClick={() => handleSaveSelectedFiles("copy")}
+                disabled={selectedFiles.length === 0}
+              />
+            </Tooltip>
+            <Tooltip title="剪切">
+              <Button
+                className="disabled-button !w-12"
+                icon={<ScissorOutlined />}
+                onClick={() => handleSaveSelectedFiles("cut")}
+                disabled={selectedFiles.length === 0}
+              />
+            </Tooltip>
+            <Tooltip title="粘贴">
+              <Button
+                className="disabled-button !w-12"
+                icon={<SnippetsOutlined />}
+                onClick={() => setPasteDialog(true)}
+                disabled={savedFiles.length === 0}
+              />
+            </Tooltip>
+          </Space.Compact>
+        </div>
+      </div>
     </>
   )
 }
