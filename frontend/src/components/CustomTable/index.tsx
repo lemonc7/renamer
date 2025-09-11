@@ -127,13 +127,16 @@ const CustomTable: React.FC = () => {
     ]
   }
   return (
-    <Table<FileInfo>
-      rowKey={(file) => file.id as string}
-      columns={columns}
-      dataSource={fileList}
-      pagination={false}
-      rowSelection={rowSelection}
-    />
+    <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+      <Table<FileInfo>
+        rowKey={(file) => file.id as string}
+        columns={columns}
+        dataSource={fileList}
+        pagination={false}
+        rowSelection={rowSelection}
+        sticky
+      />
+    </div>
   )
 }
 

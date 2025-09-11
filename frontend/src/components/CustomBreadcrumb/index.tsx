@@ -24,7 +24,6 @@ const CustomBreadcrumb: React.FC = () => {
           <span
             className={`breadcrumb-item ${isLast ? "last" : ""}`}
             onClick={() => !isLast && navigate(url)}
-            // style={{ fontWeight: isLast ? "bolder" : "normal" }}
           >
             {segment}
           </span>
@@ -66,12 +65,7 @@ const CustomBreadcrumb: React.FC = () => {
       ...allItems.slice(-3)
     ]
   }
-  return (
-    <Breadcrumb
-      style={{ margin: "16px 0", fontSize: "16px" }}
-      items={breadItems()}
-    />
-  )
+  return <Breadcrumb style={{ fontSize: "16px" }} items={breadItems()} />
 }
 
 export default CustomBreadcrumb

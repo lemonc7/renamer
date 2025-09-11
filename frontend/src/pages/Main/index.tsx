@@ -1,4 +1,3 @@
-import { theme } from "antd"
 import type React from "react"
 import { useLocation } from "react-router"
 import CustomTable from "../../components/CustomTable"
@@ -28,27 +27,11 @@ const Main: React.FC = () => {
       }
     }
     fetchFiles()
-  }, [location.pathname, setSelectedFiles,setSeries])
-
-  const {
-    token: { colorBgContainer, borderRadiusLG }
-  } = theme.useToken()
+  }, [location.pathname, setSelectedFiles, setSeries])
 
   return (
     <>
-      <div
-        style={{
-          background: colorBgContainer,
-          padding: 24,
-          borderRadius: borderRadiusLG
-        }}
-      >
-        {error !== null ? (
-          <NotFound />
-        ) : (
-          <CustomTable key={location.pathname} />
-        )}
-      </div>
+      {error !== null ? <NotFound /> : <CustomTable key={location.pathname} />}
     </>
   )
 }
