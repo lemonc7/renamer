@@ -1,4 +1,4 @@
-import { message, Modal } from "antd"
+import { Modal } from "antd"
 import React from "react"
 import { useLocation } from "react-router"
 import { OperationMode } from "../../models"
@@ -7,6 +7,7 @@ import { joinPath } from "../../utils/path"
 import PreviewTabs from "../PreviewTabs"
 import { usePreviewRename } from "../../stores/usePreviewRename"
 import { useRefresh } from "../../stores/useRefresh"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const Preview: React.FC<{
   open: boolean
@@ -14,10 +15,10 @@ const Preview: React.FC<{
   mode: OperationMode
 }> = ({ open, onClose, mode }) => {
   const location = useLocation()
-  const [messageApi, contextHolder] = message.useMessage()
   const nameMaps = usePreviewRename((state) => state.nameMaps)
   const refresh = useRefresh((state) => state.setRefreshKey)
   const [offsets, setOffsets] = React.useState<Record<string, number>>({})
+  const messageApi = useMessageApi()
 
   const handleClose = () => {
     onClose()
@@ -42,7 +43,6 @@ const Preview: React.FC<{
 
   return (
     <>
-      {contextHolder}
       <Modal
         title={`${mode}预览`}
         centered

@@ -89,13 +89,20 @@ func SetupRouter() *echo.Echo {
 	api.POST("/replaceChinese", controller.ReplaceChinesePreview)
 	api.POST("/rename", controller.RenamedConfirm)
 
-	// 加载静态资源
-	app.Static("/assets", "./dist/assets")
+	// // 加载静态资源
+	// app.Static("/assets", "./dist/assets")
 
-	// 路由优先级: 静态路由(/xxx) > 参数路由(/xxx/:xx) > 匹配路由(/*); 不需要显式处理,直接通配跳转到index.html
-	app.GET("/*", func(c echo.Context) error {
-		return c.File("./dist/index.html")
-	})
+	// // 路由优先级: 静态路由(/xxx) > 参数路由(/xxx/:xx) > 匹配路由(/*); 不需要显式处理,直接通配跳转到index.html
+	// app.GET("/*", func(c echo.Context) error {
+	// 	return c.File("./dist/index.html")
+	// })
+
+	// 加载静态资源
+	app.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:   "./dist",
+		HTML5:  true,
+		Browse: false,
+	}))
 
 	return app
 }

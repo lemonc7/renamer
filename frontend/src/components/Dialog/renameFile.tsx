@@ -1,4 +1,4 @@
-import { Input, message, Modal, type InputRef } from "antd"
+import { Input, Modal, type InputRef } from "antd"
 import React from "react"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
 import { renameFiles } from "../../api/api"
@@ -6,17 +6,18 @@ import { joinPath } from "../../utils/path"
 import { useLocation } from "react-router"
 import type { NameMap } from "../../models"
 import { useRefresh } from "../../stores/useRefresh"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const RenameFile: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
   onClose
 }) => {
-  const [messageApi, contextHolder] = message.useMessage()
   const location = useLocation()
   const { selectedFiles, setSelectedFiles } = useSelectedFilesStore()
   const [inputValue, setInputValue] = React.useState("")
   const refresh = useRefresh((state) => state.setRefreshKey)
   const inputRef = React.useRef<InputRef>(null)
+  const messageApi = useMessageApi()
 
   React.useEffect(() => {
     if (open && selectedFiles.length === 1) {
@@ -54,7 +55,6 @@ const RenameFile: React.FC<{ open: boolean; onClose: () => void }> = ({
   }
   return (
     <>
-      {contextHolder}
       <Modal
         title="文件重命名"
         centered

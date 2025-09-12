@@ -1,9 +1,10 @@
-import { Input, type InputRef, message, Modal } from "antd"
+import { Input, type InputRef, Modal } from "antd"
 import React from "react"
 import { createDir } from "../../api/api"
 import { useLocation } from "react-router"
 import { joinPath } from "../../utils/path"
 import { useRefresh } from "../../stores/useRefresh"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const CreateDir: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
@@ -11,9 +12,9 @@ const CreateDir: React.FC<{ open: boolean; onClose: () => void }> = ({
 }) => {
   const [inputValue, setInputValue] = React.useState("")
   const location = useLocation()
-  const [messageApi, contextHolder] = message.useMessage()
   const refresh = useRefresh((state) => state.setRefreshKey)
   const inputRef = React.useRef<InputRef>(null)
+  const messageApi = useMessageApi()
 
   React.useEffect(() => {
     if (open) {
@@ -58,7 +59,6 @@ const CreateDir: React.FC<{ open: boolean; onClose: () => void }> = ({
 
   return (
     <>
-      {contextHolder}
       <Modal
         title="新建文件夹"
         centered

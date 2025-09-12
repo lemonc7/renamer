@@ -1,6 +1,6 @@
 import React from "react"
 import { useLocation, useNavigate } from "react-router"
-import { Dropdown, type MenuProps } from "antd"
+import { Dropdown, Tooltip, type MenuProps } from "antd"
 
 const MAX_BREADCRUMB_ITEMS = 4
 
@@ -24,15 +24,28 @@ const CustomBreadcrumb: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
     }
   })
 
-  const renderItem = (item: (typeof allItems)[0]) => (
-    <span
-      key={item.key}
-      className={`${item.isLast ? "breadcrumb-item-last" : "breadcrumb-item"}`}
-      onClick={() => !item.isLast && navigate(item.url)}
-    >
-      {item.label}
-    </span>
-  )
+  const renderItem = (item: (typeof allItems)[0]) => {
+    const content = (
+      <span
+        key={item.key}
+        className={`${
+          item.isLast ? "breadcrumb-item-last" : "breadcrumb-item"
+        } inline-block max-w-[30vw] sm:max-w-[20-vw] truncate`}
+        onClick={() => !item.isLast && navigate(item.url)}
+      >
+        {item.label}
+      </span>
+    )
+
+    if (!isMobile) {
+      return (
+        <Tooltip title={item.label} placement="bottom" mouseEnterDelay={1}>
+          {content}
+        </Tooltip>
+      )
+    }
+    return content
+  }
 
   let itemsToRender: React.ReactNode[] = []
 
@@ -54,7 +67,7 @@ const CustomBreadcrumb: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
           key: item.key,
           label: (
             <span
-              className="breadcrumb-item"
+              className="breadcrumb-item inline-block max-w-[50vw] truncate"
               onClick={() => navigate(item.url)}
             >
               {item.label}
@@ -94,7 +107,7 @@ const CustomBreadcrumb: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
           key: item.key,
           label: (
             <span
-              className="breadcrumb-item"
+              className="breadcrumb-item inline-block max-w-[50vw] truncate"
               onClick={() => navigate(item.url)}
             >
               {item.label}

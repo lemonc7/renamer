@@ -1,11 +1,11 @@
-import { Button, message, Space, Tooltip } from "antd"
+import { Button, Space, Tooltip } from "antd"
 import React from "react"
 import {
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
   ScissorOutlined,
-  SnippetsOutlined,
+  CarryOutOutlined,
   SettingOutlined
 } from "@ant-design/icons"
 import DeleteFiles from "../Dialog/deleteFiles"
@@ -16,6 +16,7 @@ import { useSavedFilesStore } from "../../stores/useSavedFiles"
 import { useSavedPath } from "../../stores/useSavedPath"
 import { useLocation } from "react-router"
 import { joinPath } from "../../utils/path"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const ButtonGroups: React.FC = () => {
   const [showDeleteFilesDialog, setDeleteFilesDialog] = React.useState(false)
@@ -25,8 +26,8 @@ const ButtonGroups: React.FC = () => {
   const { savedFiles, setSavedFiles } = useSavedFilesStore()
   const setSavedPath = useSavedPath((state) => state.setSavedPath)
   const location = useLocation()
-  const [messageApi, contextHolder] = message.useMessage()
   const [pasteType, setPasteType] = React.useState<"copy" | "cut">("copy")
+  const messageApi = useMessageApi()
 
   const [open, setOpen] = React.useState(false)
   const toggle = () => setOpen(!open)
@@ -52,7 +53,16 @@ const ButtonGroups: React.FC = () => {
 
   return (
     <>
-      {contextHolder}
+      {/* 重命名文件-对话框 */}
+      <RenameFile
+        open={showRenameFileDialog}
+        onClose={() => setRenameFileDialog(false)}
+      />
+      {/* 删除文件-对话框 */}
+      <DeleteFiles
+        open={showDeleteFilesDialog}
+        onClose={() => setDeleteFilesDialog(false)}
+      />
       <PasteFiles
         open={showPasteDialog}
         onClose={() => setPasteDialog(false)}
@@ -78,16 +88,7 @@ const ButtonGroups: React.FC = () => {
               />
             </Tooltip>
           </Space.Compact>
-          {/* 重命名文件-对话框 */}
-          <RenameFile
-            open={showRenameFileDialog}
-            onClose={() => setRenameFileDialog(false)}
-          />
-          {/* 删除文件-对话框 */}
-          <DeleteFiles
-            open={showDeleteFilesDialog}
-            onClose={() => setDeleteFilesDialog(false)}
-          />
+
           <Space.Compact>
             <Tooltip title="复制">
               <Button
@@ -108,7 +109,7 @@ const ButtonGroups: React.FC = () => {
             <Tooltip title="粘贴">
               <Button
                 className="disabled-button !w-12"
-                icon={<SnippetsOutlined />}
+                icon={<CarryOutOutlined />}
                 onClick={() => setPasteDialog(true)}
                 disabled={savedFiles.length === 0}
               />
@@ -154,7 +155,7 @@ const ButtonGroups: React.FC = () => {
             />
             <Button
               shape="circle"
-              icon={<SnippetsOutlined />}
+              icon={<CarryOutOutlined />}
               size="large"
               onClick={() => setPasteDialog(true)}
               disabled={savedFiles.length === 0}
@@ -175,6 +176,5 @@ const ButtonGroups: React.FC = () => {
     </>
   )
 }
-
 
 export default ButtonGroups

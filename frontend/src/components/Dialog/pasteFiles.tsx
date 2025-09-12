@@ -1,4 +1,4 @@
-import { message, Modal } from "antd"
+import { Modal } from "antd"
 import React from "react"
 import { useLocation } from "react-router"
 import { useRefresh } from "../../stores/useRefresh"
@@ -6,6 +6,7 @@ import { useSavedFilesStore } from "../../stores/useSavedFiles"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import { copyFiles, moveFiles } from "../../api/api"
 import { joinPath } from "../../utils/path"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const PasteFiles: React.FC<{
   open: boolean
@@ -13,9 +14,9 @@ const PasteFiles: React.FC<{
   onClose: () => void
 }> = ({ open, pasteType, onClose }) => {
   const location = useLocation()
-  const [messageApi, contextHolder] = message.useMessage()
   const refresh = useRefresh((state) => state.setRefreshKey)
   const setSavedFiles = useSavedFilesStore((state) => state.setSavedFiles)
+  const messageApi = useMessageApi()
 
   let title = ""
   if (pasteType === "copy") {
@@ -46,7 +47,6 @@ const PasteFiles: React.FC<{
 
   return (
     <>
-      {contextHolder}
       <Modal
         title={`${title}文件`}
         centered

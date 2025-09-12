@@ -5,7 +5,6 @@ import { getFiles } from "../../api/api"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
 import NotFound from "../NotFound"
 import { useSavedSeries } from "../../stores/useSavedSeries"
-import ButtonGroups from "../../components/FileHandle/buttonGroups"
 
 const Main: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
   const location = useLocation()
@@ -38,9 +37,7 @@ const Main: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
           <CustomTable key={location.pathname} isMobile={isMobile} />
         </>
       )}
-      <div className="inline-block sm:hidden">
-        <ButtonGroups />
-      </div>
+
     </>
   )
 }

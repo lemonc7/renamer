@@ -1,4 +1,4 @@
-import { Input, message, Modal, Select, Tooltip } from "antd"
+import { Input, Modal, Select, Tooltip } from "antd"
 import React from "react"
 import { tidySeries } from "../../api/api"
 import { useLocation } from "react-router"
@@ -6,17 +6,18 @@ import { joinPath } from "../../utils/path"
 import { useRefresh } from "../../stores/useRefresh"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
 import { useSavedSeries } from "../../stores/useSavedSeries"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const TidySeries: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
   onClose
 }) => {
   const location = useLocation()
-  const [messageApi, contextHolder] = message.useMessage()
   const refresh = useRefresh((state) => state.setRefreshKey)
   const { selectedFiles, setSelectedFiles } = useSelectedFilesStore()
   const selectedDirs = selectedFiles.filter((file) => file.isDir)
   const { savedSeries, setSavedSeries } = useSavedSeries()
+  const messageApi = useMessageApi()
 
   const seasonOptions = Array.from({ length: 100 }, (_, i) => {
     const val = `S${String(i).padStart(2, "0")}`
@@ -65,7 +66,6 @@ const TidySeries: React.FC<{ open: boolean; onClose: () => void }> = ({
 
   return (
     <>
-      {contextHolder}
       <Modal
         title="整理剧集"
         centered
@@ -99,7 +99,11 @@ const TidySeries: React.FC<{ open: boolean; onClose: () => void }> = ({
                 onChange={(season) => updateSeasons(file.id, season)}
                 status={duplicateSeasons.has(file.season) ? "error" : undefined}
               />
-              <Tooltip title={file.name} placement="topLeft" mouseEnterDelay={1}>
+              <Tooltip
+                title={file.name}
+                placement="topLeft"
+                mouseEnterDelay={1}
+              >
                 <span className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
                   {file.name}
                 </span>

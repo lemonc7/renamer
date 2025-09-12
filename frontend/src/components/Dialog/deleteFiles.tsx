@@ -1,4 +1,4 @@
-import { message, Modal } from "antd"
+import { Modal } from "antd"
 import React from "react"
 import { useLocation } from "react-router"
 import { deleteFiles } from "../../api/api"
@@ -6,17 +6,18 @@ import { joinPath } from "../../utils/path"
 import { InfoCircleOutlined } from "@ant-design/icons"
 import { useRefresh } from "../../stores/useRefresh"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const DeleteFiles: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
   onClose
 }) => {
   const location = useLocation()
-  const [messageApi, contextHolder] = message.useMessage()
   const refresh = useRefresh((state) => state.setRefreshKey)
   const setSelectedFiles = useSelectedFilesStore(
     (state) => state.setSelectedFiles
   )
+  const messageApi = useMessageApi()
 
   const handleOK = async () => {
     try {
@@ -39,7 +40,6 @@ const DeleteFiles: React.FC<{ open: boolean; onClose: () => void }> = ({
 
   return (
     <>
-      {contextHolder}
       <Modal
         title="删除文件"
         centered

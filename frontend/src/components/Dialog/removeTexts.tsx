@@ -1,20 +1,21 @@
-import { Input, type InputRef, message, Modal } from "antd"
+import { Input, type InputRef, Modal } from "antd"
 import React from "react"
 import { removeTextsPreview } from "../../api/api"
 import { useLocation } from "react-router"
 import { joinPath } from "../../utils/path"
 import Preview from "./preview"
 import { OperationMode } from "../../models"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const RemoveTexts: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
   onClose
 }) => {
   const [inputValue, setInputValue] = React.useState("")
-  const [messageApi, contextHolder] = message.useMessage()
   const inputRef = React.useRef<InputRef>(null)
   const location = useLocation()
   const [showPreview, setShowPreview] = React.useState(false)
+  const messageApi = useMessageApi()
 
   React.useEffect(() => {
     if (open) {
@@ -65,7 +66,6 @@ const RemoveTexts: React.FC<{ open: boolean; onClose: () => void }> = ({
 
   return (
     <>
-      {contextHolder}
       <Modal
         title="移除文本"
         centered

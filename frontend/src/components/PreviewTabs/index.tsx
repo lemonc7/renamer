@@ -1,7 +1,6 @@
 import {
   Button,
   InputNumber,
-  message,
   Table,
   Tabs,
   Tooltip,
@@ -13,6 +12,7 @@ import { usePreviewRename } from "../../stores/usePreviewRename"
 import { OperationMode, type Names } from "../../models"
 import { ReloadOutlined } from "@ant-design/icons"
 import { updateEpisode } from "../../utils/updateEpisode"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const PreviewTables: React.FC<{ names: Names[] }> = ({ names }) => {
   const columns: TableColumnsType<Names> = [
@@ -21,7 +21,7 @@ const PreviewTables: React.FC<{ names: Names[] }> = ({ names }) => {
       dataIndex: "oldName",
       width: "60%",
       render: (text: string) => (
-        <Tooltip title={text} placement="topLeft">
+        <Tooltip title={text} placement="topLeft" mouseEnterDelay={1}>
           <span className="block overflow-hidden whitespace-nowrap text-ellipsis">
             {text}
           </span>
@@ -31,7 +31,14 @@ const PreviewTables: React.FC<{ names: Names[] }> = ({ names }) => {
     {
       title: "新名称",
       dataIndex: "newName",
-      width: "40%"
+      width: "40%",
+      render: (text: string) => (
+        <Tooltip title={text} placement="topRight" mouseEnterDelay={1}>
+          <span className="block overflow-hidden whitespace-nowrap text-ellipsis">
+            {text}
+          </span>
+        </Tooltip>
+      )
     }
   ]
 
@@ -54,8 +61,8 @@ const PreviewTabs: React.FC<{
   setOffsets: React.Dispatch<React.SetStateAction<Record<string, number>>>
 }> = ({ mode, offsets, setOffsets }) => {
   const { nameMaps, setNameMaps } = usePreviewRename()
-  const [messageApi, contextHolder] = message.useMessage()
   const cacheNames = React.useRef<Record<string, string[]>>({})
+  const messageApi = useMessageApi()
 
   if (Object.keys(cacheNames.current).length === 0) {
     nameMaps.forEach((item) => {
@@ -133,7 +140,6 @@ const PreviewTabs: React.FC<{
   }))
   return (
     <div>
-      {contextHolder}
       <Tabs items={items} />
     </div>
   )

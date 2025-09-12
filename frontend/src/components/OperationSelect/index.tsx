@@ -1,6 +1,6 @@
 import React from "react"
 import { OperationMode } from "../../models"
-import { Button, message, Select } from "antd"
+import { Button, Select } from "antd"
 import { CheckOutlined } from "@ant-design/icons"
 import TidySeries from "../Dialog/tidySeries"
 import { useSelectedFilesStore } from "../../stores/useSelectedFiles"
@@ -9,6 +9,7 @@ import { useLocation } from "react-router"
 import { joinPath } from "../../utils/path"
 import { renamePreview, replaceChinesePreview } from "../../api/api"
 import RemoveTexts from "../Dialog/removeTexts"
+import { useMessageApi } from "../../utils/useMessageApi"
 
 const { Option } = Select
 
@@ -17,7 +18,7 @@ const OperationSelect: React.FC = () => {
   const [showDialog, setShowDialog] = React.useState(false)
   const selectedFiles = useSelectedFilesStore((state) => state.selectedFiles)
   const location = useLocation()
-  const [messageApi, contextHolder] = message.useMessage()
+  const messageApi = useMessageApi()
 
   let DialogComponent = null
   switch (mode) {
@@ -72,7 +73,6 @@ const OperationSelect: React.FC = () => {
 
   return (
     <>
-      {contextHolder}
       <div className="flex items-center justify-center">
         <Select
           value={mode}
