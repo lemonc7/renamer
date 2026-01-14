@@ -1,15 +1,15 @@
 package utils
 
 import (
-	"errors"
+	"fmt"
 	"os"
 )
 
-func CreateDirs(path string) error {
+func CreateDir(path string) error {
 	// 检查目录是否存在
 	_, err := os.Stat(path)
 	if err == nil {
-		return errors.New("目录已存在: " + path)
+		return fmt.Errorf("目录已存在: %s", path)
 	}
 	// 创建目录
 	if err := os.Mkdir(path, 0755); err != nil {

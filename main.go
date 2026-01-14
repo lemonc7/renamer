@@ -2,36 +2,60 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
+	"syscall"
 	"time"
 
-	"github.com/lemonc7/renamer/router"
+	"github.com/lemonc7/renamer/app"
+	"github.com/lemonc7/renamer/config"
 )
 
 func main() {
-	app := router.SetupRouter()
+	if err := config.InitConfig("./config.yaml"); err != nil {
+		log.Fatal(err)
+	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
+	z := app.InitApp()
 
-	// 开启服务
+	srv := &http.Server{
+		Addr:         ":" + strconv.Itoa(config.Cfg.Port),
+		Handler:      z,
+		ReadTimeout:  config.Cfg.ReadTimeout,
+		WriteTimeout: config.Cfg.WriteTimeout,
+	}
+
+	// 启动HTTP服务
 	go func() {
-		if err := app.Start(":7777"); err != nil && err != http.ErrServerClosed {
-			app.Logger.Fatal("shutting down the server")
+		log.Println("启动HTTP服务, 监听端口:", config.Cfg.Port)
+		if err := srv.ListenAndServe(); err != nil {
+			if !errors.Is(err, http.ErrServerClosed) {
+				log.Fatalln("启动HTTP服务失败", err)
+			}
 		}
 	}()
 
-	// 等待关闭服务器的信号
-	<-ctx.Done()
+	// 阻塞监听系统信号
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	log.Println("收到退出信号, 开始关闭服务...")
+
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		5*time.Second,
+	)
 	defer cancel()
-	if err := app.Shutdown(ctx); err != nil {
-		app.Logger.Fatal(err)
-	}
 
-	log.Println("server shutdown")
+	// 关闭HTTP服务
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Println("关闭HTTP服务失败:", err)
+	} else {
+		log.Println("成功关闭HTTP服务")
+	}
 }

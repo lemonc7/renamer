@@ -1,18 +1,19 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/lemonc7/renamer/model"
 )
 
-func DeleteFiles(req model.PathRequest) error {
-	for _, entry := range req.NameMaps {
-		path := filepath.Join(req.Path,entry.DirName)
+func DeleteFiles(req model.DeleteRequest) error {
+	for _, entry := range req.Targets {
+		path := filepath.Join(req.Dir, entry)
 		// 检查文件或文件夹是否存在
 		if _, err := os.Stat(path); err != nil {
-			return err
+			return fmt.Errorf("check path: %w", err)
 		}
 
 		// 删除文件

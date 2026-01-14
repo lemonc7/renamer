@@ -1,32 +1,33 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/dustin/go-humanize"
 	"github.com/google/uuid"
+	"github.com/lemonc7/renamer/config"
 	"github.com/lemonc7/renamer/model"
 	"github.com/mozillazg/go-pinyin"
 )
 
 // 获取给定目录下的文件信息，返回文件信息切片
-func GetFiles(dir string) ([]model.FileInfo, error) {
+func GetFiles(dir string) ([]model.File, error) {
 	// 读取目录
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("读取目录: %w", err)
 	}
 
 	// 遍历文件和目录，存储相关信息
-	var files []model.FileInfo
+	var files []model.File
 	for _, entry := range entries {
 		info, err := entry.Info()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("获取文件信息: %w", err)
 		}
 
 		var size, fileType string
@@ -43,7 +44,7 @@ func GetFiles(dir string) ([]model.FileInfo, error) {
 			}
 		}
 
-		files = append(files, model.FileInfo{
+		files = append(files, model.File{
 			ID:      uuid.NewString(),
 			Name:    entry.Name(),
 			Size:    size,
@@ -55,20 +56,27 @@ func GetFiles(dir string) ([]model.FileInfo, error) {
 
 	args := pinyin.NewArgs()
 	// 整理文件排序,文件夹优先,名称a-z
-	sort.Slice(files, func(i, j int) bool {
-		a, b := files[i], files[j]
-
+	slices.SortFunc(files, func(a, b model.File) int {
 		// 文件夹优先
-		// 比较不同类型
 		if a.IsDir != b.IsDir {
-			return a.IsDir
+			if a.IsDir {
+				return -1 // a 排在前
+			}
+			return 1 // b 排在前
 		}
 
 		keyA := getSortKey(a.Name, args)
 		keyB := getSortKey(b.Name, args)
 
-		// 比较名称a~z
-		return keyA < keyB
+		// 名称 a~z
+		switch {
+		case keyA < keyB:
+			return -1
+		case keyA > keyB:
+			return 1
+		default:
+			return 0
+		}
 	})
 
 	return files, nil
@@ -89,16 +97,15 @@ func getSortKey(name string, args pinyin.Args) string {
 	}
 	// 英文变小写返回
 	return strings.ToLower(string(name))
-
 }
 
 // 只保留指定后缀名的文件,并排除已经按规则命名的文件,通过bool值来控制string后续是否要处理
-func GetPendingFile(file model.FileInfo) (bool, string) {
+func GetPendingFile(file model.File) (bool, string) {
 	// 过滤文件夹
 	if !file.IsDir {
 		fileNameWithoutExt := file.Name[:len(file.Name)-len(file.Type)-1]
 		// 只保留指定后缀名的文件
-		if slices.Contains(matchExts, file.Type) {
+		if slices.Contains(config.Cfg.MatchExts, file.Type) {
 			// 排除已经按规则命名的文件
 			return !ignoreRules(fileNameWithoutExt), file.Name
 		}

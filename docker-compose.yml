@@ -7,7 +7,6 @@ services:
     volumes:
       - "/path/downloads:/home/downloads"  # 更改路径
       - "/path/video:/home/video"  # 更改路径
-      - /etc/localtime:/etc/localtime:ro
     ports:
       - 7777:7777
     restart: always

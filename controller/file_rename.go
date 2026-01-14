@@ -4,50 +4,39 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/labstack/echo/v4"
 	"github.com/lemonc7/renamer/model"
 	"github.com/lemonc7/renamer/utils"
+	"github.com/lemonc7/zest"
 )
 
 // 重命名预览
-func RenamedPreview(c echo.Context) error {
-	req := new(model.PathRequest)
-
-	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+func RenamedPreview(c *zest.Context) error {
+	var req model.RenamePreviewRequest
+	if err := c.Bind(&req); err != nil {
+		return err
 	}
 
-	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
-	}
-
-	nameMaps, err := utils.RenamePreview(*req)
+	nameMaps, err := utils.RenamePreview(req)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return zest.NewHTTPError(http.StatusInternalServerError, "重命名预览失败").Wrap(err)
 	}
 
 	return c.JSON(http.StatusOK, nameMaps)
 }
 
 // 确认重命名文件(前端预览重命名时,需要确认)
-func RenamedConfirm(c echo.Context) error {
-	req := new(model.PathRequest)
-
-	if err := c.Bind(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+func RenamedConfirm(c *zest.Context) error {
+	var req model.RenameConfirmRequest
+	if err := c.Bind(&req); err != nil {
+		return err
 	}
-
-	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err)
-	}
-
 	for _, entry := range req.NameMaps {
-		if err := utils.RenameFiles(filepath.Join(req.Path, entry.DirName), entry.FilesName); err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
+		if err := utils.RenameFiles(filepath.Join(req.Dir, entry.Dir), entry.Files); err != nil {
+			return zest.NewHTTPError(http.StatusInternalServerError, "重命名失败").Wrap(err)
 		}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
+	return c.JSON(http.StatusOK, zest.Map{
 		"message": "重命名成功",
 	})
 

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 	"unicode"
@@ -42,16 +43,16 @@ func convertToPinyin(s string) string {
 	return b.String()
 }
 
-func ReplaceChinese(req model.PathRequest) ([]model.NameMap, error) {
+func ReplaceChinese(req model.RenamePreviewRequest) ([]model.NameMap, error) {
 	var nameMaps []model.NameMap
 
 	// 获取文件信息
-	for _, entry := range req.NameMaps {
+	for _, entry := range req.Targets {
 		var names []model.Name
 		var newNames []string
-		files, err := GetFiles(filepath.Join(req.Path, entry.DirName))
+		files, err := GetFiles(filepath.Join(req.Dir, entry))
 		if err != nil {
-			return nameMaps, err
+			return nameMaps, fmt.Errorf("获取文件: %w",err)
 		}
 
 		// 遍历文件信息
@@ -72,12 +73,10 @@ func ReplaceChinese(req model.PathRequest) ([]model.NameMap, error) {
 		}
 
 		nameMaps = append(nameMaps, model.NameMap{
-			DirName:   entry.DirName,
-			FilesName: names,
+			Dir:   entry,
+			Files: names,
 		})
-
 	}
 
 	return nameMaps, nil
-
 }

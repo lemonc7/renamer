@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -20,13 +21,13 @@ func removeStrings(fileName string, texts []string) string {
 	return newName
 }
 
-func RemoveTexts(req model.PathRequest) ([]model.NameMap, error) {
+func RemoveTexts(req model.RemoveTextsRequest) ([]model.NameMap, error) {
 	var nameMaps []model.NameMap
 	// 获取文件信息
-	for _, entry := range req.NameMaps {
-		files, err := GetFiles(filepath.Join(req.Path, entry.DirName))
+	for _, entry := range req.Targets {
+		files, err := GetFiles(filepath.Join(req.Dir, entry))
 		if err != nil {
-			return nameMaps, err
+			return nameMaps, fmt.Errorf("获取文件: %w",err)
 		}
 
 		var names []model.Name
@@ -34,7 +35,7 @@ func RemoveTexts(req model.PathRequest) ([]model.NameMap, error) {
 		// 遍历文件信息
 		for _, file := range files {
 			if !file.IsDir {
-				newName := removeStrings(file.Name, req.RemovedTexts)
+				newName := removeStrings(file.Name, req.Texts)
 				newNames = append(newNames, newName)
 
 				names = append(names, model.Name{
@@ -50,8 +51,8 @@ func RemoveTexts(req model.PathRequest) ([]model.NameMap, error) {
 		}
 
 		nameMaps = append(nameMaps, model.NameMap{
-			DirName:   entry.DirName,
-			FilesName: names,
+			Dir:   entry,
+			Files: names,
 		})
 	}
 	return nameMaps, nil

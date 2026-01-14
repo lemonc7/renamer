@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -31,18 +32,16 @@ func RenameFiles(path string, names []model.Name) error {
 	return nil
 }
 
-func RenamePreview(req model.PathRequest) ([]model.NameMap, error) {
+func RenamePreview(req model.RenamePreviewRequest) ([]model.NameMap, error) {
 	var nameMaps []model.NameMap
 
 	// 获取文件信息
-	for _, entry := range req.NameMaps {
+	for _, entry := range req.Targets {
 		var names []model.Name
-
-		files, err := GetFiles(filepath.Join(req.Path, entry.DirName))
+		files, err := GetFiles(filepath.Join(req.Dir, entry))
 		if err != nil {
-			return nameMaps, err
+			return nameMaps, fmt.Errorf("获取文件: %w", err)
 		}
-
 		// 遍历文件信息
 		for _, file := range files {
 			// 获取待处理的文件
@@ -57,7 +56,7 @@ func RenamePreview(req model.PathRequest) ([]model.NameMap, error) {
 					continue
 				}
 				// 输出SxxExx标准命名格式
-				renameFormat(entry.DirName, &newName)
+				renameFormat(entry, &newName)
 
 				names = append(names, model.Name{
 					OldName: oldName,
@@ -75,8 +74,8 @@ func RenamePreview(req model.PathRequest) ([]model.NameMap, error) {
 		}
 
 		nameMaps = append(nameMaps, model.NameMap{
-			DirName:   entry.DirName,
-			FilesName: names,
+			Dir:   entry,
+			Files: names,
 		})
 	}
 	return nameMaps, nil

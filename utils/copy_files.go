@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -8,14 +9,14 @@ import (
 	"github.com/lemonc7/renamer/model"
 )
 
-func CopyFiles(req model.PathRequest) error {
-	for _, entry := range req.NameMaps {
-		path := filepath.Join(req.Path, entry.DirName)
-		targetPath := filepath.Join(req.TargetPath, entry.DirName)
+func CopyFiles(req model.CopyRequest) error {
+	for _, entry := range req.Originals {
+		path := filepath.Join(req.Dir, entry)
+		targetPath := filepath.Join(req.Dir, entry)
 
 		info, err := os.Stat(path)
 		if err != nil {
-			return err
+			return fmt.Errorf("check path: %w", err)
 		}
 		// 复制文件夹
 		if info.IsDir() {
@@ -27,14 +28,14 @@ func CopyFiles(req model.PathRequest) error {
 			// 打开源文件
 			sourceFile, err := os.Open(path)
 			if err != nil {
-				return err
+				return fmt.Errorf("打开源文件: %w", err)
 			}
 			defer sourceFile.Close()
 
 			// 创建新文件(只有当文件不存在时才创建,不然报错---原子性)
 			targetFile, err := os.OpenFile(targetPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
 			if err != nil {
-				return err
+				return fmt.Errorf("创建新文件: %w", err)
 			}
 			defer targetFile.Close()
 
