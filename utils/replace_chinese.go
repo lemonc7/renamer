@@ -43,7 +43,7 @@ func convertToPinyin(s string) string {
 	return b.String()
 }
 
-func ReplaceChinese(req model.RenamePreviewRequest) ([]model.NameMap, error) {
+func ReplaceChinese(req model.ReplaceChineseRequest) ([]model.NameMap, error) {
 	var nameMaps []model.NameMap
 
 	// 获取文件信息

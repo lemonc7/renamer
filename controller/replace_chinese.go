@@ -10,7 +10,7 @@ import (
 
 // 将中文和中文字符转化成拼音和英文字符
 func ReplaceChinesePreview(c *zest.Context) error {
-	var req model.RenamePreviewRequest
+	var req model.ReplaceChineseRequest
 	if err := c.Bind(&req); err != nil {
 		return err
 	}

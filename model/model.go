@@ -39,6 +39,8 @@ func (r *DeleteRequest) Validate() error {
 }
 
 type RenamePreviewRequest = DeleteRequest
+type ReplaceChineseRequest = DeleteRequest
+
 type RemoveTextsRequest struct {
 	Dir     string   `json:"dir"`
 	Targets []string `json:"targets"`
