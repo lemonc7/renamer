@@ -1,8 +1,17 @@
 <script lang="ts">
-  import { navigate, route } from "src/router";
-  let path = $derived(route.pathname);
+  import { Toaster } from "svelte-sonner"
+  import Header from "./header.svelte"
+  import Main from "./main.svelte"
 </script>
 
-<h1>route: {path}</h1>
-
-<button onclick={() => navigate("/home/lemonc")}>test</button>
+<Toaster position="top-center" duration={1000} closeButton />
+<!-- 外层容器，占满全屏 -->
+<div class="min-h-screen w-full bg-gray-200 flex">
+  <!-- 内层圆角容器，占满外层空间 -->
+  <div
+    class="flex flex-col flex-1 rounded-lg bg-white shadow-lg overflow-hidden m-2"
+  >
+    <Header />
+    <Main />
+  </div>
+</div>
