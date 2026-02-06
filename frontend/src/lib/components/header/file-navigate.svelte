@@ -4,7 +4,7 @@
   import RotateCcw from "@lucide/svelte/icons/rotate-ccw"
   import ChevronLeft from "@lucide/svelte/icons/chevron-left"
   import ChevronRight from "@lucide/svelte/icons/chevron-right"
-  import { useFiles } from "src/hook/useFiles.svelte"
+  import { useFiles } from "src/hook/use-files.svelte"
   import * as ButtonGroup from "$lib/components/ui/button-group"
   import { navigate } from "src/router"
   import { toast } from "svelte-sonner"

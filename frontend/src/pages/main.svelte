@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { route } from "src/router"
-
-  let path = $derived(route.pathname)
+  import FileBrowser from "$lib/components/main/file-browser.svelte"
 </script>
 
-<h1>main</h1>
-<p>current route: {path}</p>
+<main class="flex-1 overflow-hidden flex flex-col">
+  <FileBrowser class="px-4 flex-1 overflow-hidden flex flex-col" />
+</main>

@@ -23,9 +23,9 @@ func InitApp() *zest.Zest {
 	})
 	
 	api := app.Group("/files")
-	api.GET("/", controller.GetFiles)
-	api.POST("/", controller.CreateDir)
-	api.DELETE("/", controller.DeleteFiles)
+	api.GET("", controller.GetFiles)
+	api.POST("", controller.CreateDir)
+	api.DELETE("", controller.DeleteFiles)
 	api.POST("/copy", controller.CopyFiles)
 	api.POST("/move", controller.MoveFiles)
 	api.POST("/preview", controller.RenamedPreview)
