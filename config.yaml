@@ -1,4 +1,0 @@
-port: 7777
-read_timeout: 10s
-write_timeout: 30s
-match_exts: [flv,mkv,mp4,avi,m2ts,wmv,rmvb,srt,ass,ssa,sub,smi,jpg,nfo]
