@@ -69,7 +69,7 @@
       header: "大小"
     },
     {
-      accessorKey: "type",
+      accessorKey: "ext",
       header: "类型"
     },
     {

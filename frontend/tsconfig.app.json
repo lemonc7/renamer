@@ -10,7 +10,8 @@
       "svelte",
       "vite/client"
     ],
-    "noEmit": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "paths": {
       "$lib": [
         "./src/lib"

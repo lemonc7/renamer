@@ -41,7 +41,7 @@
       <DropdownMenu.Separator />
       <DropdownMenu.Item>剧集重命名</DropdownMenu.Item>
       <DropdownMenu.Item>整理剧集</DropdownMenu.Item>
-      <DropdownMenu.Item>移除文本</DropdownMenu.Item>
+      <DropdownMenu.Item>移除字符串</DropdownMenu.Item>
       <DropdownMenu.Item>替换中文</DropdownMenu.Item>
     </DropdownMenu.Content>
   </DropdownMenu.Root>

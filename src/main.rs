@@ -43,21 +43,21 @@ async fn run() -> io::Result<()> {
                         // 根据状态码决定日志等级
                         if status.is_server_error() {
                             tracing::error!(
-                              status = %status,
-                              latency = ?latency,
-                              "failed"
+                                status = %status,
+                                latency = ?latency,
+                                "failed"
                             )
                         } else if status.is_client_error() {
                             tracing::warn!(
-                              status = %status,
-                              latency = ?latency,
-                              "client error"
+                                status = %status,
+                                latency = ?latency,
+                                "client error"
                             )
                         } else {
                             tracing::info!(
-                              status = %status,
-                              latency = ?latency,
-                              "completed"
+                                status = %status,
+                                latency = ?latency,
+                                "completed"
                             );
                         }
                     })
@@ -94,8 +94,8 @@ async fn shutdown_signal() {
 
     // 使用 select 等待任意一个信号触发
     tokio::select! {
-      _ = ctrl_c => {},
-      _ = terminate => {}
+        _ = ctrl_c => {},
+        _ = terminate => {}
     }
 
     tracing::info!("接收到信号，正在关闭 HTTP 服务...")
