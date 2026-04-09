@@ -5,6 +5,7 @@
     "target": "ES2022",
     "useDefineForClassFields": true,
     "module": "ESNext",
+    "composite": true,
     "types": [
       "svelte",
       "vite/client"

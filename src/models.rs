@@ -10,6 +10,7 @@ pub struct DirParams {
 }
 
 #[derive(Deserialize, Validate)]
+#[serde(rename_all = "camelCase")]
 pub struct CopyRequest {
     #[validate(custom(function = "validate_path", message = "请输入合法路径"))]
     pub dir: String,
@@ -43,6 +44,7 @@ pub struct RemoveStringsRequest {
 }
 
 #[derive(Deserialize, Validate)]
+#[serde(rename_all = "camelCase")]
 pub struct RenameConfirmRequest {
     #[validate(custom(function = "validate_path", message = "请输入合法路径"))]
     pub dir: String,
@@ -51,6 +53,7 @@ pub struct RenameConfirmRequest {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct File {
     pub id: String,
     pub name: String,
@@ -61,6 +64,7 @@ pub struct File {
 }
 
 #[derive(Serialize, Deserialize, Validate)]
+#[serde(rename_all = "camelCase")]
 pub struct Name {
     #[validate(length(min = 1, message = "名称不能为空"))]
     pub old_name: String,

@@ -2,7 +2,7 @@ import type {
   CopyRequest,
   DeleteRequest,
   FileInfo,
-  RemoveTextsRequest,
+  RemoveStringsRequest,
   RenameConfirmRequest,
   RenamePreviewRequest,
   ReplaceChinesePreview
@@ -37,7 +37,7 @@ export async function renamePreview(req: RenamePreviewRequest) {
   return service.post("/preview", { params: req })
 }
 
-export async function removeTextsPreview(req: RemoveTextsRequest) {
+export async function removeTextsPreview(req: RemoveStringsRequest) {
   return service.post("/remove", { params: req })
 }
 
