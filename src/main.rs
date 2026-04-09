@@ -1,10 +1,6 @@
 use std::io;
 
-use axum::http::Response;
 use tokio::{net::TcpListener, signal};
-use tower::ServiceBuilder;
-use tower_http::trace::TraceLayer;
-use tracing::Span;
 use tracing_subscriber::{
     EnvFilter,
     fmt::{self},
@@ -12,13 +8,12 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
-use crate::{middleware::trace_id, router::create_app};
+use crate::router::create_app;
 
 mod error;
 mod extractors;
 mod file_service;
 mod handlers;
-mod middleware;
 mod models;
 mod renamer;
 mod router;
@@ -32,40 +27,7 @@ async fn main() {
 }
 
 async fn run() -> io::Result<()> {
-    let app = create_app().layer(
-        ServiceBuilder::new()
-            .layer(axum::middleware::from_fn(trace_id))
-            .layer(
-                TraceLayer::new_for_http()
-                    .on_response(|res: &Response<_>, latency, _span: &Span| {
-                        let status = res.status();
-
-                        // 根据状态码决定日志等级
-                        if status.is_server_error() {
-                            tracing::error!(
-                                status = %status,
-                                latency = ?latency,
-                                "failed"
-                            )
-                        } else if status.is_client_error() {
-                            tracing::warn!(
-                                status = %status,
-                                latency = ?latency,
-                                "client error"
-                            )
-                        } else {
-                            tracing::info!(
-                                status = %status,
-                                latency = ?latency,
-                                "completed"
-                            );
-                        }
-                    })
-                    .on_failure(|_error, _latency, _span: &Span| {
-                        // 什么都不做，避免重复打印 error，错误信息已通过 span 合并到 response 日志中
-                    }),
-            ),
-    );
+    let app = create_app();
 
     let listener = TcpListener::bind("0.0.0.0:7777").await?;
 
