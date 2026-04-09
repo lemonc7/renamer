@@ -15,8 +15,8 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     proxy: {
-      // 匹配所有以 /files 开头的请求
-      "/files": {
+      // 匹配所有以 /api 开头的请求
+      "/api": {
         target: "http://127.0.0.1:7777",
         changeOrigin: true
       }

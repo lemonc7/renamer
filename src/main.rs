@@ -67,7 +67,7 @@ async fn run() -> io::Result<()> {
             ),
     );
 
-    let listener = TcpListener::bind("0.0.0.0:3000").await?;
+    let listener = TcpListener::bind("0.0.0.0:7777").await?;
 
     tracing::info!("HTTP 服务运行中: {}", listener.local_addr()?);
     axum::serve(listener, app)

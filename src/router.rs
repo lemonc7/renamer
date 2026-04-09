@@ -9,7 +9,7 @@ use crate::handlers::{
 };
 
 pub fn create_app() -> Router {
-    Router::new()
+    let router = Router::new()
         .route("/health", get(health_check))
         .route("/", get(get_files).post(create_dir).delete(delete_files))
         .route("/copy", post(copy_files))
@@ -17,5 +17,7 @@ pub fn create_app() -> Router {
         .route("/preview", post(rename_preview))
         .route("/remove", post(remove_strings_preview))
         .route("/replace", post(replace_chinese_preview))
-        .route("/rename", post(rename_confirm))
+        .route("/rename", post(rename_confirm));
+
+    Router::new().nest("/api", router)
 }

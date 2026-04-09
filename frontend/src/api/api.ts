@@ -11,40 +11,40 @@ import service from "./request"
 
 export async function getFiles(path: string): Promise<FileInfo[]> {
   const rawPath = decodeURIComponent(path)
-  const res = await service.get<FileInfo[]>("/files", {
+  const res = await service.get<FileInfo[]>("", {
     params: { path: rawPath }
   })
   return Array.isArray(res) ? res : []
 }
 
 export async function createDir(path: string) {
-  return service.post("/files", { params: { path } })
+  return service.post("", { params: { path } })
 }
 
 export async function deleteFiles(req: DeleteRequest) {
-  return service.delete("/files", { params: req })
+  return service.delete("", { params: req })
 }
 
 export async function copyFiles(req: CopyRequest) {
-  return service.post("/files/copy", { params: req })
+  return service.post("/copy", { params: req })
 }
 
 export async function moveFiles(req: CopyRequest) {
-  return service.post("/files/move", { params: req })
+  return service.post("/move", { params: req })
 }
 
 export async function renamePreview(req: RenamePreviewRequest) {
-  return service.post("/files/preview", { params: req })
+  return service.post("/preview", { params: req })
 }
 
 export async function removeTextsPreview(req: RemoveTextsRequest) {
-  return service.post("/files/removeTexts", { params: req })
+  return service.post("/remove", { params: req })
 }
 
 export async function replaceChinesePreview(req: ReplaceChinesePreview) {
-  return service.post("/files/replaceChinese", { params: req })
+  return service.post("/replace", { params: req })
 }
 
 export async function renameConfirm(req: RenameConfirmRequest) {
-  return service.post("/files/rename", { params: req })
+  return service.post("/rename", { params: req })
 }
