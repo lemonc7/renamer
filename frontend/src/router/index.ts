@@ -1,22 +1,19 @@
-import { createRouter } from "sv-router"
+import { createRouter, createWebHistory } from "vue-router"
+
+const routes = [
+  {
+    path: "/",
+    redirect: "/home"
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    component: () => import("../pages/Home.vue")
+  }
+]
 
 const router = createRouter({
-  "/": {
-    "/": () => import("src/pages/layout.svelte"),
-    hooks: {
-      beforeLoad() {
-        throw navigate("/home", { replace: true })
-      }
-    }
-  },
-  "*": () => import("src/pages/layout.svelte")
+  history: createWebHistory(),
+  routes
 })
 
-export const { p, route } = router
-// 导出可以接受任意路径的 navigate 函数
-export function navigate(
-  path: string | number,
-  options?: { replace?: boolean }
-) {
-  return (router.navigate as any)(path, options)
-}
+export default router

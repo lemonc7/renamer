@@ -11,7 +11,7 @@ use pinyin::ToPinyin;
 use regex::Regex;
 
 use crate::{
-    file_service::get_files,
+    file_service::{get_files, resolve_path},
     models::{
         File, Name, NameMap, RemoveStringsRequest, RenamePreviewRequest, ReplaceChineseRequest,
     },
@@ -90,11 +90,10 @@ static SEASON_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[Ss]\d{1,3}$"
 
 pub fn rename_preview(req: RenamePreviewRequest) -> io::Result<Vec<NameMap>> {
     let mut name_maps = Vec::new();
-    let base_dir = Path::new(&req.dir);
 
     for entry in req.targets {
         let mut names = Vec::new();
-        let files = get_pending_files(base_dir.join(&entry))?;
+        let files = get_pending_files(req.dir.join(&entry))?;
 
         for file in files {
             match extract_episode(&file.name) {
@@ -125,9 +124,8 @@ pub fn rename_preview(req: RenamePreviewRequest) -> io::Result<Vec<NameMap>> {
 pub fn remove_strings(req: RemoveStringsRequest) -> io::Result<Vec<NameMap>> {
     let mut name_maps = Vec::new();
 
-    let base = Path::new(&req.dir);
     for entry in req.targets {
-        let target_path = base.join(&entry);
+        let target_path = req.dir.join(&entry);
         let files = get_files(target_path)?;
         let mut names = Vec::new();
 
@@ -156,10 +154,8 @@ pub fn remove_strings(req: RemoveStringsRequest) -> io::Result<Vec<NameMap>> {
 pub fn replace_chinese(req: ReplaceChineseRequest) -> io::Result<Vec<NameMap>> {
     let mut name_maps = Vec::new();
 
-    let base = Path::new(&req.dir);
-
     for entry in req.targets {
-        let target_path = base.join(&entry);
+        let target_path = req.dir.join(&entry);
         let files = get_files(target_path)?;
         let mut names = Vec::new();
 
@@ -186,10 +182,10 @@ pub fn rename_file<P>(path: P, names: Vec<Name>) -> io::Result<()>
 where
     P: AsRef<Path>,
 {
-    // 检查新名称是否有重名
-    check_repeat(&names)?;
+    let base = resolve_path(path.as_ref())?;
+    // 检查文件名是否合法
+    check_names(&names)?;
 
-    let base = path.as_ref();
     // 生成唯一后缀
     let suffix = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -332,13 +328,20 @@ fn rename_format(dir: &str, mut ep: String, ext: &str) -> String {
     }
 }
 
-fn check_repeat(names: &[Name]) -> io::Result<()> {
+fn check_names(names: &[Name]) -> io::Result<()> {
     let mut set = HashSet::new();
     for entry in names {
-        if !set.insert(entry.new_name.as_str()) {
+        let new_name = entry.new_name.as_str();
+        if !is_valid_filename(new_name) || !is_valid_filename(&entry.old_name) {
+            return Err(io::Error::new(
+                ErrorKind::InvalidFilename,
+                "存在非法的文件名",
+            ));
+        }
+        if !set.insert(new_name) {
             return Err(io::Error::new(
                 ErrorKind::InvalidInput,
-                format!("存在重名的文件名: {}", entry.new_name),
+                format!("存在重名的文件名: {}", new_name),
             ));
         }
     }
@@ -396,4 +399,8 @@ fn convert_to_pinyin(s: &str) -> String {
         result.push(c);
     }
     result
+}
+
+fn is_valid_filename(name: &str) -> bool {
+    !name.contains('/') && !name.contains('\\')
 }

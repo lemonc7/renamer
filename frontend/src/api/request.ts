@@ -1,27 +1,25 @@
 import axios from "axios"
 
-// 1. 使用环境变量 (如果未设置则默认为 /)
-// const baseURL = import.meta.env.VITE_API_URL || "/";
-
 const service = axios.create({
-  baseURL: "/api",
+  baseURL:
+    process.env.NODE_ENV === "production"
+      ? "/api"
+      : "http://localhost:7777/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json;charset=UTF-8"
   }
 })
 
-// 2. 请求拦截器
+// 请求拦截
 service.interceptors.request.use(
   (config) => {
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
-// 3. 响应拦截器
+// 响应拦截
 service.interceptors.response.use(
   (response) => {
     // 直接返回数据, 后续不需要再使用.data

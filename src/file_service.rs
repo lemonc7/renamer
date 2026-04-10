@@ -16,8 +16,9 @@ pub fn delete_files(req: DeleteRequest) -> Result<(), Error> {
     let from_paths: Vec<PathBuf> = req
         .targets
         .iter()
-        .map(|entry| Path::new(&req.dir).join(entry))
-        .collect();
+        .map(|entry| req.dir.join(entry))
+        .map(|p| resolve_path(&p))
+        .collect::<Result<_, _>>()?;
     fs_extra::remove_items(&from_paths)
 }
 
@@ -28,10 +29,13 @@ pub fn copy_files(req: CopyRequest) -> Result<u64, Error> {
     let from_paths: Vec<PathBuf> = req
         .originals
         .iter()
-        .map(|entry| Path::new(&req.dir).join(entry))
-        .collect();
+        .map(|entry| req.dir.join(entry))
+        .map(|p| resolve_path(&p))
+        .collect::<Result<_, _>>()?;
 
-    fs_extra::copy_items(&from_paths, &req.target_dir, &options)
+    let target_dir = resolve_new_path(&req.target_dir)?;
+
+    fs_extra::copy_items(&from_paths, target_dir, &options)
 }
 
 pub fn move_files(req: MoveRequest) -> Result<u64, Error> {
@@ -40,10 +44,12 @@ pub fn move_files(req: MoveRequest) -> Result<u64, Error> {
     let from_paths: Vec<PathBuf> = req
         .originals
         .iter()
-        .map(|entry| Path::new(&req.dir).join(entry))
-        .collect();
+        .map(|entry| req.dir.join(entry))
+        .map(|p| resolve_path(&p))
+        .collect::<Result<_, _>>()?;
 
-    fs_extra::move_items(&from_paths, &req.target_dir, &options)
+    let target_dir = resolve_new_path(&req.target_dir)?;
+    fs_extra::move_items(&from_paths, target_dir, &options)
 }
 
 pub fn get_files<P>(dir: P) -> io::Result<Vec<File>>
@@ -52,6 +58,7 @@ where
 {
     let mut files = Vec::new();
 
+    let dir = resolve_path(dir.as_ref())?;
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let metadata = entry.metadata()?;
@@ -107,4 +114,62 @@ fn get_pinyin_helper(s: &str) -> String {
         }
     }
     pinyin_str
+}
+
+const BASE_DIR: &str = "/data";
+
+pub fn resolve_path(input: &Path) -> io::Result<PathBuf> {
+    let base = PathBuf::from(BASE_DIR);
+
+    if input.is_absolute() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "不允许输入绝对路径",
+        ));
+    }
+
+    // 拼接路径
+    let joined = base.join(input);
+
+    // 标准化路径
+    let canon = joined.canonicalize()?;
+
+    // 安全检查
+    if !canon.starts_with(&base) {
+        return Err(io::Error::new(
+            io::ErrorKind::PermissionDenied,
+            "路径超出安全路径",
+        ));
+    }
+
+    Ok(canon)
+}
+
+pub fn resolve_new_path(input: &Path) -> io::Result<PathBuf> {
+    let base = PathBuf::from(BASE_DIR);
+
+    if input.is_absolute() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "不允许输入绝对路径",
+        ));
+    }
+
+    // 拼接路径
+    let joined = base.join(input);
+
+    if let Some(parent) = joined.parent() {
+        // 标准化路径
+        let canon = parent.canonicalize()?;
+
+        // 安全检查
+        if !canon.starts_with(&base) {
+            return Err(io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "路径超出安全路径",
+            ));
+        }
+    }
+
+    Ok(joined)
 }

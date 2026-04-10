@@ -20,8 +20,17 @@ pub async fn health_check() -> &'static str {
 pub async fn get_files(
     ValidatedQuery(params): ValidatedQuery<DirParams>,
 ) -> Result<impl IntoResponse, AppError> {
-    let files = file_service::get_files(&params.path)
-        .map_err(|e| AppError::FileOpError("读取目录", params.path, e))?;
+    let files = file_service::get_files(&params.path).map_err(|e| {
+        if e.kind() == io::ErrorKind::NotFound {
+            AppError::NotFound(params.path)
+        } else {
+            AppError::FileOpError {
+                op: "读取目录",
+                path: params.path,
+                source: e,
+            }
+        }
+    })?;
     Ok((StatusCode::OK, Json(files)))
 }
 
@@ -30,9 +39,14 @@ pub async fn create_dir(
 ) -> Result<impl IntoResponse, AppError> {
     fs::create_dir(&payload.path).map_err(|e| {
         if e.kind() == io::ErrorKind::AlreadyExists {
-            return AppError::AlreadyExists(payload.path);
+            AppError::AlreadyExists(payload.path)
+        } else {
+            AppError::FileOpError {
+                op: "创建文件夹",
+                path: payload.path,
+                source: e,
+            }
         }
-        AppError::FileOpError("创建文件夹", payload.path, e)
     })?;
 
     Ok(StatusCode::CREATED)
@@ -41,21 +55,30 @@ pub async fn create_dir(
 pub async fn delete_files(
     ValidatedJson(payload): ValidatedJson<DeleteRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    file_service::delete_files(payload).map_err(|e| AppError::FsExtra("删除文件", e))?;
+    file_service::delete_files(payload).map_err(|e| AppError::FsExtra {
+        op: "删除文件",
+        source: e,
+    })?;
     Ok(StatusCode::NO_CONTENT)
 }
 
 pub async fn copy_files(
     ValidatedJson(payload): ValidatedJson<CopyRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    file_service::copy_files(payload).map_err(|e| AppError::FsExtra("复制文件", e))?;
+    file_service::copy_files(payload).map_err(|e| AppError::FsExtra {
+        op: "复制文件",
+        source: e,
+    })?;
     Ok(StatusCode::NO_CONTENT)
 }
 
 pub async fn move_files(
     ValidatedJson(payload): ValidatedJson<MoveRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    file_service::move_files(payload).map_err(|e| AppError::FsExtra("移动文件", e))?;
+    file_service::move_files(payload).map_err(|e| AppError::FsExtra {
+        op: "移动文件",
+        source: e,
+    })?;
 
     Ok(StatusCode::NO_CONTENT)
 }
@@ -63,14 +86,20 @@ pub async fn move_files(
 pub async fn rename_preview(
     ValidatedJson(payload): ValidatedJson<RenamePreviewRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    let names = renamer::rename_preview(payload).map_err(|e| AppError::IO("重命名预览", e))?;
+    let names = renamer::rename_preview(payload).map_err(|e| AppError::IO {
+        op: "重命名预览",
+        source: e,
+    })?;
     Ok((StatusCode::OK, Json(names)))
 }
 
 pub async fn remove_strings_preview(
     ValidatedJson(payload): ValidatedJson<RemoveStringsRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    let names = renamer::remove_strings(payload).map_err(|e| AppError::IO("移除字符串", e))?;
+    let names = renamer::remove_strings(payload).map_err(|e| AppError::IO {
+        op: "移除字符串",
+        source: e,
+    })?;
 
     Ok((StatusCode::OK, Json(names)))
 }
@@ -78,7 +107,10 @@ pub async fn remove_strings_preview(
 pub async fn replace_chinese_preview(
     ValidatedJson(payload): ValidatedJson<ReplaceChineseRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    let names = renamer::replace_chinese(payload).map_err(|e| AppError::IO("替换中文", e))?;
+    let names = renamer::replace_chinese(payload).map_err(|e| AppError::IO {
+        op: "替换中文",
+        source: e,
+    })?;
     Ok((StatusCode::OK, Json(names)))
 }
 
@@ -87,8 +119,10 @@ pub async fn rename_confirm(
 ) -> Result<impl IntoResponse, AppError> {
     let base = Path::new(&payload.dir);
     for entry in payload.name_maps {
-        renamer::rename_file(base.join(entry.dir), entry.files)
-            .map_err(|e| AppError::IO("重命名文件", e))?;
+        renamer::rename_file(base.join(entry.dir), entry.files).map_err(|e| AppError::IO {
+            op: "重命名文件",
+            source: e,
+        })?;
     }
     Ok(StatusCode::NO_CONTENT)
 }

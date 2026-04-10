@@ -1,21 +1,18 @@
-use std::path::Path;
+use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
+use validator::Validate;
 
 #[derive(Deserialize, Validate)]
 pub struct DirParams {
-    #[validate(custom(function = "validate_path", message = "请输入合法路径"))]
-    pub path: String,
+    pub path: PathBuf,
 }
 
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct CopyRequest {
-    #[validate(custom(function = "validate_path", message = "请输入合法路径"))]
-    pub dir: String,
-    #[validate(custom(function = "validate_path", message = "目标路径不合法"))]
-    pub target_dir: String,
+    pub dir: PathBuf,
+    pub target_dir: PathBuf,
     #[validate(length(min = 1, message = "源文件列表不能为空"))]
     pub originals: Vec<String>,
 }
@@ -24,8 +21,7 @@ pub type MoveRequest = CopyRequest;
 
 #[derive(Deserialize, Validate)]
 pub struct DeleteRequest {
-    #[validate(custom(function = "validate_path", message = "请输入合法路径"))]
-    pub dir: String,
+    pub dir: PathBuf,
     #[validate(length(min = 1, message = "源文件列表不能为空"))]
     pub targets: Vec<String>,
 }
@@ -35,8 +31,7 @@ pub type ReplaceChineseRequest = DeleteRequest;
 
 #[derive(Deserialize, Validate)]
 pub struct RemoveStringsRequest {
-    #[validate(custom(function = "validate_path", message = "请输入合法路径"))]
-    pub dir: String,
+    pub dir: PathBuf,
     #[validate(length(min = 1, message = "目标文件列表不能为空"))]
     pub targets: Vec<String>,
     #[validate(length(min = 1, message = "待移除的字符串不能为空"))]
@@ -46,8 +41,7 @@ pub struct RemoveStringsRequest {
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct RenameConfirmRequest {
-    #[validate(custom(function = "validate_path", message = "请输入合法路径"))]
-    pub dir: String,
+    pub dir: PathBuf,
     #[validate(length(min = 1, message = "没有需要重命名的目录"), nested)]
     pub name_maps: Vec<NameMap>,
 }
@@ -78,13 +72,4 @@ pub struct NameMap {
     pub dir: String,
     #[validate(nested)]
     pub files: Vec<Name>,
-}
-
-fn validate_path(path_str: &str) -> Result<(), ValidationError> {
-    let path = Path::new(path_str);
-    if path.is_absolute() {
-        Ok(())
-    } else {
-        Err(ValidationError::new("invalid_path"))
-    }
 }

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io};
+use std::{collections::HashMap, io, path};
 
 use axum::{Json, http::StatusCode, response::IntoResponse};
 use serde_json::{Value, json};
@@ -8,18 +8,33 @@ use validator::ValidationErrors;
 
 #[derive(Debug, Error)]
 pub enum AppError {
-    #[error("{0}失败 ({1}): {2}")]
-    FileOpError(&'static str, String, #[source] io::Error),
-    #[error("目标已存在: {0}")]
-    AlreadyExists(String),
-    #[error("{0}失败: {1}")]
-    FsExtra(&'static str, #[source] fs_extra::error::Error),
-    #[error("{0}失败: {1}")]
-    IO(&'static str, #[source] io::Error),
+    #[error("{op}失败 ({path}): {source}")]
+    FileOpError {
+        op: &'static str,
+        path: path::PathBuf,
+        #[source]
+        source: io::Error,
+    },
+    #[error("{op}失败: {source}")]
+    FsExtra {
+        op: &'static str,
+        #[source]
+        source: fs_extra::error::Error,
+    },
+    #[error("{op}失败: {source}")]
+    IO {
+        op: &'static str,
+        #[source]
+        source: io::Error,
+    },
     #[error("参数校验失败: \n{0}")]
     ValidationError(#[source] ValidationErrors),
     #[error("请求参数有误: {0}")]
     BadRequest(String),
+    #[error("目标已存在: {0}")]
+    AlreadyExists(path::PathBuf),
+    #[error("资源不存在: {0}")]
+    NotFound(path::PathBuf),
 }
 
 impl IntoResponse for AppError {
@@ -27,17 +42,17 @@ impl IntoResponse for AppError {
         let span = Span::current();
         span.record("error", tracing::field::display(&self));
         match self {
-            AppError::AlreadyExists(target) => (
+            AppError::AlreadyExists(path) => (
                 StatusCode::CONFLICT,
                 Json(json!({
-                  "error": format!("目标已存在: {}", target),
+                  "error": format!("目标已存在: {:?}", path),
                 })),
             )
                 .into_response(),
-            AppError::FileOpError(op, _, _) | AppError::FsExtra(op, _) | AppError::IO(op, _) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::NotFound(path) => (
+                StatusCode::NOT_FOUND,
                 Json(json!({
-                  "error": format!("{}失败", op),
+                  "error": format!("资源不存在: {:?}",path),
                 })),
             )
                 .into_response(),
@@ -49,8 +64,17 @@ impl IntoResponse for AppError {
                 })),
             )
                 .into_response(),
-            AppError::ValidationError(err) => {
-                let field_errors = extract_validation_errors(&err);
+            AppError::FileOpError { op, .. }
+            | AppError::FsExtra { op, .. }
+            | AppError::IO { op, .. } => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({
+                  "error": format!("{}失败", op),
+                })),
+            )
+                .into_response(),
+            AppError::ValidationError(source) => {
+                let field_errors = extract_validation_errors(&source);
                 (
                     StatusCode::UNPROCESSABLE_ENTITY,
                     Json(json!({
