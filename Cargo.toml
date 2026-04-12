@@ -8,7 +8,6 @@ uuid = { version = "1", features = ["v4"] }
 chrono = "0.4"
 human_bytes = "0.4"
 pinyin = "0.10"
-fs_extra = "1"
 regex = "1"
 tokio = { version = "1", features = ["full"] }
 axum = "0.8"
@@ -19,3 +18,5 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tower-http = { version = "0.6", features = ["trace"] }
 thiserror = "2"
 validator = { version = "0.20", features = ["derive"] }
+cap-std = "4"
+cap-fs-ext = "4"

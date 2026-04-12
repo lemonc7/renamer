@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use axum::{
     Router,
     extract::Request,
@@ -7,24 +9,30 @@ use axum::{
 use tower_http::trace::TraceLayer;
 use tracing::{Span, field::Empty, info_span};
 
-use crate::handlers::{
-    copy_files, create_dir, delete_files, get_files, health_check, move_files,
-    remove_strings_preview, rename_confirm, rename_preview, replace_chinese_preview,
+use crate::{
+    file_service::SandBox,
+    handlers::{
+        copy_items, create_dir, delete_items, get_items, health_check, move_items,
+        remove_strings_preview, rename_confirm, rename_preview, replace_chinese_preview,
+    },
 };
 
 pub fn create_app() -> Router {
     let router = Router::new()
-        .route("/", get(get_files).post(create_dir).delete(delete_files))
-        .route("/copy", post(copy_files))
-        .route("/move", post(move_files))
+        .route("/", get(get_items).post(create_dir).delete(delete_items))
+        .route("/copy", post(copy_items))
+        .route("/move", post(move_items))
         .route("/preview", post(rename_preview))
         .route("/remove", post(remove_strings_preview))
         .route("/replace", post(replace_chinese_preview))
         .route("/rename", post(rename_confirm));
 
+    let sandbox = SandBox::init();
+    let state = Arc::new(sandbox);
     Router::new()
         .nest("/api", router)
         .route("/health", get(health_check))
+        .with_state(state)
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(|req: &Request<_>| {

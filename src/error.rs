@@ -9,17 +9,11 @@ use validator::ValidationErrors;
 #[derive(Debug, Error)]
 pub enum AppError {
     #[error("{op}失败 ({path}): {source}")]
-    FileOpError {
+    OpError {
         op: &'static str,
         path: path::PathBuf,
         #[source]
         source: io::Error,
-    },
-    #[error("{op}失败: {source}")]
-    FsExtra {
-        op: &'static str,
-        #[source]
-        source: fs_extra::error::Error,
     },
     #[error("{op}失败: {source}")]
     IO {
@@ -64,9 +58,7 @@ impl IntoResponse for AppError {
                 })),
             )
                 .into_response(),
-            AppError::FileOpError { op, .. }
-            | AppError::FsExtra { op, .. }
-            | AppError::IO { op, .. } => (
+            AppError::OpError { op, .. } | AppError::IO { op, .. } => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
                   "error": format!("{}失败", op),

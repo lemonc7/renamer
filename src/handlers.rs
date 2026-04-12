@@ -1,30 +1,32 @@
-use std::{fs, io, path::Path};
+use std::{io, sync::Arc};
 
-use axum::{Json, http::StatusCode, response::IntoResponse};
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 
 use crate::{
     error::AppError,
     extractors::{ValidatedJson, ValidatedQuery},
-    file_service,
+    file_service::SandBox,
     models::{
         CopyRequest, DeleteRequest, DirParams, MoveRequest, RemoveStringsRequest,
         RenameConfirmRequest, RenamePreviewRequest, ReplaceChineseRequest,
     },
-    renamer,
 };
 
 pub async fn health_check() -> &'static str {
     "Welcome to the Renamer!"
 }
 
-pub async fn get_files(
+pub async fn get_items(
+    State(sandbox): State<Arc<SandBox>>,
     ValidatedQuery(params): ValidatedQuery<DirParams>,
 ) -> Result<impl IntoResponse, AppError> {
-    let files = file_service::get_files(&params.path).map_err(|e| {
+    let files = sandbox.get_items(&params.path).map_err(|e| {
         if e.kind() == io::ErrorKind::NotFound {
             AppError::NotFound(params.path)
+        } else if e.kind() == io::ErrorKind::InvalidInput {
+            AppError::BadRequest(e.to_string())
         } else {
-            AppError::FileOpError {
+            AppError::OpError {
                 op: "读取目录",
                 path: params.path,
                 source: e,
@@ -35,13 +37,14 @@ pub async fn get_files(
 }
 
 pub async fn create_dir(
+    State(sandbox): State<Arc<SandBox>>,
     ValidatedJson(payload): ValidatedJson<DirParams>,
 ) -> Result<impl IntoResponse, AppError> {
-    fs::create_dir(&payload.path).map_err(|e| {
+    sandbox.create_dir(&payload.path).map_err(|e| {
         if e.kind() == io::ErrorKind::AlreadyExists {
             AppError::AlreadyExists(payload.path)
         } else {
-            AppError::FileOpError {
+            AppError::OpError {
                 op: "创建文件夹",
                 path: payload.path,
                 source: e,
@@ -52,77 +55,100 @@ pub async fn create_dir(
     Ok(StatusCode::CREATED)
 }
 
-pub async fn delete_files(
+pub async fn delete_items(
+    State(sandbox): State<Arc<SandBox>>,
     ValidatedJson(payload): ValidatedJson<DeleteRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    file_service::delete_files(payload).map_err(|e| AppError::FsExtra {
-        op: "删除文件",
-        source: e,
-    })?;
+    sandbox
+        .delete_items(&payload.dir, &payload.targets)
+        .map_err(|e| AppError::IO {
+            op: "删除文件",
+            source: e,
+        })?;
+
     Ok(StatusCode::NO_CONTENT)
 }
 
-pub async fn copy_files(
+pub async fn copy_items(
+    State(sandbox): State<Arc<SandBox>>,
     ValidatedJson(payload): ValidatedJson<CopyRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    file_service::copy_files(payload).map_err(|e| AppError::FsExtra {
-        op: "复制文件",
-        source: e,
-    })?;
+    sandbox
+        .copy_items(&payload.dir, &payload.target_dir, &payload.originals)
+        .map_err(|e| AppError::IO {
+            op: "复制文件",
+            source: e,
+        })?;
     Ok(StatusCode::NO_CONTENT)
 }
 
-pub async fn move_files(
+pub async fn move_items(
+    State(sandbox): State<Arc<SandBox>>,
     ValidatedJson(payload): ValidatedJson<MoveRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    file_service::move_files(payload).map_err(|e| AppError::FsExtra {
-        op: "移动文件",
-        source: e,
-    })?;
+    sandbox
+        .move_items(&payload.dir, &payload.target_dir, &payload.originals)
+        .map_err(|e| AppError::IO {
+            op: "移动文件",
+            source: e,
+        })?;
 
     Ok(StatusCode::NO_CONTENT)
 }
 
 pub async fn rename_preview(
+    State(sandbox): State<Arc<SandBox>>,
     ValidatedJson(payload): ValidatedJson<RenamePreviewRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    let names = renamer::rename_preview(payload).map_err(|e| AppError::IO {
-        op: "重命名预览",
-        source: e,
-    })?;
+    let names = sandbox
+        .rename_preview(&payload.dir, payload.targets)
+        .map_err(|e| AppError::IO {
+            op: "重命名预览",
+            source: e,
+        })?;
     Ok((StatusCode::OK, Json(names)))
 }
 
 pub async fn remove_strings_preview(
+    State(sandbox): State<Arc<SandBox>>,
     ValidatedJson(payload): ValidatedJson<RemoveStringsRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    let names = renamer::remove_strings(payload).map_err(|e| AppError::IO {
-        op: "移除字符串",
-        source: e,
-    })?;
+    let names = sandbox
+        .remove_strings(&payload.dir, payload.targets, payload.strings)
+        .map_err(|e| AppError::IO {
+            op: "移除字符串",
+            source: e,
+        })?;
 
     Ok((StatusCode::OK, Json(names)))
 }
 
 pub async fn replace_chinese_preview(
+    State(sandbox): State<Arc<SandBox>>,
     ValidatedJson(payload): ValidatedJson<ReplaceChineseRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    let names = renamer::replace_chinese(payload).map_err(|e| AppError::IO {
-        op: "替换中文",
-        source: e,
-    })?;
+    let names = sandbox
+        .replace_chinese(&payload.dir, payload.targets)
+        .map_err(|e| AppError::IO {
+            op: "替换中文",
+            source: e,
+        })?;
     Ok((StatusCode::OK, Json(names)))
 }
 
 pub async fn rename_confirm(
+    State(sandbox): State<Arc<SandBox>>,
     ValidatedJson(payload): ValidatedJson<RenameConfirmRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-    let base = Path::new(&payload.dir);
     for entry in payload.name_maps {
-        renamer::rename_file(base.join(entry.dir), entry.files).map_err(|e| AppError::IO {
-            op: "重命名文件",
-            source: e,
-        })?;
+        let target_path = payload.dir.join(entry.dir);
+        sandbox
+            .rename_files(&target_path, entry.files)
+            .map_err(|e| AppError::IO {
+                op: "重命名文件",
+                source: e,
+            })?;
     }
+
     Ok(StatusCode::NO_CONTENT)
 }

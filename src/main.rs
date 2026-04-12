@@ -15,8 +15,8 @@ mod extractors;
 mod file_service;
 mod handlers;
 mod models;
-mod renamer;
 mod router;
+mod rules;
 
 #[tokio::main]
 async fn main() {
