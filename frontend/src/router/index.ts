@@ -1,13 +1,16 @@
 import { createRouter, createWebHistory } from "vue-router"
+import Layout from "../components/Layout.vue"
 
 const routes = [
   {
     path: "/",
-    redirect: "/home"
-  },
-  {
-    path: "/:pathMatch(.*)*",
-    component: () => import("../pages/Home.vue")
+    component: Layout,
+    children: [
+      {
+        path: ":pathMatch(.*)*",
+        component: () => import("../pages/Home.vue")
+      }
+    ]
   }
 ]
 
