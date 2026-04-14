@@ -6,7 +6,10 @@ use axum::{
     http::Response,
     routing::{get, post},
 };
-use tower_http::trace::TraceLayer;
+use tower_http::{
+    cors::{Any, CorsLayer},
+    trace::TraceLayer,
+};
 use tracing::{Span, field::Empty, info_span};
 
 use crate::{
@@ -29,10 +32,16 @@ pub fn create_app() -> Router {
 
     let sandbox = SandBox::init();
     let state = Arc::new(sandbox);
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
     Router::new()
         .nest("/api", router)
         .route("/health", get(health_check))
         .with_state(state)
+        .layer(cors)
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(|req: &Request<_>| {
