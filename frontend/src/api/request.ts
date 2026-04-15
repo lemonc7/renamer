@@ -43,12 +43,7 @@ service.interceptors.response.use(
       return Promise.reject(new Error(statusText))
     }
 
-    // 处理断网或超时情况
-    if (error.message.includes("timeout")) {
-      return Promise.reject(new Error("请求超时"))
-    }
-
-    // 没有response，直接返回
+    // 没有response
     return Promise.reject(new Error("网络错误或服务不可用"))
   }
 )
