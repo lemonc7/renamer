@@ -17,7 +17,7 @@ pub struct SandBox {
 
 impl SandBox {
     pub fn init() -> Self {
-        let base_dir = "/home";
+        let base_dir = "/Users";
         let root = Dir::open_ambient_dir(base_dir, ambient_authority())
             .unwrap_or_else(|_| panic!("基础目录必须存在且可访问: {}", base_dir));
         Self { root }

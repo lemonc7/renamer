@@ -24,6 +24,7 @@ export function useFiles() {
   return {
     files: fileQuery.data,
     isLoading: fileQuery.isLoading,
-    error: fileQuery.error
+    error: fileQuery.error,
+    refetch: fileQuery.refetch
   }
 }

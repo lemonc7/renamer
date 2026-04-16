@@ -1,12 +1,50 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useRouter } from "vue-router"
+import { useFiles } from "../composables/useFiles"
+
+const router = useRouter()
+const toast = useToast()
+const { refetch } = useFiles()
+
+async function handleRefresh() {
+  const result = await refetch()
+  if (result.status === "error") {
+    toast.add({
+      title: "刷新失败",
+      description: "请检查网络连接后重试。",
+      color: "error",
+      icon: "i-lucide-x-circle"
+    })
+  } else {
+    toast.add({
+      title: "刷新成功",
+      description: "文件信息已同步至最新状态。",
+      color: "success",
+      icon: "i-lucide-check-circle"
+    })
+  }
+}
+</script>
 
 <template>
   <header
     class="h-14 shrink-0 flex items-center px-4 border-b border-neutral-200 dark:border-neutral-800"
   >
     <div class="flex items-center gap-2">
-      <UIcon name="i-logos-nuxt-icon" class="size-6" />
-      <span class="font-bold text-sm">我的系统</span>
+      <UButton
+        icon="line-md:home"
+        color="neutral"
+        variant="ghost"
+        @click="router.push('/')"
+        >主页</UButton
+      >
+      <UButton
+        icon="i-lucide-rotate-cw"
+        color="neutral"
+        variant="ghost"
+        @click="handleRefresh"
+      />
+      <USeparator orientation="vertical" class="h-6" type="solid" />
       <UColorModeButton />
     </div>
   </header>
