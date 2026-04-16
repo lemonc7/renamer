@@ -39,8 +39,12 @@ import { useFiles } from "../composables/useFiles"
 import type { TableColumn } from "@nuxt/ui"
 import type { FileInfo } from "../model"
 import { h, ref, resolveComponent, useTemplateRef } from "vue"
+import { useRoute, useRouter } from "vue-router"
 
 const UCheckbox = resolveComponent("UCheckbox")
+const UIcon = resolveComponent("UIcon")
+const router = useRouter()
+const route = useRoute()
 
 const { files } = useFiles()
 
@@ -71,7 +75,39 @@ const columns: TableColumn<FileInfo>[] = [
   },
   {
     accessorKey: "name",
-    header: "名称"
+    header: "名称",
+    cell: ({ row }) => {
+      const file = row.original
+      return h(
+        "div",
+        {
+          class: [
+            "flex items-center gap-2",
+            file.isDir
+              ? "cursor-pointer hover:text-primary-500 transition-colors"
+              : ""
+          ],
+          onClick: () => {
+            if (file.isDir) {
+              const currentPath = route.fullPath
+              const newPath = currentPath.endsWith("/")
+                ? `${currentPath}${file.name}`
+                : `${currentPath}/${file.name}`
+              router.push(newPath)
+            }
+          }
+        },
+        [
+          h(UIcon, {
+            name: file.isDir
+              ? "i-heroicons-folder-solid"
+              : "i-heroicons-document",
+            class: "w-5 h-5 flex-shrink-0"
+          }),
+          h("span", { class: "truncate" }, file.name)
+        ]
+      )
+    }
   },
   {
     accessorKey: "size",

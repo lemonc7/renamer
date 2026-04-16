@@ -1,5 +1,4 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <header
@@ -8,6 +7,7 @@
     <div class="flex items-center gap-2">
       <UIcon name="i-logos-nuxt-icon" class="size-6" />
       <span class="font-bold text-sm">我的系统</span>
+      <UColorModeButton />
     </div>
   </header>
 </template>
