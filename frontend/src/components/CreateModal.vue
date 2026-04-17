@@ -4,7 +4,7 @@
     title="新建文件夹"
     description="请输入合法的文件夹名称"
   >
-    <UButton icon="i-lucide-folder-plus" color="neutral" />
+    <UButton icon="i-lucide-folder-plus" color="neutral" label="新建" />
 
     <template #body>
       <UForm
@@ -47,6 +47,7 @@ import { useFiles } from "../composables/useFiles"
 import { z } from "zod"
 import type { FormSubmitEvent } from "@nuxt/ui"
 import { useRoute } from "vue-router"
+import { getCleanPath } from "../utils/path"
 
 const open = ref(false)
 const toast = useToast()
@@ -72,7 +73,7 @@ const initialState: Schema = {
 const state = reactive<Schema>({ ...initialState })
 
 async function handleSubmit(event: FormSubmitEvent<Schema>) {
-  const cleanPath = route.path.replace(/^\/+/, "")
+  const cleanPath = getCleanPath(route.path)
   const { name } = event.data
   const fullPath = cleanPath ? `${cleanPath}/${name}` : name
 

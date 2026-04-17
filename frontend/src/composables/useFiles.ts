@@ -1,7 +1,9 @@
 import { useMutation, useQuery } from "@pinia/colada"
 import { computed } from "vue"
 import { useRoute } from "vue-router"
-import { createDir, getFiles } from "../api"
+import { createDir, deleteItems, getFiles } from "../api"
+import type { DeleteRequest } from "../model"
+import { getCleanPath } from "../utils/path"
 
 export function useFiles() {
   const route = useRoute()
@@ -12,7 +14,7 @@ export function useFiles() {
       return "."
     }
     // 去掉开头的一个或多个 `/`
-    return path.replace(/^\/+/, "")
+    return getCleanPath(path)
   })
 
   // 获取文件信息
@@ -28,6 +30,12 @@ export function useFiles() {
     onSuccess: () => fileQuery.refetch()
   })
 
+  // 删除文件
+  const deleteMutation = useMutation({
+    mutation: (req: DeleteRequest) => deleteItems(req),
+    onSuccess: () => fileQuery.refetch()
+  })
+
   return {
     files: fileQuery.data,
     isLoading: fileQuery.isLoading,
@@ -35,7 +43,9 @@ export function useFiles() {
     refetch: fileQuery.refetch,
 
     createDir: createMutation.mutateAsync,
+    deleteItems: deleteMutation.mutateAsync,
 
-    isCreating: createMutation.isLoading
+    isCreating: createMutation.isLoading,
+    isDeleting: deleteMutation.isLoading
   }
 }

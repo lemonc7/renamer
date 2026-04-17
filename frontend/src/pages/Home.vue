@@ -47,14 +47,16 @@
 import { useFiles } from "../composables/useFiles"
 import type { TableColumn } from "@nuxt/ui"
 import type { FileInfo } from "../model"
-import { h, ref, resolveComponent, useTemplateRef } from "vue"
+import { h, ref, resolveComponent, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import Breadcrumb from "../components/Breadcrumb.vue"
+import { useSelectionStore } from "../stores/selection"
 
 const UCheckbox = resolveComponent("UCheckbox")
 const UIcon = resolveComponent("UIcon")
 const router = useRouter()
 const route = useRoute()
+const selectionStore = useSelectionStore()
 
 const { files } = useFiles()
 
@@ -156,4 +158,21 @@ function clearFilter() {
 }
 
 const rowSelection = ref<Record<string, boolean>>({})
+
+// 同步文件信息
+watch(
+  files,
+  (val) => {
+    if (val) selectionStore.setFiles(val)
+  },
+  { immediate: true }
+)
+// 同步选中的文件 ID
+watch(
+  () => Object.keys(rowSelection.value),
+  () => {
+    selectionStore.setSelection(rowSelection.value)
+  },
+  { immediate: true }
+)
 </script>

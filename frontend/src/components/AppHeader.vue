@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router"
 import { useFiles } from "../composables/useFiles"
-import CreateDirModal from "./CreateDirModal.vue"
+import CreateModal from "./CreateModal.vue"
+import DeleteModal from "./DeleteModal.vue"
 
 const router = useRouter()
 const toast = useToast()
@@ -44,7 +45,8 @@ async function handleRefresh() {
       <UColorModeButton />
     </div>
     <div class="flex items-center gap-2">
-      <CreateDirModal />
+      <DeleteModal />
+      <CreateModal />
       <UButton
         icon="i-lucide-rotate-cw"
         color="neutral"
