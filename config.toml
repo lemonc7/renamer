@@ -1,0 +1,21 @@
+base = "/home"
+port = 8080
+match_exts = [
+  "flv",
+  "mkv",
+  "mp4",
+  "avi",
+  "m2ts",
+  "wmv",
+  "rmvb",
+  "srt",
+  "ass",
+  "ssa",
+  "sub",
+  "smi",
+  "jpg",
+  "nfo",
+]
+
+log_level = "info"
+request_timeout = 10

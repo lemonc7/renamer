@@ -8,19 +8,19 @@ use uuid::Uuid;
 
 use crate::{
     models::{File, Name, NameMap},
-    rules::{MATCH_EXTS, extract_episode, rename_format},
+    rules::{extract_episode, rename_format},
 };
 
 pub struct SandBox {
     root: Dir,
+    match_exts: Vec<String>,
 }
 
 impl SandBox {
-    pub fn init() -> Self {
-        let base_dir = "/Users";
-        let root = Dir::open_ambient_dir(base_dir, ambient_authority())
-            .unwrap_or_else(|_| panic!("基础目录必须存在且可访问: {}", base_dir));
-        Self { root }
+    pub fn init(base: String, match_exts: Vec<String>) -> Self {
+        let root = Dir::open_ambient_dir(&base, ambient_authority())
+            .unwrap_or_else(|_| panic!("基础目录必须存在且可访问: {}", base));
+        Self { root, match_exts }
     }
 
     pub fn get_items(&self, dir: &Path) -> io::Result<Vec<File>> {
@@ -78,7 +78,7 @@ impl SandBox {
 
     pub fn get_pending_files(&self, dir: &Path) -> io::Result<Vec<File>> {
         let mut files = self.get_items(dir)?;
-        files.retain(|f| !f.is_dir && f.ext.as_deref().is_some_and(|e| MATCH_EXTS.contains(&e)));
+        files.retain(|f| !f.is_dir && f.ext.as_ref().is_some_and(|e| self.match_exts.contains(e)));
 
         Ok(files)
     }

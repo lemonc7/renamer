@@ -15,8 +15,16 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-tower-http = { version = "0.6", features = ["trace","cors"] }
+tower = { version = "0.5", features = ["limit"] }
+tower-http = { version = "0.6", features = [
+  "trace",
+  "cors",
+  "timeout",
+  "compression-full",
+  "catch-panic",
+] }
 thiserror = "2"
 validator = { version = "0.20", features = ["derive"] }
 cap-std = "4"
 cap-fs-ext = "4"
+toml = "1"

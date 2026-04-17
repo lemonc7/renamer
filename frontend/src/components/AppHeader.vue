@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router"
 import { useFiles } from "../composables/useFiles"
+import CreateDirModal from "./CreateDirModal.vue"
 
 const router = useRouter()
 const toast = useToast()
@@ -15,6 +16,7 @@ async function handleRefresh() {
       color: "error",
       icon: "i-lucide-x-circle"
     })
+    console.log("刷新文件信息失败: ", result.error)
   } else {
     toast.add({
       title: "刷新成功",
@@ -28,7 +30,7 @@ async function handleRefresh() {
 
 <template>
   <header
-    class="h-14 shrink-0 flex items-center px-4 border-b border-neutral-200 dark:border-neutral-800"
+    class="h-14 shrink-0 flex items-center justify-between px-4 border-b border-neutral-200 dark:border-neutral-800"
   >
     <div class="flex items-center gap-2">
       <UButton
@@ -38,14 +40,17 @@ async function handleRefresh() {
         @click="router.push('/')"
         >主页</UButton
       >
+      <USeparator orientation="vertical" class="h-6" type="solid" />
+      <UColorModeButton />
+    </div>
+    <div class="flex items-center gap-2">
+      <CreateDirModal />
       <UButton
         icon="i-lucide-rotate-cw"
         color="neutral"
         variant="ghost"
         @click="handleRefresh"
       />
-      <USeparator orientation="vertical" class="h-6" type="solid" />
-      <UColorModeButton />
     </div>
   </header>
 </template>

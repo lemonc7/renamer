@@ -2,11 +2,6 @@ use std::{path::Path, sync::LazyLock};
 
 use regex::Regex;
 
-pub const MATCH_EXTS: &[&str] = &[
-    "flv", "mkv", "mp4", "avi", "m2ts", "wmv", "rmvb", "srt", "ass", "ssa", "sub", "smi", "jpg",
-    "nfo",
-];
-
 // 静态规则定义
 static IGNORE_RE: LazyLock<Vec<Regex>> =
     LazyLock::new(|| vec![Regex::new(r"^S\d{2}E\d{2,}$").unwrap()]);

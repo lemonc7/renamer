@@ -2,18 +2,26 @@
   <div class="flex flex-col flex-1 w-full h-full">
     <div class="flex items-center justify-between shrink-0 mb-2">
       <Breadcrumb />
-      <UInput
-        id="name-filter"
-        name="name-filter"
-        :model-value="
-          table?.tableApi.getColumn('name')?.getFilterValue() as string
-        "
-        class="max-w-sm"
-        placeholder="过滤名称..."
-        @update:model-value="
-          table?.tableApi.getColumn('name')?.setFilterValue($event)
-        "
-      />
+      <UFieldGroup>
+        <UInput
+          id="name-filter"
+          name="name-filter"
+          :model-value="
+            table?.tableApi.getColumn('name')?.getFilterValue() as string
+          "
+          class="max-w-sm"
+          placeholder="过滤名称..."
+          @update:model-value="
+            table?.tableApi.getColumn('name')?.setFilterValue($event)
+          "
+        />
+        <UButton
+          icon="ic:baseline-search-off"
+          variant="outline"
+          color="neutral"
+          @click="clearFilter"
+        />
+      </UFieldGroup>
     </div>
     <UTable
       ref="table"
@@ -91,7 +99,7 @@ const columns: TableColumn<FileInfo>[] = [
           ],
           onClick: () => {
             if (file.isDir) {
-              const currentPath = route.fullPath
+              const currentPath = route.path
               const newPath = currentPath.endsWith("/")
                 ? `${currentPath}${file.name}`
                 : `${currentPath}/${file.name}`
@@ -137,5 +145,15 @@ const columnFilters = ref([
     value: ""
   }
 ])
+
+function clearFilter() {
+  columnFilters.value = [
+    {
+      id: "name",
+      value: ""
+    }
+  ]
+}
+
 const rowSelection = ref<Record<string, boolean>>({})
 </script>

@@ -1,4 +1,4 @@
-use std::io;
+use std::{io, process, time::Duration};
 
 use tokio::{net::TcpListener, signal};
 use tracing_subscriber::{
@@ -8,28 +8,33 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
-use crate::router::create_app;
+use crate::{
+    app::create_app,
+    config::{Config, load_config},
+};
 
+mod app;
+mod config;
 mod error;
 mod extractors;
 mod file_service;
 mod handlers;
 mod models;
-mod router;
 mod rules;
 
 #[tokio::main]
 async fn main() {
-    init_tracing();
-    if let Err(e) = run().await {
+    let cfg = load_config("./config.toml");
+    init_tracing(&cfg.log_level);
+    
+    if let Err(e) = run(cfg).await {
         tracing::error!("服务启动失败: {}", e)
     }
 }
 
-async fn run() -> io::Result<()> {
-    let app = create_app();
-
-    let listener = TcpListener::bind("0.0.0.0:7777").await?;
+async fn run(cfg: Config) -> io::Result<()> {
+    let listener = TcpListener::bind(format!("127.0.0.1:{}", cfg.port)).await?;
+    let app = create_app(cfg);
 
     tracing::info!("HTTP 服务运行中: {}", listener.local_addr()?);
     axum::serve(listener, app)
@@ -60,12 +65,18 @@ async fn shutdown_signal() {
         _ = terminate => {}
     }
 
-    tracing::info!("接收到信号，正在关闭 HTTP 服务...")
+    tracing::info!("接收到信号，正在关闭 HTTP 服务，最多等待 5 秒...");
+
+    // 启动一个独立任务，当连接卡死超时时，强制退出
+    tokio::spawn(async {
+        tokio::time::sleep(Duration::from_secs(5)).await;
+        tracing::error!("优雅关闭超时 (5s)，存在未释放的连接，强制退出程序！");
+        process::exit(1);
+    });
 }
 
-fn init_tracing() {
-    let filter_layer =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| "info,tower_http=info".into());
+fn init_tracing(level: &str) {
+    let filter_layer = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(level));
 
     let fmt_layer = fmt::layer().compact().with_target(true).with_ansi(true);
 
