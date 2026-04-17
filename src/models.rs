@@ -73,3 +73,11 @@ pub struct NameMap {
     #[validate(nested)]
     pub files: Vec<Name>,
 }
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Node {
+    pub name: String,
+    pub path: String,
+    pub has_children: bool,
+}

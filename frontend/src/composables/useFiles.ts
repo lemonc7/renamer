@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@pinia/colada"
 import { computed } from "vue"
 import { useRoute } from "vue-router"
-import { createDir, deleteItems, getFiles } from "../api"
+import { createDir, deleteItems, getDirs, getFiles } from "../api"
 import type { DeleteRequest } from "../model"
 import { getCleanPath } from "../utils/path"
 
@@ -24,6 +24,13 @@ export function useFiles() {
     enabled: computed(() => !!path.value)
   })
 
+  // 获取目录树
+  const dirQuery = useQuery({
+    key: () => ["dirs", path.value],
+    query: () => getDirs(path.value),
+    enabled: computed(() => !!path.value)
+  })
+
   // 创建文件夹
   const createMutation = useMutation({
     mutation: (path: string) => createDir(path),
@@ -38,6 +45,7 @@ export function useFiles() {
 
   return {
     files: fileQuery.data,
+    dirs: dirQuery.data,
     isLoading: fileQuery.isLoading,
     error: fileQuery.error,
     refetch: fileQuery.refetch,

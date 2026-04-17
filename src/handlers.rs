@@ -20,7 +20,7 @@ pub async fn get_items(
     State(sandbox): State<Arc<SandBox>>,
     ValidatedQuery(params): ValidatedQuery<DirParams>,
 ) -> Result<impl IntoResponse, AppError> {
-    let files = sandbox.get_items(&params.path).map_err(|e| {
+    let items = sandbox.get_items(&params.path).map_err(|e| {
         if e.kind() == io::ErrorKind::NotFound {
             AppError::NotFound(params.path)
         } else if e.kind() == io::ErrorKind::InvalidInput {
@@ -33,7 +33,28 @@ pub async fn get_items(
             }
         }
     })?;
-    Ok((StatusCode::OK, Json(files)))
+    Ok((StatusCode::OK, Json(items)))
+}
+
+pub async fn get_dirs(
+    State(sandbox): State<Arc<SandBox>>,
+    ValidatedQuery(params): ValidatedQuery<DirParams>,
+) -> Result<impl IntoResponse, AppError> {
+    let dirs = sandbox.get_dirs(&params.path).map_err(|e| {
+        if e.kind() == io::ErrorKind::NotFound {
+            AppError::NotFound(params.path)
+        } else if e.kind() == io::ErrorKind::InvalidInput {
+            AppError::BadRequest(e.to_string())
+        } else {
+            AppError::OpError {
+                op: "读取目录树",
+                path: params.path,
+                source: e,
+            }
+        }
+    })?;
+
+    Ok((StatusCode::OK, Json(dirs)))
 }
 
 pub async fn create_dir(

@@ -3,6 +3,7 @@ import { useRouter } from "vue-router"
 import { useFiles } from "../composables/useFiles"
 import CreateModal from "./CreateModal.vue"
 import DeleteModal from "./DeleteModal.vue"
+import MoveModal from "./MoveModal.vue"
 
 const router = useRouter()
 const toast = useToast()
@@ -46,6 +47,7 @@ async function handleRefresh() {
     </div>
     <div class="flex items-center gap-2">
       <DeleteModal />
+      <MoveModal />
       <CreateModal />
       <UButton
         icon="i-lucide-rotate-cw"

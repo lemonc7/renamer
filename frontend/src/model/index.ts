@@ -8,6 +8,12 @@ export interface FileInfo {
   modTime: string
 }
 
+export interface Node {
+  name: string
+  path: string
+  hasChildren: boolean
+}
+
 // 复制/移动请求
 export interface CopyRequest {
   dir: string

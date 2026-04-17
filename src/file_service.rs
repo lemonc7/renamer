@@ -7,7 +7,7 @@ use pinyin::ToPinyin;
 use uuid::Uuid;
 
 use crate::{
-    models::{File, Name, NameMap},
+    models::{File, Name, NameMap, Node},
     rules::{extract_episode, rename_format},
 };
 
@@ -76,6 +76,38 @@ impl SandBox {
         Ok(items)
     }
 
+    pub fn get_dirs(&self, dir: &Path) -> io::Result<Vec<Node>> {
+        let mut dirs = Vec::new();
+        let target_dir = self.root.open_dir(dir)?;
+
+        for entry in target_dir.entries()? {
+            let entry = entry?;
+            let metadata = entry.metadata()?;
+
+            if !metadata.is_dir() {
+                continue;
+            }
+
+            let name = entry.file_name().to_string_lossy().into_owned();
+            let parent = dir.join(&name);
+            let path = parent.to_string_lossy().replace("\\", "/");
+            let has_children = self.has_sub_dirs(&parent)?;
+            dirs.push(Node {
+                name,
+                path,
+                has_children,
+            });
+        }
+
+        dirs.sort_by(|a, b| {
+            let a_p = get_pinyin_helper(&a.name);
+            let b_p = get_pinyin_helper(&b.name);
+            a_p.cmp(&b_p)
+        });
+
+        Ok(dirs)
+    }
+    
     pub fn get_pending_files(&self, dir: &Path) -> io::Result<Vec<File>> {
         let mut files = self.get_items(dir)?;
         files.retain(|f| !f.is_dir && f.ext.as_ref().is_some_and(|e| self.match_exts.contains(e)));
@@ -385,6 +417,20 @@ impl SandBox {
         }
 
         Ok(())
+    }
+
+    fn has_sub_dirs(&self, dir: &Path) -> io::Result<bool> {
+        let target_dir = match self.root.open_dir(dir) {
+            Ok(d) => d,
+            Err(_) => return Ok(false),
+        };
+
+        for entry in target_dir.entries()? {
+            if entry?.metadata()?.is_dir() {
+                return Ok(true);
+            }
+        }
+        Ok(false)
     }
 }
 
