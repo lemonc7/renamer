@@ -140,7 +140,13 @@ const columns: TableColumn<FileInfo>[] = [
         "onUpdate:modelValue": (value: boolean | "indeterminate") =>
           row.toggleSelected(!!value),
         ariaLabel: "Select row"
-      })
+      }),
+    meta: {
+      class: {
+        th: "w-1/24",
+        td: "w-1/24"
+      }
+    }
   },
   {
     accessorKey: "name",
@@ -176,23 +182,41 @@ const columns: TableColumn<FileInfo>[] = [
           h("span", { class: "truncate" }, file.name)
         ]
       )
+    },
+    meta: {
+      class: {
+        th: "text-left",
+        td: "text-left"
+      }
     }
   },
   {
     accessorKey: "size",
-    header: "大小"
+    header: "大小",
+    meta: {
+      class: {
+        th: "text-right w-1/10 whitespace-nowrap",
+        td: "text-right w-1/10 whitespace-nowrap"
+      }
+    }
   },
   {
     accessorKey: "ext",
-    header: "类型"
+    header: "类型",
+    meta: {
+      class: {
+        th: "text-center w-1/10 whitespace-nowrap",
+        td: "text-center w-1/10 whitespace-nowrap"
+      }
+    }
   },
   {
     accessorKey: "modTime",
     header: "修改时间",
     meta: {
       class: {
-        th: "text-right",
-        td: "text-right tabular-nums whitespace-nowrap"
+        th: "text-right w-1/8 whitespace-nowrap",
+        td: "text-right tabular-nums whitespace-nowrap w-1/8"
       }
     }
   },
@@ -219,7 +243,13 @@ const columns: TableColumn<FileInfo>[] = [
               class: "ml-auto"
             })
         )
-      )
+      ),
+    meta: {
+      class: {
+        th: "w-1/24",
+        td: "w-1/24"
+      }
+    }
   }
 ]
 
@@ -252,9 +282,7 @@ watch(
 // 同步选中的文件 ID
 watch(
   () => rowSelection.value,
-  () => {
-    selectionStore.setSelection(rowSelection.value)
-  },
+  () => selectionStore.setSelection(rowSelection.value),
   { immediate: true }
 )
 </script>
