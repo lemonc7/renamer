@@ -15,12 +15,14 @@
             table?.tableApi.getColumn('name')?.setFilterValue($event)
           "
         />
-        <UButton
-          icon="ic:baseline-search-off"
-          variant="outline"
-          color="neutral"
-          @click="clearFilter"
-        />
+        <UTooltip text="清除过滤">
+          <UButton
+            icon="ic:baseline-search-off"
+            variant="outline"
+            color="neutral"
+            @click="clearFilter"
+          />
+        </UTooltip>
       </UFieldGroup>
     </div>
     <UTable
@@ -51,17 +53,72 @@ import { h, ref, resolveComponent, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import Breadcrumb from "../components/Breadcrumb.vue"
 import { useSelectionStore } from "../stores/selection"
+import { type Row } from "@tanstack/table-core"
+import { useUiStore } from "../stores/ui"
 
 const UCheckbox = resolveComponent("UCheckbox")
 const UIcon = resolveComponent("UIcon")
+const UDropdownMenu = resolveComponent("UDropdownMenu")
+const UButton = resolveComponent("UButton")
+
 const router = useRouter()
 const route = useRoute()
 const selectionStore = useSelectionStore()
+const uiStore = useUiStore()
 
 const { files } = useFiles()
 
 const table = useTemplateRef("table")
 
+// 操作菜单定义
+function getRowItems(row: Row<FileInfo>) {
+  return [
+    {
+      type: "label",
+      label: "操作"
+    },
+    {
+      type: "separator"
+    },
+    {
+      label: "重命名",
+      icon: "i-lucide-pencil"
+    },
+    {
+      label: "移动",
+      icon: "i-lucide-folder-output",
+      onSelect: () => {
+        uiStore.operation = {
+          open: true,
+          type: "移动"
+        }
+        selectionStore.selectedFile = row.original
+      }
+    },
+    {
+      label: "复制",
+      icon: "i-lucide-folders",
+      onSelect: () => {
+        uiStore.operation = {
+          open: true,
+          type: "复制"
+        }
+        selectionStore.selectedFile = row.original
+      }
+    },
+    {
+      label: "删除",
+      icon: "i-lucide-trash",
+      color: "error",
+      onSelect: () => {
+        uiStore.deleteOpen = true
+        selectionStore.selectedFile = row.original
+      }
+    }
+  ]
+}
+
+// 表格定义
 const columns: TableColumn<FileInfo>[] = [
   {
     id: "select",
@@ -138,6 +195,31 @@ const columns: TableColumn<FileInfo>[] = [
         td: "text-right tabular-nums whitespace-nowrap"
       }
     }
+  },
+  {
+    id: "actions",
+    cell: ({ row }) =>
+      h(
+        "div",
+        {
+          class: "text-right"
+        },
+        h(
+          UDropdownMenu,
+          {
+            content: {
+              align: "end"
+            },
+            items: getRowItems(row)
+          },
+          () =>
+            h(UButton, {
+              icon: "i-lucide-ellipsis-vertical",
+              variant: "ghost",
+              class: "ml-auto"
+            })
+        )
+      )
   }
 ]
 
@@ -169,7 +251,7 @@ watch(
 )
 // 同步选中的文件 ID
 watch(
-  () => Object.keys(rowSelection.value),
+  () => rowSelection.value,
   () => {
     selectionStore.setSelection(rowSelection.value)
   },

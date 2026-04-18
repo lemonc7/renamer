@@ -1,33 +1,20 @@
 <template>
-  <UDrawer v-model:open="open" direction="right" inset>
-    <UTooltip :text="`${props.operation}文件`">
-      <UButton
-        :icon="
-          props.operation === '移动'
-            ? 'i-lucide-folder-output'
-            : 'i-lucide-folders'
-        "
-        color="neutral"
-        variant="outline"
-        class="w-10 justify-center"
-      />
-    </UTooltip>
-
+  <UDrawer v-model:open="uiStore.operation.open" direction="right" inset>
     <template #header>
       <div class="flex items-center justify-between">
-        <span class="text-xl font-black">{{ props.operation }}</span>
+        <span class="text-xl font-black">{{ uiStore.operation.type }}</span>
         <div class="flex items-center gap-2">
           <UButton
             label="确认"
             color="neutral"
-            :loading="props.operation === '移动' ? isMoving : isCoping"
+            :loading="uiStore.operation.type === '移动' ? isMoving : isCoping"
             @click="handleSubmit"
           />
           <UButton
             label="取消"
             color="neutral"
             variant="outline"
-            @click="open = false"
+            @click="uiStore.operation.open = false"
           />
         </div>
       </div>
@@ -66,10 +53,8 @@ import { getDirs } from "../api"
 import { useFiles } from "../composables/useFiles"
 import { useRoute } from "vue-router"
 import { getCleanPath } from "../utils/path"
+import { useUiStore } from "../stores/ui"
 
-const props = defineProps<{ operation: "移动" | "复制" }>()
-
-const open = ref(false)
 const route = useRoute()
 const toast = useToast()
 const selectionStore = useSelectionStore()
@@ -78,47 +63,59 @@ const selectedFolder = ref<string>("")
 const rootNodes = ref<Node[]>([])
 
 const { moveItems, copyItems, isMoving, isCoping } = useFiles()
+const uiStore = useUiStore()
 
 async function handleSubmit() {
   const req = {
     dir: getCleanPath(route.path),
     targetDir: selectedFolder.value,
-    originals: selectionStore.selectedNames
+    originals: selectionStore.selectedFile
+      ? [selectionStore.selectedFile.name]
+      : selectionStore.selectedNames
   }
 
   try {
-    if (props.operation === "移动") {
+    if (uiStore.operation.type === "移动") {
       await moveItems(req)
     } else {
       await copyItems(req)
     }
     toast.add({
-      title: `${props.operation}成功`,
+      title: `${uiStore.operation.type}成功`,
       color: "success"
     })
-    open.value = false
   } catch (e) {
     toast.add({
-      title: `${props.operation}失败`,
+      title: `${uiStore.operation.type}失败`,
       color: "error"
     })
-    console.error(`${props.operation}文件失败: `, e)
+    console.error(`${uiStore.operation.type}文件失败: `, e)
+  } finally {
+    // 复制或移动文件报错，可能有部分文件已更改，应关闭模态框，并刷新文件信息
+    uiStore.operation.open = false
+    selectionStore.selectedFile = null
   }
 }
 
 // 监听弹窗状态，打开时清空选择的目标路径，并请求根目录节点
-watch(open, async (newVal) => {
-  if (newVal) {
-    // 清除选中项
-    selectedFolder.value = ""
-    // 先清空旧节点，避免展示旧数据
-    rootNodes.value = []
-    try {
-      const res = await getDirs(".")
-      rootNodes.value = res
-    } catch (e) {
-      console.error("加载根目录失败")
+watch(
+  () => uiStore.operation.open,
+  async (isOpen, prev) => {
+    if (isOpen && !prev) {
+      // 清除选中项
+      selectedFolder.value = ""
+      // 先清空旧节点，避免展示旧数据
+      rootNodes.value = []
+      try {
+        const res = await getDirs(".")
+        // 获取目录后，如果弹窗是开启状态，更新目录节点
+        if (uiStore.operation.open) {
+          rootNodes.value = res
+        }
+      } catch (e) {
+        console.error("加载根目录失败")
+      }
     }
   }
-})
+)
 </script>

@@ -1,13 +1,10 @@
 <template>
   <UModal
-    v-model:open="open"
+    v-model:open="uiStore.deleteOpen"
     title="删除"
     description="删除操作无法撤销！请确认是否删除？"
   >
-    <UChip
-      :text="selectionStore.selectedNames.length"
-      size="3xl"
-    >
+    <UChip :text="selectionStore.selectedNames.length" size="3xl">
       <UButton icon="i-lucide-trash" color="error" variant="soft" />
     </UChip>
 
@@ -17,7 +14,7 @@
           label="取消"
           color="neutral"
           variant="outline"
-          @click="open = false"
+          @click="uiStore.deleteOpen = false"
         />
         <UButton
           label="删除"
@@ -31,25 +28,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
 import { useFiles } from "../composables/useFiles"
 import { useSelectionStore } from "../stores/selection"
 import type { DeleteRequest } from "../model"
 import { useRoute } from "vue-router"
 import { getCleanPath } from "../utils/path"
+import { useUiStore } from "../stores/ui"
 
-const open = ref(false)
 const route = useRoute()
 const toast = useToast()
 
 const { deleteItems, isDeleting } = useFiles()
 const selectionStore = useSelectionStore()
+const uiStore = useUiStore()
 
 async function handleSubmit() {
   const cleanPath = getCleanPath(route.path)
   const req: DeleteRequest = {
     dir: cleanPath,
-    targets: selectionStore.selectedNames
+    targets: selectionStore.selectedFile
+      ? [selectionStore.selectedFile.name]
+      : selectionStore.selectedNames
   }
 
   try {
@@ -65,7 +64,8 @@ async function handleSubmit() {
     })
     console.error("删除文件失败: ", e)
   } finally {
-    open.value = false
+    uiStore.deleteOpen = false
+    selectionStore.selectedFile = null
   }
 }
 </script>

@@ -27,7 +27,7 @@ export function useFiles() {
   // 创建文件夹
   const createMutation = useMutation({
     mutation: (path: string) => createDir(path),
-    onSettled: () => fileQuery.refetch()
+    onSuccess: () => fileQuery.refetch()
   })
 
   // 删除文件

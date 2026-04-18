@@ -1,6 +1,6 @@
 <template>
   <UModal
-    v-model:open="open"
+    v-model:open="uiStore.createOpen"
     title="新建文件夹"
     description="请输入合法的文件夹名称"
   >
@@ -11,6 +11,7 @@
         :schema="schema"
         :state="state"
         @submit="handleSubmit"
+        :validate-on="['change']"
         class="space-y-4"
       >
         <UFormField label="名称" name="name" required>
@@ -25,7 +26,7 @@
           <UButton
             label="取消"
             variant="outline"
-            @click="open = false"
+            @click="uiStore.createOpen = false"
             @pointerdown.stop
             color="neutral"
           />
@@ -42,19 +43,20 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue"
+import { reactive, watch } from "vue"
 import { useFiles } from "../composables/useFiles"
 import { z } from "zod"
 import type { FormSubmitEvent } from "@nuxt/ui"
 import { useRoute } from "vue-router"
 import { getCleanPath } from "../utils/path"
+import { useUiStore } from "../stores/ui"
 
-const open = ref(false)
 const toast = useToast()
 const route = useRoute()
 const ILLEGAL_CHARS_REG = /[\\\/:*?"<>|]/
 
 const { isCreating, createDir } = useFiles()
+const uiStore = useUiStore()
 
 const schema = z.object({
   name: z
@@ -83,7 +85,7 @@ async function handleSubmit(event: FormSubmitEvent<Schema>) {
       title: "创建成功",
       color: "success"
     })
-    open.value = false
+    uiStore.createOpen = false
   } catch (e) {
     toast.add({
       title: "创建失败",
@@ -94,9 +96,13 @@ async function handleSubmit(event: FormSubmitEvent<Schema>) {
 }
 
 // 监听模态框，打开时重置表单
-watch(open, (isOpen) => {
-  if (isOpen) {
-    Object.assign(state, initialState)
+watch(
+  () => uiStore.createOpen,
+  (isOpen, prev) => {
+    // 模态框从关闭变成打开
+    if (isOpen && !prev) {
+      Object.assign(state, initialState)
+    }
   }
-})
+)
 </script>

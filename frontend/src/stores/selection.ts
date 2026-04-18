@@ -9,6 +9,9 @@ export const useSelectionStore = defineStore("selection", () => {
   // 通过外部传入
   const files = ref<FileInfo[]>([])
 
+  // 操作菜单选择的文件
+  const selectedFile = ref<FileInfo | null>(null)
+
   // 派生计算选中的文件名称
   const selectedNames = computed(() =>
     files.value
@@ -34,6 +37,7 @@ export const useSelectionStore = defineStore("selection", () => {
 
   return {
     selectedIDs,
+    selectedFile,
     selectedNames,
     setFiles,
     setSelection,
