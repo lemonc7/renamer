@@ -1,4 +1,4 @@
-base = "/home"
+base = "/Users"
 port = 8080
 match_exts = [
   "flv",

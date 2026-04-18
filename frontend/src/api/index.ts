@@ -2,6 +2,8 @@ import type {
   CopyRequest,
   DeleteRequest,
   FileInfo,
+  MoveRequest,
+  Node,
   RemoveStringsRequest,
   RenameConfirmRequest,
   RenamePreviewRequest,
@@ -37,7 +39,7 @@ export async function copyItems(req: CopyRequest) {
   return service.post("/copy", req)
 }
 
-export async function moveItems(req: CopyRequest) {
+export async function moveItems(req: MoveRequest) {
   return service.post("/move", req)
 }
 

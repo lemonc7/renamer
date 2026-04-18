@@ -75,10 +75,10 @@ const state = reactive<Schema>({ ...initialState })
 async function handleSubmit(event: FormSubmitEvent<Schema>) {
   const cleanPath = getCleanPath(route.path)
   const { name } = event.data
-  const fullPath = cleanPath ? `${cleanPath}/${name}` : name
+  const path = cleanPath ? `${cleanPath}/${name}` : name
 
   try {
-    await createDir(fullPath)
+    await createDir(path)
     toast.add({
       title: "创建成功",
       color: "success"

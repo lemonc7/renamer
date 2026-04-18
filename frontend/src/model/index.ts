@@ -14,12 +14,14 @@ export interface Node {
   hasChildren: boolean
 }
 
-// 复制/移动请求
+// 复制请求
 export interface CopyRequest {
   dir: string
   targetDir: string
   originals: string[]
 }
+// 移动请求
+export type MoveRequest = CopyRequest
 
 // 删除请求
 export interface DeleteRequest {

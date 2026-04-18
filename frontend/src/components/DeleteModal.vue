@@ -6,7 +6,6 @@
   >
     <UChip
       :text="selectionStore.selectedNames.length"
-      v-if="selectionStore.selectedNames.length"
       size="3xl"
     >
       <UButton icon="i-lucide-trash" color="error" variant="soft" />

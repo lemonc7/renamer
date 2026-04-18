@@ -1,8 +1,8 @@
-import { useMutation, useQuery } from "@pinia/colada"
+import { useMutation, useQuery, useQueryCache } from "@pinia/colada"
 import { computed } from "vue"
 import { useRoute } from "vue-router"
-import { createDir, deleteItems, getDirs, getFiles } from "../api"
-import type { DeleteRequest } from "../model"
+import { copyItems, createDir, deleteItems, getFiles, moveItems } from "../api"
+import type { CopyRequest, DeleteRequest, MoveRequest } from "../model"
 import { getCleanPath } from "../utils/path"
 
 export function useFiles() {
@@ -24,36 +24,45 @@ export function useFiles() {
     enabled: computed(() => !!path.value)
   })
 
-  // 获取目录树
-  const dirQuery = useQuery({
-    key: () => ["dirs", path.value],
-    query: () => getDirs(path.value),
-    enabled: computed(() => !!path.value)
-  })
-
   // 创建文件夹
   const createMutation = useMutation({
     mutation: (path: string) => createDir(path),
-    onSuccess: () => fileQuery.refetch()
+    onSettled: () => fileQuery.refetch()
   })
 
   // 删除文件
   const deleteMutation = useMutation({
     mutation: (req: DeleteRequest) => deleteItems(req),
-    onSuccess: () => fileQuery.refetch()
+    onSettled: () => fileQuery.refetch()
+  })
+
+  const queryCache = useQueryCache()
+
+  // 复制文件
+  const copyMutation = useMutation({
+    mutation: (req: CopyRequest) => copyItems(req),
+    onSettled: () => queryCache.invalidateQueries()
+  })
+  // 移动文件
+  const moveMutation = useMutation({
+    mutation: (req: MoveRequest) => moveItems(req),
+    onSettled: () => queryCache.invalidateQueries()
   })
 
   return {
     files: fileQuery.data,
-    dirs: dirQuery.data,
     isLoading: fileQuery.isLoading,
     error: fileQuery.error,
-    refetch: fileQuery.refetch,
+    refresh: queryCache.invalidateQueries,
 
     createDir: createMutation.mutateAsync,
     deleteItems: deleteMutation.mutateAsync,
+    copyItems: copyMutation.mutateAsync,
+    moveItems: moveMutation.mutateAsync,
 
     isCreating: createMutation.isLoading,
-    isDeleting: deleteMutation.isLoading
+    isDeleting: deleteMutation.isLoading,
+    isCoping: copyMutation.isLoading,
+    isMoving: moveMutation.isLoading
   }
 }
