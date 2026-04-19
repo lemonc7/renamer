@@ -256,10 +256,27 @@ impl SandBox {
             let mut names = Vec::new();
             for item in items {
                 if !item.is_dir {
-                    let mut new_name = item.name.clone();
+                    // 提取主文件名
+                    let stem = if let Some(ref ext) = item.ext {
+                        let end = item.name.len().saturating_sub(ext.len() + 1);
+                        &item.name[..end]
+                    } else {
+                        &item.name
+                    };
+
+                    // 对主文件名进行替换
+                    let mut new_stem = stem.to_string();
                     for s in &strings {
-                        new_name = new_name.replace(s, "")
+                        new_stem = new_stem.replace(s, "")
                     }
+
+                    // 拼接后缀
+                    let new_name = if let Some(ref ext) = item.ext {
+                        format!("{}.{}", new_stem, ext)
+                    } else {
+                        new_stem
+                    };
+
                     names.push(Name {
                         old_name: item.name,
                         new_name,

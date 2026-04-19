@@ -1,5 +1,6 @@
 import { defineStore } from "pinia"
 import { ref } from "vue"
+import type { OperationType } from "../model"
 
 export const useUiStore = defineStore("ui", () => {
   const deleteOpen = ref(false)
@@ -14,7 +15,7 @@ export const useUiStore = defineStore("ui", () => {
   })
   const operation = ref<{
     open: boolean
-    type: "重命名剧集" | "整理剧集" | "替换中文" | "移除字符"
+    type: OperationType
   }>({
     open: false,
     type: "重命名剧集"

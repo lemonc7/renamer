@@ -66,3 +66,5 @@ export interface RenameConfirmRequest {
   dir: string
   nameMaps: NameMap[]
 }
+
+export type OperationType = "重命名剧集" | "替换中文" | "移除字符"
