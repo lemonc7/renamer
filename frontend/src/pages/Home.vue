@@ -1,4 +1,6 @@
 <template>
+  <OperationModal />
+  <RenameModal />
   <div class="flex flex-col flex-1 w-full h-full">
     <div class="flex items-center justify-between shrink-0 mb-2">
       <Breadcrumb />
@@ -82,7 +84,11 @@ function getRowItems(row: Row<FileInfo>) {
     },
     {
       label: "重命名",
-      icon: "i-lucide-pencil"
+      icon: "i-lucide-pencil",
+      onSelect: () => {
+        uiStore.renameOpen = true
+        selectionStore.selectedFile = row.original
+      }
     },
     {
       label: "移动",

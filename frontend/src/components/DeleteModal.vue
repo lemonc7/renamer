@@ -30,29 +30,20 @@
 <script setup lang="ts">
 import { useFiles } from "../composables/useFiles"
 import { useSelectionStore } from "../stores/selection"
-import type { DeleteRequest } from "../model"
-import { useRoute } from "vue-router"
-import { getCleanPath } from "../utils/path"
 import { useUiStore } from "../stores/ui"
 
-const route = useRoute()
 const toast = useToast()
-
 const { deleteItems, isDeleting } = useFiles()
 const selectionStore = useSelectionStore()
 const uiStore = useUiStore()
 
 async function handleSubmit() {
-  const cleanPath = getCleanPath(route.path)
-  const req: DeleteRequest = {
-    dir: cleanPath,
-    targets: selectionStore.selectedFile
-      ? [selectionStore.selectedFile.name]
-      : selectionStore.selectedNames
-  }
+  const targets = selectionStore.selectedFile
+    ? [selectionStore.selectedFile.name]
+    : selectionStore.selectedNames
 
   try {
-    await deleteItems(req)
+    await deleteItems({ targets })
     toast.add({
       title: "删除成功",
       color: "success"
@@ -65,6 +56,7 @@ async function handleSubmit() {
     console.error("删除文件失败: ", e)
   } finally {
     uiStore.deleteOpen = false
+    // 将选中的文件重置为null，避免targets批量删除失败
     selectionStore.selectedFile = null
   }
 }

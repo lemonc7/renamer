@@ -57,7 +57,6 @@
       </UTooltip>
     </div>
   </header>
-  <OperationModal />
 </template>
 
 <script setup lang="ts">
@@ -65,7 +64,6 @@ import { useRouter } from "vue-router"
 import { useFiles } from "../composables/useFiles"
 import CreateModal from "./CreateModal.vue"
 import DeleteModal from "./DeleteModal.vue"
-import OperationModal from "./OperationModal.vue"
 import { useSelectionStore } from "../stores/selection"
 import { useUiStore } from "../stores/ui"
 

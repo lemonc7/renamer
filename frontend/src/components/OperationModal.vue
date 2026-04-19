@@ -51,11 +51,8 @@ import { useSelectionStore } from "../stores/selection"
 import type { Node } from "../model"
 import { getDirs } from "../api"
 import { useFiles } from "../composables/useFiles"
-import { useRoute } from "vue-router"
-import { getCleanPath } from "../utils/path"
 import { useUiStore } from "../stores/ui"
 
-const route = useRoute()
 const toast = useToast()
 const selectionStore = useSelectionStore()
 const selectedFolder = ref<string>("")
@@ -67,7 +64,6 @@ const uiStore = useUiStore()
 
 async function handleSubmit() {
   const req = {
-    dir: getCleanPath(route.path),
     targetDir: selectedFolder.value,
     originals: selectionStore.selectedFile
       ? [selectionStore.selectedFile.name]

@@ -47,14 +47,10 @@ import { reactive, watch } from "vue"
 import { useFiles } from "../composables/useFiles"
 import { z } from "zod"
 import type { FormSubmitEvent } from "@nuxt/ui"
-import { useRoute } from "vue-router"
-import { getCleanPath } from "../utils/path"
 import { useUiStore } from "../stores/ui"
+import { validateFilename } from "../utils/validate_filename"
 
 const toast = useToast()
-const route = useRoute()
-const ILLEGAL_CHARS_REG = /[\\\/:*?"<>|]/
-
 const { isCreating, createDir } = useFiles()
 const uiStore = useUiStore()
 
@@ -64,8 +60,8 @@ const schema = z.object({
     .nonempty("请输入文件夹名称")
     .max(30, "文件夹名称不能超过30个字符")
     .trim()
-    .refine((name) => !ILLEGAL_CHARS_REG.test(name), {
-      message: "文件夹名称不能包含特殊字符"
+    .refine((name) => validateFilename(name), {
+      error: "文件夹名称不能包含非法字符"
     })
 })
 type Schema = z.output<typeof schema>
@@ -75,22 +71,14 @@ const initialState: Schema = {
 const state = reactive<Schema>({ ...initialState })
 
 async function handleSubmit(event: FormSubmitEvent<Schema>) {
-  const cleanPath = getCleanPath(route.path)
-  const { name } = event.data
-  const path = cleanPath ? `${cleanPath}/${name}` : name
-
   try {
-    await createDir(path)
+    await createDir(event.data.name)
     toast.add({
       title: "创建成功",
       color: "success"
     })
     uiStore.createOpen = false
   } catch (e) {
-    toast.add({
-      title: "创建失败",
-      color: "error"
-    })
     console.error("创建文件夹失败: ", e)
   }
 }

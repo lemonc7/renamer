@@ -8,7 +8,7 @@ use crate::{
     file_service::SandBox,
     models::{
         CopyRequest, DeleteRequest, DirParams, MoveRequest, RemoveStringsRequest,
-        RenameConfirmRequest, RenamePreviewRequest, ReplaceChineseRequest,
+        RenameConfirmRequest, RenamePreviewRequest, RenameRequest, ReplaceChineseRequest,
     },
 };
 
@@ -112,6 +112,27 @@ pub async fn move_items(
         .map_err(|e| AppError::IO {
             op: "移动文件",
             source: e,
+        })?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+pub async fn rename_item(
+    State(sandbox): State<Arc<SandBox>>,
+    ValidatedJson(payload): ValidatedJson<RenameRequest>,
+) -> Result<impl IntoResponse, AppError> {
+    let target_path = payload.dir.join(&payload.target_name);
+    sandbox
+        .rename_item(&payload.dir, payload.original_name, payload.target_name)
+        .map_err(|e| {
+            if e.kind() == io::ErrorKind::AlreadyExists {
+                AppError::AlreadyExists(target_path)
+            } else {
+                AppError::IO {
+                    op: "重命名文件",
+                    source: e,
+                }
+            }
         })?;
 
     Ok(StatusCode::NO_CONTENT)

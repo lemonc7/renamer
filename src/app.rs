@@ -21,13 +21,20 @@ use crate::{
     file_service::SandBox,
     handlers::{
         copy_items, create_dir, delete_items, get_dirs, get_items, health_check, move_items,
-        remove_strings_preview, rename_confirm, rename_preview, replace_chinese_preview,
+        remove_strings_preview, rename_confirm, rename_item, rename_preview,
+        replace_chinese_preview,
     },
 };
 
 pub fn create_app(cfg: Config) -> Router {
     let router = Router::new()
-        .route("/", get(get_items).post(create_dir).delete(delete_items))
+        .route(
+            "/",
+            get(get_items)
+                .post(create_dir)
+                .delete(delete_items)
+                .put(rename_item),
+        )
         .route("/tree", get(get_dirs))
         .route("/copy", post(copy_items))
         .route("/move", post(move_items))

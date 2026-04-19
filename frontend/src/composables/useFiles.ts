@@ -1,8 +1,20 @@
 import { useMutation, useQuery, useQueryCache } from "@pinia/colada"
 import { computed } from "vue"
 import { useRoute } from "vue-router"
-import { copyItems, createDir, deleteItems, getFiles, moveItems } from "../api"
-import type { CopyRequest, DeleteRequest, MoveRequest } from "../model"
+import {
+  copyItems,
+  createDir,
+  deleteItems,
+  getFiles,
+  moveItems,
+  renameItem
+} from "../api"
+import type {
+  CopyRequest,
+  DeleteRequest,
+  MoveRequest,
+  RenameRequest
+} from "../model"
 import { getCleanPath } from "../utils/path"
 
 export function useFiles() {
@@ -26,13 +38,17 @@ export function useFiles() {
 
   // 创建文件夹
   const createMutation = useMutation({
-    mutation: (path: string) => createDir(path),
+    mutation: (name: string) => createDir(`${path.value}/${name}`),
     onSuccess: () => fileQuery.refetch()
   })
 
   // 删除文件
   const deleteMutation = useMutation({
-    mutation: (req: DeleteRequest) => deleteItems(req),
+    mutation: (req: Omit<DeleteRequest, "dir">) =>
+      deleteItems({
+        dir: path.value,
+        ...req
+      }),
     onSettled: () => fileQuery.refetch()
   })
 
@@ -40,13 +56,32 @@ export function useFiles() {
 
   // 复制文件
   const copyMutation = useMutation({
-    mutation: (req: CopyRequest) => copyItems(req),
+    mutation: (req: Omit<CopyRequest, "dir">) =>
+      copyItems({
+        dir: path.value,
+        ...req
+      }),
+    // 成功和失败都刷新数据，因为失败也可能有脏数据(部分成功)
     onSettled: () => queryCache.invalidateQueries()
   })
   // 移动文件
   const moveMutation = useMutation({
-    mutation: (req: MoveRequest) => moveItems(req),
+    mutation: (req: Omit<MoveRequest, "dir">) =>
+      moveItems({
+        dir: path.value,
+        ...req
+      }),
     onSettled: () => queryCache.invalidateQueries()
+  })
+
+  // 重命名文件
+  const renameMutation = useMutation({
+    mutation: (req: Omit<RenameRequest, "dir">) =>
+      renameItem({
+        dir: path.value,
+        ...req
+      }),
+    onSuccess: () => fileQuery.refetch()
   })
 
   return {
@@ -59,10 +94,12 @@ export function useFiles() {
     deleteItems: deleteMutation.mutateAsync,
     copyItems: copyMutation.mutateAsync,
     moveItems: moveMutation.mutateAsync,
+    renameItem: renameMutation.mutateAsync,
 
     isCreating: createMutation.isLoading,
     isDeleting: deleteMutation.isLoading,
     isCoping: copyMutation.isLoading,
-    isMoving: moveMutation.isLoading
+    isMoving: moveMutation.isLoading,
+    isRenaming: renameMutation.isLoading
   }
 }

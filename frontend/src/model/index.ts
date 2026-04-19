@@ -29,6 +29,13 @@ export interface DeleteRequest {
   targets: string[]
 }
 
+// 重命名文件请求
+export interface RenameRequest {
+  dir: string
+  originalName: string
+  targetName: string
+}
+
 // 重命名预览请求（与 DeleteRequest 相同）
 export type RenamePreviewRequest = DeleteRequest
 

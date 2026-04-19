@@ -25,8 +25,8 @@ impl SandBox {
 
     pub fn get_items(&self, dir: &Path) -> io::Result<Vec<File>> {
         let mut items = Vec::new();
-        let target_dir = self.root.open_dir(dir)?;
-        for entry in target_dir.entries()? {
+        let dir_handle = self.root.open_dir(dir)?;
+        for entry in dir_handle.entries()? {
             let entry = entry?;
             let metadata = entry.metadata()?;
 
@@ -78,9 +78,9 @@ impl SandBox {
 
     pub fn get_dirs(&self, dir: &Path) -> io::Result<Vec<Node>> {
         let mut dirs = Vec::new();
-        let target_dir = self.root.open_dir(dir)?;
+        let dir_handle = self.root.open_dir(dir)?;
 
-        for entry in target_dir.entries()? {
+        for entry in dir_handle.entries()? {
             let entry = entry?;
             let metadata = entry.metadata()?;
 
@@ -107,7 +107,7 @@ impl SandBox {
 
         Ok(dirs)
     }
-    
+
     pub fn get_pending_files(&self, dir: &Path) -> io::Result<Vec<File>> {
         let mut files = self.get_items(dir)?;
         files.retain(|f| !f.is_dir && f.ext.as_ref().is_some_and(|e| self.match_exts.contains(e)));
@@ -125,18 +125,18 @@ impl SandBox {
 
     pub fn delete_items(&self, dir: &Path, filenames: &[String]) -> io::Result<()> {
         // 进入指定的子目录(同样受沙盒保护)
-        let sub_dir = self.root.open_dir(dir)?;
+        let dir_handle = self.root.open_dir(dir)?;
 
         for name in filenames {
             // sub_dir 句柄无法越界(可以防止路径穿越等错误)
-            let meta = sub_dir.symlink_metadata(name)?;
+            let meta = dir_handle.symlink_metadata(name)?;
 
             if meta.is_dir() {
                 // 递归删除
-                sub_dir.remove_dir_all(name)?;
+                dir_handle.remove_dir_all(name)?;
             } else {
                 // 文件或软链接，直接删除
-                sub_dir.remove_file(name)?;
+                dir_handle.remove_file(name)?;
             }
         }
 
@@ -192,6 +192,24 @@ impl SandBox {
             }
         }
         Ok(())
+    }
+
+    pub fn rename_item(
+        &self,
+        dir: &Path,
+        original_name: String,
+        target_name: String,
+    ) -> io::Result<()> {
+        let dir_handle = self.root.open_dir(dir)?;
+
+        if dir_handle.try_exists(&target_name)? {
+            return Err(io::Error::new(
+                io::ErrorKind::AlreadyExists,
+                format!("目标名称已存在: {}", target_name),
+            ));
+        }
+
+        dir_handle.rename(original_name, &dir_handle, target_name)
     }
 
     pub fn rename_preview(&self, dir: &Path, targets: Vec<String>) -> io::Result<Vec<NameMap>> {
@@ -282,7 +300,7 @@ impl SandBox {
     }
 
     pub fn rename_files(&self, dir: &Path, names: Vec<Name>) -> io::Result<()> {
-        let dir = self.root.open_dir(dir)?;
+        let dir_handle = self.root.open_dir(dir)?;
 
         Self::check_names(&names)?;
 
@@ -306,9 +324,10 @@ impl SandBox {
         // 移动到临时备份
         for entry in &tasks {
             let tmp_name = format!("{}.{}.tmp", entry.old_name, suffix);
-            dir.rename(&entry.old_name, &dir, &tmp_name)
+            dir_handle
+                .rename(&entry.old_name, &dir_handle, &tmp_name)
                 .inspect_err(|_e| {
-                    self.rollback(&dir, &tasks, progress, 1, suffix);
+                    self.rollback(&dir_handle, &tasks, progress, 1, suffix);
                 })?;
             progress += 1
         }
@@ -318,17 +337,18 @@ impl SandBox {
         for entry in &tasks {
             let tmp_name = format!("{}.{}.tmp", entry.old_name, suffix);
 
-            if dir.exists(&entry.new_name) {
-                self.rollback(&dir, &tasks, progress, 2, suffix);
+            if dir_handle.exists(&entry.new_name) {
+                self.rollback(&dir_handle, &tasks, progress, 2, suffix);
                 return Err(io::Error::new(
                     io::ErrorKind::AlreadyExists,
                     format!("目标已存在: {}", entry.new_name),
                 ));
             }
 
-            dir.rename(&tmp_name, &dir, &entry.new_name)
+            dir_handle
+                .rename(&tmp_name, &dir_handle, &entry.new_name)
                 .inspect_err(|_e| {
-                    self.rollback(&dir, &tasks, progress, 2, suffix);
+                    self.rollback(&dir_handle, &tasks, progress, 2, suffix);
                 })?;
             progress += 1
         }
@@ -420,12 +440,12 @@ impl SandBox {
     }
 
     fn has_sub_dirs(&self, dir: &Path) -> io::Result<bool> {
-        let target_dir = match self.root.open_dir(dir) {
+        let dir_handle = match self.root.open_dir(dir) {
             Ok(d) => d,
             Err(_) => return Ok(false),
         };
 
-        for entry in target_dir.entries()? {
+        for entry in dir_handle.entries()? {
             if entry?.metadata()?.is_dir() {
                 return Ok(true);
             }

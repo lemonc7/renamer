@@ -7,6 +7,7 @@ import type {
   RemoveStringsRequest,
   RenameConfirmRequest,
   RenamePreviewRequest,
+  RenameRequest,
   ReplaceChinesePreview
 } from "../model"
 import service from "./request"
@@ -33,6 +34,10 @@ export async function createDir(path: string) {
 
 export async function deleteItems(req: DeleteRequest) {
   return service.delete("", { data: req })
+}
+
+export async function renameItem(req: RenameRequest) {
+  return service.put("", req)
 }
 
 export async function copyItems(req: CopyRequest) {
