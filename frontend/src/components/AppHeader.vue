@@ -31,7 +31,7 @@
               color="neutral"
               variant="outline"
               class="w-10 justify-center"
-              @click="uiStore.operation = { open: true, type: '移动' }"
+              @click="uiStore.copyOrMove = { open: true, type: '移动' }"
             />
           </UTooltip>
           <UTooltip text="复制文件">
@@ -40,7 +40,7 @@
               color="neutral"
               variant="outline"
               class="w-10 justify-center"
-              @click="uiStore.operation = { open: true, type: '复制' }"
+              @click="uiStore.copyOrMove = { open: true, type: '复制' }"
             />
           </UTooltip>
         </UFieldGroup>

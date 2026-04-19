@@ -70,20 +70,8 @@ type Schema = z.output<typeof schema>
 const state = reactive<Schema>({ name: "" })
 
 async function handleSubmit(event: FormSubmitEvent<Schema>) {
-  if (!selectionStore.selectedFile) {
-    toast.add({
-      title: "重命名错误",
-      description: "选中的文件/文件夹为空",
-      color: "error"
-    })
-    uiStore.renameOpen = false
-    return
-  }
   try {
-    await renameItem({
-      originalName: selectionStore.selectedFile.name,
-      targetName: event.data.name
-    })
+    await renameItem(event.data.name)
     toast.add({
       title: "重命名成功",
       color: "success"

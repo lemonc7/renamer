@@ -3,6 +3,7 @@ import type {
   DeleteRequest,
   FileInfo,
   MoveRequest,
+  NameMap,
   Node,
   RemoveStringsRequest,
   RenameConfirmRequest,
@@ -49,15 +50,18 @@ export async function moveItems(req: MoveRequest) {
 }
 
 export async function renamePreview(req: RenamePreviewRequest) {
-  return service.post("/preview", req)
+  const res = await service.post<NameMap[]>("/preview", req)
+  return Array.isArray(res) ? res : []
 }
 
 export async function removeStringsPreview(req: RemoveStringsRequest) {
-  return service.post("/remove", req)
+  const res = await service.post<NameMap[]>("/remove", req)
+  return Array.isArray(res) ? res : []
 }
 
 export async function replaceChinesePreview(req: ReplaceChinesePreview) {
-  return service.post("/replace", req)
+  const res = await service.post<NameMap[]>("/replace", req)
+  return Array.isArray(res) ? res : []
 }
 
 export async function renameConfirm(req: RenameConfirmRequest) {

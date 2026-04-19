@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryCache } from "@pinia/colada"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { useRoute } from "vue-router"
 import {
   copyItems,
@@ -7,18 +7,21 @@ import {
   deleteItems,
   getFiles,
   moveItems,
-  renameItem
+  removeStringsPreview,
+  renameItem,
+  renamePreview,
+  replaceChinesePreview
 } from "../api"
-import type {
-  CopyRequest,
-  DeleteRequest,
-  MoveRequest,
-  RenameRequest
-} from "../model"
+
 import { getCleanPath } from "../utils/path"
+import { useUiStore } from "../stores/ui"
+import { useSelectionStore } from "../stores/selection"
 
 export function useFiles() {
   const route = useRoute()
+  const uiStore = useUiStore()
+  const selectionStore = useSelectionStore()
+
   const path = computed(() => {
     const path = route.path
     // 如果是空字符串或只有根路径 `/`，返回 `.`
@@ -31,57 +34,119 @@ export function useFiles() {
 
   // 获取文件信息
   const fileQuery = useQuery({
-    key: () => ["files", path.value],
+    key: () => [path.value, "files"],
     query: () => getFiles(path.value),
     enabled: computed(() => !!path.value)
   })
 
-  // 创建文件夹
-  const createMutation = useMutation({
-    mutation: (name: string) => createDir(`${path.value}/${name}`),
-    onSuccess: () => fileQuery.refetch()
+  // 重命名预览
+  const renameQuery = useQuery({
+    key: () => [path.value, "rename", [...selectionStore.selectedDirs].sort()],
+    query: () =>
+      renamePreview({
+        dir: path.value,
+        targets: selectionStore.selectedDirs
+      }),
+    enabled: computed(
+      () => uiStore.operation.open && uiStore.operation.type === "重命名剧集"
+    )
   })
 
-  // 删除文件
-  const deleteMutation = useMutation({
-    mutation: (req: Omit<DeleteRequest, "dir">) =>
-      deleteItems({
+  // 移除字符
+  const removeStrings = ref<string[]>([])
+  function setRemoveStrings(strings: string[]) {
+    removeStrings.value = strings
+  }
+  const removeQuery = useQuery({
+    key: () => [
+      path.value,
+      "remove",
+      [...removeStrings.value].sort(),
+      [...selectionStore.selectedDirs].sort()
+    ],
+    query: () =>
+      removeStringsPreview({
         dir: path.value,
-        ...req
+        targets: selectionStore.selectedDirs,
+        strings: removeStrings.value
       }),
-    onSettled: () => fileQuery.refetch()
+    enabled: computed(
+      () => uiStore.operation.open && uiStore.operation.type === "移除字符"
+    )
+  })
+
+  // 替换中文
+  const replaceQuery = useQuery({
+    key: () => [path.value, "replace", [...selectionStore.selectedDirs].sort()],
+    query: () =>
+      replaceChinesePreview({
+        dir: path.value,
+        targets: selectionStore.selectedDirs
+      }),
+    enabled: computed(
+      () => uiStore.operation.open && uiStore.operation.type === "替换中文"
+    )
   })
 
   const queryCache = useQueryCache()
+  function refetchData() {
+    queryCache.invalidateQueries({ key: [path.value] })
+  }
+  // 创建文件夹
+  const createMutation = useMutation({
+    mutation: (name: string) => createDir(`${path.value}/${name}`),
+    onSuccess: () => refetchData()
+  })
+
+  // 选择需要删除/复制/移动的文件
+  const selectedNames = computed(() =>
+    selectionStore.selectedFile
+      ? [selectionStore.selectedFile.name]
+      : selectionStore.selectedNames
+  )
+  // 删除文件
+  const deleteMutation = useMutation({
+    mutation: () =>
+      deleteItems({
+        dir: path.value,
+        targets: selectedNames.value
+      }),
+    onSettled: () => refetchData()
+  })
 
   // 复制文件
   const copyMutation = useMutation({
-    mutation: (req: Omit<CopyRequest, "dir">) =>
+    mutation: (targetDir: string) =>
       copyItems({
         dir: path.value,
-        ...req
+        targetDir,
+        originals: selectedNames.value
       }),
     // 成功和失败都刷新数据，因为失败也可能有脏数据(部分成功)
     onSettled: () => queryCache.invalidateQueries()
   })
   // 移动文件
   const moveMutation = useMutation({
-    mutation: (req: Omit<MoveRequest, "dir">) =>
+    mutation: (targetDir: string) =>
       moveItems({
         dir: path.value,
-        ...req
+        targetDir,
+        originals: selectedNames.value
       }),
     onSettled: () => queryCache.invalidateQueries()
   })
 
   // 重命名文件
   const renameMutation = useMutation({
-    mutation: (req: Omit<RenameRequest, "dir">) =>
+    mutation: (targetName: string) =>
       renameItem({
         dir: path.value,
-        ...req
+        originalName: selectionStore.selectedFile
+          ? selectionStore.selectedFile.name
+          : "",
+        targetName
       }),
-    onSuccess: () => fileQuery.refetch()
+    onSuccess: () => refetchData()
   })
 
   return {
@@ -89,6 +154,14 @@ export function useFiles() {
     isLoading: fileQuery.isLoading,
     error: fileQuery.error,
     refresh: queryCache.invalidateQueries,
+
+    renameData: renameQuery.data,
+    removeData: removeQuery.data,
+    replaceData: replaceQuery.data,
+    isRenamePreviewing: renameQuery.isLoading,
+    isRemovePreviewing: removeQuery.isLoading,
+    isReplacePreviewing: replaceQuery.isLoading,
+    setRemoveStrings,
 
     createDir: createMutation.mutateAsync,
     deleteItems: deleteMutation.mutateAsync,

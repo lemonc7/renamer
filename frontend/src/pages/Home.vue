@@ -1,5 +1,5 @@
 <template>
-  <OperationModal />
+  <CopyMoveModal />
   <RenameModal />
   <div class="flex flex-col flex-1 w-full h-full">
     <div class="flex items-center justify-between shrink-0 mb-2">
@@ -57,6 +57,7 @@ import Breadcrumb from "../components/Breadcrumb.vue"
 import { useSelectionStore } from "../stores/selection"
 import { type Row } from "@tanstack/table-core"
 import { useUiStore } from "../stores/ui"
+import CopyMoveModal from "../components/CopyMoveModal.vue"
 
 const UCheckbox = resolveComponent("UCheckbox")
 const UIcon = resolveComponent("UIcon")
@@ -94,7 +95,7 @@ function getRowItems(row: Row<FileInfo>) {
       label: "移动",
       icon: "i-lucide-folder-output",
       onSelect: () => {
-        uiStore.operation = {
+        uiStore.copyOrMove = {
           open: true,
           type: "移动"
         }
@@ -105,7 +106,7 @@ function getRowItems(row: Row<FileInfo>) {
       label: "复制",
       icon: "i-lucide-folders",
       onSelect: () => {
-        uiStore.operation = {
+        uiStore.copyOrMove = {
           open: true,
           type: "复制"
         }

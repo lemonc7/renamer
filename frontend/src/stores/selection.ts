@@ -12,10 +12,15 @@ export const useSelectionStore = defineStore("selection", () => {
   // 操作菜单选择的文件
   const selectedFile = ref<FileInfo | null>(null)
 
-  // 派生计算选中的文件名称
+  // 派生计算选中的item名称和文件夹名称
   const selectedNames = computed(() =>
     files.value
       .filter((file) => selectedIDs.value.has(file.id))
+      .map((f) => f.name)
+  )
+  const selectedDirs = computed(() =>
+    files.value
+      .filter((file) => file.isDir && selectedIDs.value.has(file.id))
       .map((f) => f.name)
   )
 
@@ -39,6 +44,7 @@ export const useSelectionStore = defineStore("selection", () => {
     selectedIDs,
     selectedFile,
     selectedNames,
+    selectedDirs,
     setFiles,
     setSelection,
     clearSelection

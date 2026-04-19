@@ -38,12 +38,8 @@ const selectionStore = useSelectionStore()
 const uiStore = useUiStore()
 
 async function handleSubmit() {
-  const targets = selectionStore.selectedFile
-    ? [selectionStore.selectedFile.name]
-    : selectionStore.selectedNames
-
   try {
-    await deleteItems({ targets })
+    await deleteItems()
     toast.add({
       title: "删除成功",
       color: "success"
