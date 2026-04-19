@@ -28,3 +28,4 @@ validator = { version = "0.20", features = ["derive"] }
 cap-std = "4"
 cap-fs-ext = "4"
 toml = "1"
+anyhow = "1"

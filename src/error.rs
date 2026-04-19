@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io, path};
+use std::{collections::HashMap, path};
 
 use axum::{Json, http::StatusCode, response::IntoResponse};
 use serde_json::{Value, json};
@@ -8,19 +8,6 @@ use validator::ValidationErrors;
 
 #[derive(Debug, Error)]
 pub enum AppError {
-    #[error("{op}失败 ({path}): {source}")]
-    OpError {
-        op: &'static str,
-        path: path::PathBuf,
-        #[source]
-        source: io::Error,
-    },
-    #[error("{op}失败: {source}")]
-    IO {
-        op: &'static str,
-        #[source]
-        source: io::Error,
-    },
     #[error("参数校验失败: \n{0}")]
     ValidationError(#[source] ValidationErrors),
     #[error("请求参数有误: {0}")]
@@ -29,6 +16,8 @@ pub enum AppError {
     AlreadyExists(path::PathBuf),
     #[error("资源不存在: {0}")]
     NotFound(path::PathBuf),
+    #[error("服务器内部错误: {0}")]
+    Internal(#[source] anyhow::Error),
 }
 
 impl IntoResponse for AppError {
@@ -58,15 +47,15 @@ impl IntoResponse for AppError {
                 })),
             )
                 .into_response(),
-            AppError::OpError { op, .. } | AppError::IO { op, .. } => (
+            AppError::Internal(_) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(json!({
-                  "error": format!("{}失败", op),
+                  "error": "服务器内部错误",
                 })),
             )
                 .into_response(),
-            AppError::ValidationError(source) => {
-                let field_errors = extract_validation_errors(&source);
+            AppError::ValidationError(err) => {
+                let field_errors = extract_validation_errors(&err);
                 (
                     StatusCode::UNPROCESSABLE_ENTITY,
                     Json(json!({
@@ -77,6 +66,12 @@ impl IntoResponse for AppError {
                     .into_response()
             }
         }
+    }
+}
+
+impl From<anyhow::Error> for AppError {
+    fn from(err: anyhow::Error) -> Self {
+        AppError::Internal(err)
     }
 }
 
