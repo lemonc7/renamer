@@ -16,6 +16,7 @@ import {
 import { getCleanPath } from "../utils/path"
 import { useUiStore } from "../stores/ui"
 import { useSelectionStore } from "../stores/selection"
+import type { FileInfo, NameMap } from "../model"
 
 export function useFiles() {
   const route = useRoute()
@@ -33,14 +34,14 @@ export function useFiles() {
   })
 
   // 获取文件信息
-  const fileQuery = useQuery({
+  const fileQuery = useQuery<FileInfo[]>({
     key: () => [path.value, "files"],
     query: () => getFiles(path.value),
     enabled: computed(() => !!path.value)
   })
 
   // 重命名预览
-  const renameQuery = useQuery({
+  const renameQuery = useQuery<NameMap[]>({
     key: () => [path.value, "rename", [...selectionStore.selectedDirs].sort()],
     query: () =>
       renamePreview({
@@ -48,7 +49,7 @@ export function useFiles() {
         targets: selectionStore.selectedDirs
       }),
     enabled: computed(
-      () => uiStore.operation.open && uiStore.operation.type === "重命名剧集"
+      () => uiStore.operationOpen && uiStore.operationType === "重命名剧集"
     )
   })
 
@@ -57,7 +58,7 @@ export function useFiles() {
   function setRemoveStrings(strings: string[]) {
     removeStrings.value = strings
   }
-  const removeQuery = useQuery({
+  const removeQuery = useQuery<NameMap[]>({
     key: () => [
       path.value,
       "remove",
@@ -71,12 +72,12 @@ export function useFiles() {
         strings: removeStrings.value
       }),
     enabled: computed(
-      () => uiStore.operation.open && uiStore.operation.type === "移除字符"
+      () => uiStore.operationOpen && uiStore.operationType === "移除字符"
     )
   })
 
   // 替换中文
-  const replaceQuery = useQuery({
+  const replaceQuery = useQuery<NameMap[]>({
     key: () => [path.value, "replace", [...selectionStore.selectedDirs].sort()],
     query: () =>
       replaceChinesePreview({
@@ -84,7 +85,7 @@ export function useFiles() {
         targets: selectionStore.selectedDirs
       }),
     enabled: computed(
-      () => uiStore.operation.open && uiStore.operation.type === "替换中文"
+      () => uiStore.operationOpen && uiStore.operationType === "替换中文"
     )
   })
 

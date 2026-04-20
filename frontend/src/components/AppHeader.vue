@@ -3,13 +3,22 @@
     class="h-14 shrink-0 flex items-center justify-between px-4 border-b border-neutral-200 dark:border-neutral-800"
   >
     <div class="flex items-center gap-2">
-      <UButton
-        icon="line-md:home"
-        color="neutral"
-        variant="ghost"
-        @click="router.push('/')"
-        >主页</UButton
-      >
+      <UTooltip text="返回主页">
+        <UButton
+          icon="line-md:home"
+          color="neutral"
+          variant="ghost"
+          @click="router.push('/')"
+        />
+      </UTooltip>
+      <UTooltip text="刷新目录">
+        <UButton
+          icon="i-lucide-rotate-cw"
+          color="neutral"
+          variant="ghost"
+          @click="handleRefresh"
+        />
+      </UTooltip>
       <USeparator orientation="vertical" class="h-6" />
       <UTooltip text="切换主题">
         <UColorModeButton />
@@ -47,14 +56,20 @@
         <USeparator orientation="vertical" class="h-6" />
       </div>
       <CreateModal />
-      <UTooltip text="刷新目录">
-        <UButton
-          icon="i-lucide-rotate-cw"
-          color="neutral"
-          variant="ghost"
-          @click="handleRefresh"
+      <USeparator orientation="vertical" class="h-6" />
+      <UFieldGroup>
+        <USelect
+          :items="selectItems"
+          v-model="uiStore.operationType"
+          class="w-30"
         />
-      </UTooltip>
+        <UButton
+          icon="i-lucide-folder-pen"
+          :disabled="selectionStore.selectedDirs.length === 0"
+          @click="uiStore.operationOpen = true"
+          color="neutral"
+        />
+      </UFieldGroup>
     </div>
   </header>
 </template>
@@ -66,12 +81,15 @@ import CreateModal from "./CreateModal.vue"
 import DeleteModal from "./DeleteModal.vue"
 import { useSelectionStore } from "../stores/selection"
 import { useUiStore } from "../stores/ui"
+import { ref } from "vue"
+import type { OperationType } from "../model"
 
 const router = useRouter()
 const toast = useToast()
 const selectionStore = useSelectionStore()
 const uiStore = useUiStore()
 const { refresh } = useFiles()
+const selectItems = ref<OperationType[]>(["重命名剧集", "移除字符", "替换中文"])
 
 async function handleRefresh() {
   try {

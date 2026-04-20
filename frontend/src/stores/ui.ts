@@ -13,19 +13,15 @@ export const useUiStore = defineStore("ui", () => {
     open: false,
     type: "移动"
   })
-  const operation = ref<{
-    open: boolean
-    type: OperationType
-  }>({
-    open: false,
-    type: "重命名剧集"
-  })
+  const operationOpen = ref(false)
+  const operationType = ref<OperationType>("重命名剧集")
 
   return {
     deleteOpen,
     createOpen,
     renameOpen,
     copyOrMove,
-    operation
+    operationOpen,
+    operationType
   }
 })

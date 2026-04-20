@@ -1,6 +1,7 @@
 <template>
   <CopyMoveModal />
   <RenameModal />
+  <OperationModal />
   <div class="flex flex-col flex-1 w-full h-full">
     <div class="flex items-center justify-between shrink-0 mb-2">
       <Breadcrumb />
