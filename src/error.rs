@@ -9,7 +9,7 @@ use validator::ValidationErrors;
 #[derive(Debug, Error)]
 pub enum AppError {
     #[error("参数校验失败: \n{0}")]
-    ValidationError(#[source] ValidationErrors),
+    ValidationError(#[from] ValidationErrors),
     #[error("请求参数有误: {0}")]
     BadRequest(String),
     #[error("目标已存在: {0}")]
@@ -17,7 +17,7 @@ pub enum AppError {
     #[error("资源不存在: {0}")]
     NotFound(path::PathBuf),
     #[error("服务器内部错误: {0}")]
-    Internal(#[source] anyhow::Error),
+    Internal(#[from] anyhow::Error),
 }
 
 impl IntoResponse for AppError {
@@ -28,14 +28,16 @@ impl IntoResponse for AppError {
             AppError::AlreadyExists(path) => (
                 StatusCode::CONFLICT,
                 Json(json!({
-                  "error": format!("目标已存在: {:?}", path),
+                  "error": "目标已存在",
+                  "path": path.to_str()
                 })),
             )
                 .into_response(),
             AppError::NotFound(path) => (
                 StatusCode::NOT_FOUND,
                 Json(json!({
-                  "error": format!("资源不存在: {:?}",path),
+                  "error": "资源不存在",
+                  "path": path.to_str()
                 })),
             )
                 .into_response(),
@@ -66,12 +68,6 @@ impl IntoResponse for AppError {
                     .into_response()
             }
         }
-    }
-}
-
-impl From<anyhow::Error> for AppError {
-    fn from(err: anyhow::Error) -> Self {
-        AppError::Internal(err)
     }
 }
 

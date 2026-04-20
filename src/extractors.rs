@@ -23,7 +23,7 @@ where
             .await
             .map_err(|rejection| AppError::BadRequest(rejection.body_text()))?;
 
-        value.validate().map_err(AppError::ValidationError)?;
+        value.validate()?;
         Ok(ValidatedJson(value))
     }
 }
@@ -42,7 +42,7 @@ where
         let Query(value) = Query::<T>::from_request_parts(parts, state)
             .await
             .map_err(|rejection| AppError::BadRequest(rejection.body_text()))?;
-        value.validate().map_err(AppError::ValidationError)?;
+        value.validate()?;
 
         Ok(ValidatedQuery(value))
     }
@@ -62,7 +62,7 @@ where
 //             .await
 //             .map_err(|rejection| AppError::BadRequest(rejection.body_text()))?;
 
-//         value.validate().map_err(AppError::ValidationError)?;
+//         value.validate()?;
 
 //         Ok(ValidatedPath(value))
 //     }
