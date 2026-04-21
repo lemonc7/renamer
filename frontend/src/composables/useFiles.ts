@@ -8,6 +8,7 @@ import {
   getFiles,
   moveItems,
   removeStringsPreview,
+  renameConfirm,
   renameItem,
   renamePreview,
   replaceChinesePreview
@@ -150,6 +151,16 @@ export function useFiles() {
     onSuccess: () => refetchData()
   })
 
+  // 批量重命名
+  const renameBatchMutation = useMutation({
+    mutation: (nameMaps: NameMap[]) =>
+      renameConfirm({
+        dir: path.value,
+        nameMaps
+      }),
+    onSettled: () => refetchData()
+  })
+
   return {
     files: fileQuery.data,
     isLoading: fileQuery.isLoading,
@@ -169,11 +180,13 @@ export function useFiles() {
     copyItems: copyMutation.mutateAsync,
     moveItems: moveMutation.mutateAsync,
     renameItem: renameMutation.mutateAsync,
+    renameBatch: renameBatchMutation.mutateAsync,
 
     isCreating: createMutation.isLoading,
     isDeleting: deleteMutation.isLoading,
     isCoping: copyMutation.isLoading,
     isMoving: moveMutation.isLoading,
-    isRenaming: renameMutation.isLoading
+    isRenaming: renameMutation.isLoading,
+    isRenameBatching: renameBatchMutation.isLoading
   }
 }

@@ -18,15 +18,15 @@
 
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui"
-import type { Name, OperationType } from "../model"
+import type { Name } from "../model"
 import { h, resolveComponent } from "vue"
 
 const props = defineProps<{
   files: Name[]
-  type: OperationType
 }>()
 
 const UIcon = resolveComponent("UIcon")
+const UInput = resolveComponent("UInput")
 
 const columns: TableColumn<Name>[] = [
   {
@@ -43,7 +43,17 @@ const columns: TableColumn<Name>[] = [
   },
   {
     accessorKey: "newName",
-    header: "新名称"
+    header: "新名称",
+    cell: ({ row }) =>
+      h(UInput, {
+        modelValue: row.original.newName,
+        variant: "subtle",
+        color: "neutral",
+        placeholder: "新名称...",
+        "onUpdate:modelValue": (value: string) => {
+          row.original.newName = value
+        }
+      })
   }
 ]
 </script>

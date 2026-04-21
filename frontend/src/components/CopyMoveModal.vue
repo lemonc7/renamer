@@ -1,7 +1,7 @@
 <template>
   <UDrawer v-model:open="uiStore.copyOrMove.open" direction="right" inset>
     <template #header>
-      <div class="flex items-center justify-between">
+      <div class="flex w-full items-center justify-between">
         <span class="text-xl font-black">{{ uiStore.copyOrMove.type }}</span>
         <div class="flex items-center gap-2">
           <UButton
