@@ -22,7 +22,7 @@
 
     <template #body>
       <div
-        class="max-h-160 w-120 overflow-y-auto p-2 border rounded-lg bg-gray-50/50"
+        class="max-h-160 w-120 overflow-y-auto p-2 border rounded-lg"
       >
         <div v-if="rootNodes.length > 0" class="inline-block min-w-full">
           <FolderTreeItem

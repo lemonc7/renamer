@@ -1,5 +1,7 @@
 <template>
-  <UModal v-model:open="uiStore.operationOpen">
+  <UModal v-model:open="uiStore.operationOpen" :ui="{
+    content: 'sm:max-w-[50vw] h-[90vh]'
+  }">
     <template #header>
       <div class="w-full flex items-center justify-between">
         <span class="text-xl font-black">{{ uiStore.operationType }}</span>

@@ -101,7 +101,7 @@ export function useFiles() {
         dir: path.value,
         nameMaps
       }),
-    onSettled: () => fileQuery.refetch()
+    onSettled: () => queryCache.invalidateQueries()
   })
 
   return {

@@ -4,8 +4,9 @@
       :data="props.files"
       :columns="columns"
       sticky="header"
+      class="w-full"
       :ui="{
-        base: 'table-fixed border-separate border-spacing-0',
+        base: 'w-full table-fixed border-separate border-spacing-0',
         thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
         tbody: '[&>tr]:last:[&>td]:border-b-0',
         th: 'py-2 first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r',
@@ -34,8 +35,8 @@ const columns: TableColumn<Name>[] = [
     header: "原名称",
     meta: {
       class: {
-        th: "w-1/2",
-        td: "w-1/2 truncate"
+        th: "whitespace-nowrap",
+        td: "truncate"
       }
     }
   },
@@ -43,9 +44,14 @@ const columns: TableColumn<Name>[] = [
     id: "separator",
     cell: () =>
       h(UIcon, {
-        class: "w-10",
         name: "i-lucide-move-right"
-      })
+      }),
+    meta: {
+      class: {
+        th: "w-5 text-center",
+        td: "w-5 text-center"
+      }
+    }
   },
   {
     accessorKey: "newName",
@@ -53,13 +59,20 @@ const columns: TableColumn<Name>[] = [
     cell: ({ row }) =>
       h(UInput, {
         modelValue: row.original.newName,
-        variant: "none",
+        variant: "soft",
         color: "neutral",
+        class: "w-full",
         placeholder: "新名称...",
         "onUpdate:modelValue": (value: string) => {
           row.original.newName = value
         }
-      })
+      }),
+    meta: {
+      class: {
+        th: "w-1/2 whitespace-nowrap",
+        td: "w-1/2 whitespace-nowrap"
+      }
+    }
   }
 ]
 </script>
