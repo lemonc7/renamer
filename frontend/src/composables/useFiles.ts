@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryCache } from "@pinia/colada"
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { useRoute } from "vue-router"
 import {
   copyItems,
@@ -7,21 +7,16 @@ import {
   deleteItems,
   getFiles,
   moveItems,
-  removeStringsPreview,
   renameConfirm,
-  renameItem,
-  renamePreview,
-  replaceChinesePreview
+  renameItem
 } from "../api"
 
 import { getCleanPath } from "../utils/path"
-import { useUiStore } from "../stores/ui"
 import { useSelectionStore } from "../stores/selection"
 import type { FileInfo, NameMap } from "../model"
 
 export function useFiles() {
   const route = useRoute()
-  const uiStore = useUiStore()
   const selectionStore = useSelectionStore()
 
   const path = computed(() => {
@@ -41,63 +36,11 @@ export function useFiles() {
     enabled: computed(() => !!path.value)
   })
 
-  // 重命名预览
-  const renameQuery = useQuery<NameMap[]>({
-    key: () => [path.value, "rename", [...selectionStore.selectedDirs].sort()],
-    query: () =>
-      renamePreview({
-        dir: path.value,
-        targets: selectionStore.selectedDirs
-      }),
-    enabled: computed(
-      () => uiStore.operationOpen && uiStore.operationType === "重命名剧集"
-    )
-  })
-
-  // 移除字符
-  const removeStrings = ref<string[]>([])
-  function setRemoveStrings(strings: string[]) {
-    removeStrings.value = strings
-  }
-  const removeQuery = useQuery<NameMap[]>({
-    key: () => [
-      path.value,
-      "remove",
-      [...removeStrings.value].sort(),
-      [...selectionStore.selectedDirs].sort()
-    ],
-    query: () =>
-      removeStringsPreview({
-        dir: path.value,
-        targets: selectionStore.selectedDirs,
-        strings: removeStrings.value
-      }),
-    enabled: computed(
-      () => uiStore.operationOpen && uiStore.operationType === "移除字符"
-    )
-  })
-
-  // 替换中文
-  const replaceQuery = useQuery<NameMap[]>({
-    key: () => [path.value, "replace", [...selectionStore.selectedDirs].sort()],
-    query: () =>
-      replaceChinesePreview({
-        dir: path.value,
-        targets: selectionStore.selectedDirs
-      }),
-    enabled: computed(
-      () => uiStore.operationOpen && uiStore.operationType === "替换中文"
-    )
-  })
-
   const queryCache = useQueryCache()
-  function refetchData() {
-    queryCache.invalidateQueries({ key: [path.value] })
-  }
   // 创建文件夹
   const createMutation = useMutation({
     mutation: (name: string) => createDir(`${path.value}/${name}`),
-    onSuccess: () => refetchData()
+    onSuccess: () => fileQuery.refetch()
   })
 
   // 选择需要删除/复制/移动的文件
@@ -113,7 +56,7 @@ export function useFiles() {
         dir: path.value,
         targets: selectedNames.value
       }),
-    onSettled: () => refetchData()
+    onSettled: () => fileQuery.refetch()
   })
 
   // 复制文件
@@ -148,7 +91,7 @@ export function useFiles() {
           : "",
         targetName
       }),
-    onSuccess: () => refetchData()
+    onSuccess: () => fileQuery.refetch()
   })
 
   // 批量重命名
@@ -158,7 +101,7 @@ export function useFiles() {
         dir: path.value,
         nameMaps
       }),
-    onSettled: () => refetchData()
+    onSettled: () => fileQuery.refetch()
   })
 
   return {
@@ -166,14 +109,6 @@ export function useFiles() {
     isLoading: fileQuery.isLoading,
     error: fileQuery.error,
     refresh: queryCache.invalidateQueries,
-
-    renameData: renameQuery.data,
-    removeData: removeQuery.data,
-    replaceData: replaceQuery.data,
-    isRenamePreviewing: renameQuery.isLoading,
-    isRemovePreviewing: removeQuery.isLoading,
-    isReplacePreviewing: replaceQuery.isLoading,
-    setRemoveStrings,
 
     createDir: createMutation.mutateAsync,
     deleteItems: deleteMutation.mutateAsync,

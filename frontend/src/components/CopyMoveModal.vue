@@ -103,7 +103,7 @@ watch(
           rootNodes.value = res
         }
       } catch (e) {
-        console.error("加载根目录失败")
+        console.error("加载根目录失败: ", e)
       }
     }
   }

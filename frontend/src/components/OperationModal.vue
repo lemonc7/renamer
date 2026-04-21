@@ -25,22 +25,30 @@
           <PreviewTable :files="item.files" />
         </template>
       </UTabs>
-      <div>{{ draftTabs }}</div>
     </template>
   </UModal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from "vue"
-import { useFiles } from "../composables/useFiles"
 import { useUiStore } from "../stores/ui"
 import PreviewTable from "./PreviewTable.vue"
 import type { Name, NameMap } from "../model"
+import { useFiles } from "../composables/useFiles"
+import { useRoute } from "vue-router"
+import { useSelectionStore } from "../stores/selection"
+import {
+  removeStringsPreview,
+  renamePreview,
+  replaceChinesePreview
+} from "../api"
+import { getCleanPath } from "../utils/path"
 
 const toast = useToast()
-const { renameData, removeData, replaceData, renameBatch, isRenameBatching } =
-  useFiles()
+const route = useRoute()
 const uiStore = useUiStore()
+const selectionStore = useSelectionStore()
+const { renameBatch, isRenameBatching } = useFiles()
 
 // 定义本地草稿响应式数据
 const draftTabs = ref<
@@ -49,6 +57,24 @@ const draftTabs = ref<
     files: Name[]
   }[]
 >([])
+
+async function fetchData() {
+  const req = {
+    dir: !route.path || route.path === "/" ? "." : getCleanPath(route.path),
+    targets: selectionStore.selectedDirs
+  }
+  switch (uiStore.operationType) {
+    case "重命名剧集":
+      return await renamePreview(req)
+    case "替换中文":
+      return await replaceChinesePreview(req)
+    case "移除字符":
+      return await removeStringsPreview({
+        strings: uiStore.removeStrings,
+        ...req
+      })
+  }
+}
 
 async function handleSubmit() {
   const payload: NameMap[] = draftTabs.value.map((tab) => ({
@@ -75,28 +101,23 @@ async function handleSubmit() {
 
 watch(
   () => uiStore.operationOpen,
-  (isOpen, prev) => {
+  async (isOpen, prev) => {
     if (isOpen && !prev) {
-      let sourceData: NameMap[] = []
-      switch (uiStore.operationType) {
-        case "重命名剧集":
-          sourceData = renameData.value ?? []
-          break
-        case "移除字符":
-          sourceData = removeData.value ?? []
-          break
-        case "替换中文":
-          sourceData = replaceData.value ?? []
-          break
-      }
+      // 清空旧数据
+      draftTabs.value = []
 
-      // 使用 structuredClone 深拷贝数据，确保表格在编辑后不会影响原始数据
-      draftTabs.value = sourceData.map((item) => ({
-        label: item.dir,
-        files: structuredClone(item.files)
-      }))
+      try {
+        const res = await fetchData()
+        if (uiStore.operationOpen) {
+          draftTabs.value = res.map((item) => ({
+            label: item.dir,
+            files: item.files
+          }))
+        }
+      } catch (e) {
+        console.error("加载数据出错: ", e)
+      }
     }
-  },
-  { immediate: true }
+  }
 )
 </script>

@@ -31,13 +31,19 @@ const UInput = resolveComponent("UInput")
 const columns: TableColumn<Name>[] = [
   {
     accessorKey: "oldName",
-    header: "原名称"
+    header: "原名称",
+    meta: {
+      class: {
+        th: "w-1/2",
+        td: "w-1/2 truncate"
+      }
+    }
   },
   {
     id: "separator",
     cell: () =>
       h(UIcon, {
-        class: "w-12",
+        class: "w-10",
         name: "i-lucide-move-right"
       })
   },
@@ -47,7 +53,7 @@ const columns: TableColumn<Name>[] = [
     cell: ({ row }) =>
       h(UInput, {
         modelValue: row.original.newName,
-        variant: "subtle",
+        variant: "none",
         color: "neutral",
         placeholder: "新名称...",
         "onUpdate:modelValue": (value: string) => {
