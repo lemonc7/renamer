@@ -10,6 +10,7 @@ use crate::{
     models::{
         CopyRequest, DeleteRequest, DirParams, MoveRequest, RemoveStringsRequest,
         RenameConfirmRequest, RenamePreviewRequest, RenameRequest, ReplaceChineseRequest,
+        UnifySeriesRequest,
     },
 };
 
@@ -131,6 +132,19 @@ pub async fn replace_chinese_preview(
             .await
             .context("开启线程池")??;
     Ok((StatusCode::OK, Json(names)))
+}
+
+pub async fn unify_series(
+    State(sandbox): State<Arc<SandBox>>,
+    ValidatedJson(payload): ValidatedJson<UnifySeriesRequest>,
+) -> Result<impl IntoResponse, AppError> {
+    tokio::task::spawn_blocking(move || {
+        sandbox.unify_series(&payload.dir, payload.series_name, payload.season_names)
+    })
+    .await
+    .context("开启线程池")??;
+
+    Ok(StatusCode::NO_CONTENT)
 }
 
 pub async fn rename_confirm(

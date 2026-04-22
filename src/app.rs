@@ -22,7 +22,7 @@ use crate::{
     handlers::{
         copy_items, create_dir, delete_items, get_dirs, get_items, health_check, move_items,
         remove_strings_preview, rename_confirm, rename_item, rename_preview,
-        replace_chinese_preview,
+        replace_chinese_preview, unify_series,
     },
 };
 
@@ -41,7 +41,8 @@ pub fn create_app(cfg: Config) -> Router {
         .route("/preview", post(rename_preview))
         .route("/remove", post(remove_strings_preview))
         .route("/replace", post(replace_chinese_preview))
-        .route("/rename", post(rename_confirm));
+        .route("/rename", post(rename_confirm))
+        .route("/unify", post(unify_series));
 
     let sandbox = SandBox::init(cfg.base, cfg.match_exts);
     let state = Arc::new(sandbox);

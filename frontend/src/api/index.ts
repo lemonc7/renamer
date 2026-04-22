@@ -9,7 +9,8 @@ import type {
   RenameConfirmRequest,
   RenamePreviewRequest,
   RenameRequest,
-  ReplaceChinesePreview
+  ReplaceChinesePreview,
+  UnifySeriesRequest
 } from "../model"
 import service from "./request"
 
@@ -66,4 +67,8 @@ export async function replaceChinesePreview(req: ReplaceChinesePreview) {
 
 export async function renameConfirm(req: RenameConfirmRequest) {
   return service.post("/rename", req)
+}
+
+export async function unifySeries(req: UnifySeriesRequest) {
+  return service.post("/unify", req)
 }

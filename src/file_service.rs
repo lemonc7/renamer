@@ -191,10 +191,7 @@ impl SandBox {
                     self.fallback_move(&src_handle, &dst_handle, name)?;
                 }
                 Err(e) => {
-                    return Err(AppError::Internal(anyhow!(format!(
-                        "移动文件 {}: {}",
-                        name, e
-                    ))));
+                    return Err(AppError::Internal(anyhow!("移动文件 {}: {}", name, e)));
                 }
             }
         }
@@ -363,7 +360,7 @@ impl SandBox {
                 .rename(&entry.old_name, &dir_handle, &tmp_name)
                 .map_err(|e| {
                     self.rollback(&dir_handle, &tasks, progress, 1, suffix);
-                    AppError::Internal(anyhow!(format!("重命名至临时文件: {}", e)))
+                    AppError::Internal(anyhow!("重命名至临时文件: {}", e))
                 })?;
             progress += 1
         }
@@ -382,11 +379,55 @@ impl SandBox {
                 .rename(&tmp_name, &dir_handle, &entry.new_name)
                 .map_err(|e| {
                     self.rollback(&dir_handle, &tasks, progress, 2, suffix);
-                    AppError::Internal(anyhow!(format!("重命名至最终文件: {}", e)))
+                    AppError::Internal(anyhow!("重命名至最终文件: {}", e))
                 })?;
             progress += 1
         }
 
+        Ok(())
+    }
+
+    pub fn unify_series(
+        &self,
+        dir: &Path,
+        series_name: String,
+        season_names: Vec<Name>,
+    ) -> Result<(), AppError> {
+        let src_handle = self.open_dir(dir)?;
+
+        let suffix = time::SystemTime::now()
+            .duration_since(time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let tmp_name = format!("{}_{}", series_name, suffix);
+        let tmp_path = dir.join(&tmp_name);
+
+        // 创建对应剧集文件夹
+        src_handle
+            .create_dir(&tmp_name)
+            .context(format!("创建临时目录: {tmp_name}"))?;
+        let dst_handle = self.open_dir(&tmp_path)?;
+
+        // 移动重命名对应的 season
+        for season in season_names {
+            src_handle
+                .rename(&season.old_name, &dst_handle, season.new_name)
+                .context(format!("整理季数: {}", season.old_name))?;
+        }
+
+        // 检查最终目标目录是否存在
+        if src_handle
+            .try_exists(&series_name)
+            .context(format!("读取目录: {series_name}"))?
+        {
+            return Err(AppError::Internal(anyhow!(
+                "剧集名已存在，已整理至临时目录，请手动处理: {tmp_name}"
+            )));
+        }
+        // 重命名为正式名称
+        src_handle
+            .rename(&tmp_name, &src_handle, series_name)
+            .context(format!("将临时目录重命名至正式剧集失败: {tmp_name}"))?;
         Ok(())
     }
 

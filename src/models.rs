@@ -59,6 +59,16 @@ pub struct RemoveStringsRequest {
 
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
+pub struct UnifySeriesRequest {
+    pub dir: PathBuf,
+    #[validate(custom(function = "validate_filename", message = "剧集名称非法"))]
+    pub series_name: String,
+    #[validate(length(min = 1, message = "待整理的季数不能为空"), nested)]
+    pub season_names: Vec<Name>,
+}
+
+#[derive(Deserialize, Validate)]
+#[serde(rename_all = "camelCase")]
 pub struct RenameConfirmRequest {
     pub dir: PathBuf,
     #[validate(length(min = 1, message = "没有需要重命名的目录"), nested)]
