@@ -67,4 +67,4 @@ export interface RenameConfirmRequest {
   nameMaps: NameMap[]
 }
 
-export type OperationType = "重命名剧集" | "替换中文" | "移除字符"
+export type OperationType = "重命名剧集" | "替换中文" | "移除字符" | "整理剧集"

@@ -11,6 +11,7 @@
       <UTabs
         :items="nameMaps"
         class="h-full flex flex-col"
+        variant="link"
         :ui="{
           // list: 允许横向滚动 + 强制不换行
           list: 'overflow-x-auto flex-nowrap hide-scrollbar scroll-smooth shrink-0',
@@ -90,6 +91,8 @@ async function fetchData() {
         strings: uiStore.removeStrings,
         ...req
       })
+    case "整理剧集":
+      throw Error("operationType错误")
   }
 }
 

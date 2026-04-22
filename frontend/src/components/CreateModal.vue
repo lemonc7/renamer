@@ -8,6 +8,7 @@
 
     <template #body>
       <UForm
+        id="create-dir"
         :schema="schema"
         :state="state"
         @submit="handleSubmit"
@@ -22,22 +23,24 @@
             autofocus
           />
         </UFormField>
-        <div class="flex justify-end gap-2">
-          <UButton
-            label="取消"
-            variant="outline"
-            @click="uiStore.createOpen = false"
-            @pointerdown.stop
-            color="neutral"
-          />
-          <UButton
-            label="创建"
-            type="submit"
-            :loading="isCreating"
-            color="neutral"
-          />
-        </div>
       </UForm>
+    </template>
+    <template #footer>
+      <div class="w-full flex justify-end gap-2">
+        <UButton
+          label="取消"
+          variant="outline"
+          @click="uiStore.createOpen = false"
+          color="neutral"
+        />
+        <UButton
+          label="创建"
+          type="submit"
+          form="create-dir"
+          :loading="isCreating"
+          color="neutral"
+        />
+      </div>
     </template>
   </UModal>
 </template>

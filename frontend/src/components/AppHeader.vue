@@ -66,12 +66,13 @@
         <UButton
           icon="i-lucide-folder-pen"
           :disabled="selectionStore.selectedDirs.length === 0"
-          @click="uiStore.operationOpen = true"
+          @click="handleOperation"
           color="neutral"
         />
       </UFieldGroup>
     </div>
   </header>
+  <RemoveModal />
 </template>
 
 <script setup lang="ts">
@@ -83,13 +84,19 @@ import { useSelectionStore } from "../stores/selection"
 import { useUiStore } from "../stores/ui"
 import { ref } from "vue"
 import type { OperationType } from "../model"
+import RemoveModal from "./RemoveModal.vue"
 
 const router = useRouter()
 const toast = useToast()
 const selectionStore = useSelectionStore()
 const uiStore = useUiStore()
 const { refresh } = useFiles()
-const selectItems = ref<OperationType[]>(["重命名剧集", "移除字符", "替换中文"])
+const selectItems = ref<OperationType[]>([
+  "重命名剧集",
+  "移除字符",
+  "替换中文",
+  "整理剧集"
+])
 
 async function handleRefresh() {
   try {
@@ -108,6 +115,19 @@ async function handleRefresh() {
       icon: "i-lucide-x-circle"
     })
     console.error("刷新文件信息失败: ", e)
+  }
+}
+
+function handleOperation() {
+  switch (uiStore.operationType) {
+    case "移除字符":
+      uiStore.removeOpen = true
+      break
+    case "整理剧集":
+      break
+    default:
+      uiStore.operationOpen = true
+      break
   }
 }
 </script>

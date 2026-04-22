@@ -7,7 +7,7 @@ edition = "2024"
 uuid = { version = "1", features = ["v4"] }
 chrono = "0.4"
 human_bytes = "0.4"
-pinyin = "0.10"
+pinyin = "0.11"
 regex = "1"
 tokio = { version = "1", features = ["full"] }
 axum = "0.8"
