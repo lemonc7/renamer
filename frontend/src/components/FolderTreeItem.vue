@@ -10,6 +10,7 @@
       ]"
       :style="{ paddingLeft: `${depth * 16 + 8}px` }"
       @click="selectFolder"
+      @dblclick="toggleExpand"
     >
       <!-- 展开按钮 -->
       <div

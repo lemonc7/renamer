@@ -1,2 +1,9 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

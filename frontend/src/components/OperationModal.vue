@@ -1,7 +1,10 @@
 <template>
-  <UModal v-model:open="uiStore.operationOpen" :ui="{
-    content: 'sm:max-w-[50vw] h-[90vh]'
-  }">
+  <UModal
+    v-model:open="uiStore.operationOpen"
+    :ui="{
+      content: 'sm:max-w-[50vw] h-[90vh]'
+    }"
+  >
     <template #header>
       <div class="w-full flex items-center justify-between">
         <span class="text-xl font-black">{{ uiStore.operationType }}</span>
@@ -22,7 +25,21 @@
       </div>
     </template>
     <template #body>
-      <UTabs :items="draftTabs">
+      <UTabs
+        :items="draftTabs"
+        :ui="{
+          // list: 允许横向滚动 + 强制不换行
+          list: 'overflow-x-auto flex-nowrap hide-scrollbar scroll-smooth',
+          // trigger: 限制最大宽度 + 防止被挤压
+          trigger: 'max-w-32 shrink-0'
+        }"
+      >
+        <!-- 👇 自定义 tab 标题 -->
+        <template #default="{ item }">
+          <span class="truncate" :title="item.label">
+            {{ item.label }}
+          </span>
+        </template>
         <template #content="{ item }">
           <PreviewTable :files="item.files" />
         </template>
