@@ -26,7 +26,7 @@ mod rules;
 async fn main() {
     let cfg = load_config("./config.toml");
     init_tracing(&cfg.log_level);
-    
+
     if let Err(e) = run(cfg).await {
         tracing::error!("服务启动失败: {}", e)
     }
@@ -46,18 +46,16 @@ async fn shutdown_signal() {
     // 监听 ctrl+c
     let ctrl_c = async { signal::ctrl_c().await.expect("无法监听 Ctrl+C 信号") };
 
-    // 监听 SIGTERM (用于 Unix 系统)
-    #[cfg(unix)]
-    let terminate = async {
-        signal::unix::signal(signal::unix::SignalKind::terminate())
-            .expect("无法安装 SIGTERM 信号处理器")
-            .recv()
-            .await
+    let terminate = cfg_select! {
+      // 监听 SIGTERM (用于 Unix 系统)
+      unix => {
+        async {
+          signal::unix::signal(signal::unix::SignalKind::terminate()).expect("无法安装 SIGTERM 信号处理器").recv().await
+        }
+      },
+      // 非 Unix 系统 (例如 Windows)，挂起 terminate future
+      _ => std::future::pending::<()>()
     };
-
-    // 非 Unix 系统 (例如 Windows)，挂起 terminate future
-    #[cfg(not(unix))]
-    let terminate = std::future::pending::<()>();
 
     // 使用 select 等待任意一个信号触发
     tokio::select! {
