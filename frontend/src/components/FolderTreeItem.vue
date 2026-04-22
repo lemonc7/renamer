@@ -5,8 +5,8 @@
       class="flex items-center py-1.5 px-2 my-0.5 cursor-pointer rounded-md transition-colors group"
       :class="[
         modelValue === node.path
-          ? 'bg-primary-50 text-primary-600 ring-1 ring-primary-200'
-          : 'hover:bg-gray-50'
+          ? 'bg-primary/10 text-primary ring-1 ring-primary/20'
+          : 'hover:bg-muted'
       ]"
       :style="{ paddingLeft: `${depth * 16 + 8}px` }"
       @click="selectFolder"
@@ -14,7 +14,7 @@
       <!-- 展开按钮 -->
       <div
         v-if="node.hasChildren"
-        class="w-5 h-5 flex items-center justify-center mr-1 hover:bg-gray-200 rounded"
+        class="w-5 h-5 flex items-center justify-center mr-1 hover:bg-muted rounded"
         @click.stop="toggleExpand"
       >
         <UIcon
@@ -24,7 +24,7 @@
               ? 'i-heroicons-chevron-down-20-solid'
               : 'i-heroicons-chevron-right-20-solid'
           "
-          class="w-4 h-4 text-gray-400"
+          class="w-4 h-4 text-muted"
         />
         <UIcon
           v-else
@@ -38,7 +38,7 @@
         :name="isExpanded ? 'i-lucide-folder-open' : 'i-lucide-folder'"
         class="w-5 h-5 mr-2"
         :class="[
-          modelValue === node.path ? 'text-primary-500' : 'text-gray-400',
+          modelValue === node.path ? 'text-primary' : 'text-muted',
           !node.hasChildren && 'ml-6'
         ]"
       />
@@ -60,7 +60,7 @@
     </div>
     <div
       v-else-if="isExpanded && hasLoaded && children.length === 0"
-      class="text-[12px] text-gray-400 italic"
+      class="text-[12px] text-muted italic"
       :style="{ paddingLeft: `${(depth + 1) * 16 + 24}px` }"
     >
       (空文件夹)
