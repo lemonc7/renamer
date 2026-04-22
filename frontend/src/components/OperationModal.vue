@@ -2,10 +2,37 @@
   <UModal
     v-model:open="uiStore.operationOpen"
     :ui="{
-      content: 'sm:max-w-[50vw] h-[90vh]'
+      content: 'sm:max-w-[50vw] h-[90vh] flex flex-col',
+      body: 'flex-1 min-h-0 overflow-hidden'
     }"
     :title="uiStore.operationType"
   >
+    <template #body>
+      <UTabs
+        :items="nameMaps"
+        class="h-full flex flex-col"
+        :ui="{
+          // list: 允许横向滚动 + 强制不换行
+          list: 'overflow-x-auto flex-nowrap hide-scrollbar scroll-smooth shrink-0',
+          // trigger: 限制最大宽度 + 防止被挤压
+          trigger: 'max-w-32 shrink-0',
+          content: 'flex-1 min-h-0'
+        }"
+      >
+        <!-- 标题 -->
+        <template #default="{ item }">
+          <UTooltip :text="item.dir" :key="item.dir">
+            <span>
+              {{ item.dir }}
+            </span>
+          </UTooltip>
+        </template>
+        <!-- 内容 -->
+        <template #content="{ item }">
+          <PreviewTable :files="item.files" class="h-full" />
+        </template>
+      </UTabs>
+    </template>
     <template #footer>
       <div class="w-full flex items-center justify-end gap-2">
         <UButton
@@ -21,30 +48,6 @@
           @click="uiStore.operationOpen = false"
         />
       </div>
-    </template>
-    <template #body>
-      <UTabs
-        :items="nameMaps"
-        :ui="{
-          // list: 允许横向滚动 + 强制不换行
-          list: 'overflow-x-auto flex-nowrap hide-scrollbar scroll-smooth',
-          // trigger: 限制最大宽度 + 防止被挤压
-          trigger: 'max-w-32 shrink-0'
-        }"
-      >
-        <!-- 标题 -->
-        <template #default="{ item }">
-          <UTooltip :text="item.dir" :key="item.dir">
-            <span>
-              {{ item.dir }}
-            </span>
-          </UTooltip>
-        </template>
-        <!-- 内容 -->
-        <template #content="{ item }">
-          <PreviewTable :files="item.files" />
-        </template>
-      </UTabs>
     </template>
   </UModal>
 </template>

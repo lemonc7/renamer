@@ -1,10 +1,9 @@
 <template>
-  <div class="flex flex-col flex-1 w-full h-full">
+  <div class="flex flex-col flex-1 w-full h-full min-h-0 overflow-hidden">
     <UTable
       :data="props.files"
       :columns="columns"
       sticky="header"
-      class="w-full"
       :ui="{
         base: 'w-full table-fixed border-separate border-spacing-0',
         thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',
