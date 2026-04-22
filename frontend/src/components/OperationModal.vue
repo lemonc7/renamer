@@ -4,29 +4,27 @@
     :ui="{
       content: 'sm:max-w-[50vw] h-[90vh]'
     }"
+    :title="uiStore.operationType"
   >
-    <template #header>
-      <div class="w-full flex items-center justify-between">
-        <span class="text-xl font-black">{{ uiStore.operationType }}</span>
-        <div class="flex items-center gap-2">
-          <UButton
-            label="确认"
-            color="neutral"
-            @click="handleSubmit"
-            :loading="isRenameBatching"
-          />
-          <UButton
-            label="取消"
-            color="neutral"
-            variant="outline"
-            @click="uiStore.operationOpen = false"
-          />
-        </div>
+    <template #footer>
+      <div class="w-full flex items-center justify-end gap-2">
+        <UButton
+          label="确认"
+          color="neutral"
+          @click="handleSubmit"
+          :loading="isRenameBatching"
+        />
+        <UButton
+          label="取消"
+          color="neutral"
+          variant="outline"
+          @click="uiStore.operationOpen = false"
+        />
       </div>
     </template>
     <template #body>
       <UTabs
-        :items="draftTabs"
+        :items="nameMaps"
         :ui="{
           // list: 允许横向滚动 + 强制不换行
           list: 'overflow-x-auto flex-nowrap hide-scrollbar scroll-smooth',
@@ -34,12 +32,15 @@
           trigger: 'max-w-32 shrink-0'
         }"
       >
-        <!-- 👇 自定义 tab 标题 -->
+        <!-- 标题 -->
         <template #default="{ item }">
-          <span class="truncate" :title="item.label">
-            {{ item.label }}
-          </span>
+          <UTooltip :text="item.dir" :key="item.dir">
+            <span>
+              {{ item.dir }}
+            </span>
+          </UTooltip>
         </template>
+        <!-- 内容 -->
         <template #content="{ item }">
           <PreviewTable :files="item.files" />
         </template>
@@ -52,7 +53,7 @@
 import { ref, watch } from "vue"
 import { useUiStore } from "../stores/ui"
 import PreviewTable from "./PreviewTable.vue"
-import type { Name, NameMap } from "../model"
+import type { NameMap } from "../model"
 import { useFiles } from "../composables/useFiles"
 import { useRoute } from "vue-router"
 import { useSelectionStore } from "../stores/selection"
@@ -69,13 +70,7 @@ const uiStore = useUiStore()
 const selectionStore = useSelectionStore()
 const { renameBatch, isRenameBatching } = useFiles()
 
-// 定义本地草稿响应式数据
-const draftTabs = ref<
-  {
-    label: string
-    files: Name[]
-  }[]
->([])
+const nameMaps = ref<NameMap[]>([])
 
 async function fetchData() {
   const req = {
@@ -96,13 +91,8 @@ async function fetchData() {
 }
 
 async function handleSubmit() {
-  const payload: NameMap[] = draftTabs.value.map((tab) => ({
-    dir: tab.label,
-    files: tab.files
-  }))
-
   try {
-    await renameBatch(payload)
+    await renameBatch(nameMaps.value)
     toast.add({
       title: `${uiStore.operationType}成功`,
       color: "success"
@@ -123,15 +113,12 @@ watch(
   async (isOpen, prev) => {
     if (isOpen && !prev) {
       // 清空旧数据
-      draftTabs.value = []
+      nameMaps.value = []
 
       try {
         const res = await fetchData()
         if (uiStore.operationOpen) {
-          draftTabs.value = res.map((item) => ({
-            label: item.dir,
-            files: item.files
-          }))
+          nameMaps.value = res
         }
       } catch (e) {
         console.error("加载数据出错: ", e)
