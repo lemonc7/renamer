@@ -21,13 +21,13 @@ export function useFiles() {
   const selectionStore = useSelectionStore()
 
   const path = computed(() => {
-    const path = route.path
+    const raw = route.path
     // 如果是空字符串或只有根路径 `/`，返回 `.`
-    if (!path || path === "/") {
+    if (!raw || raw === "/") {
       return "."
     }
     // 去掉开头的一个或多个 `/`
-    return getCleanPath(path)
+    return decodeURIComponent(getCleanPath(raw))
   })
 
   // 获取文件信息

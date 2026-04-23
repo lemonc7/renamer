@@ -7,10 +7,11 @@
     <template #body>
       <UForm
         id="tidy-series"
+        ref="formRef"
         :schema="schema"
         :state="state"
         @submit="handleSubmit"
-        :validate-on="['blur']"
+        :validate-on="['change']"
         class="space-y-4"
       >
         <UFormField label="剧集名称" name="seriesName" required>
@@ -22,7 +23,10 @@
           />
         </UFormField>
         <UFormField label="季数映射" name="seasonNames" required>
-          <SeriesTable :series="state.seasonNames" />
+          <SeriesTable
+            :series="state.seasonNames"
+            @change="handleSeasonChange"
+          />
         </UFormField>
       </UForm>
     </template>
@@ -50,7 +54,7 @@
 import z from "zod"
 import { useFiles } from "../composables/useFiles"
 import { useUiStore } from "../stores/ui"
-import { reactive, watch } from "vue"
+import { nextTick, reactive, ref, watch } from "vue"
 import type { FormSubmitEvent } from "@nuxt/ui"
 import SeriesTable from "./SeriesTable.vue"
 import { useSelectionStore } from "../stores/selection"
@@ -59,46 +63,54 @@ const toast = useToast()
 const { tidySeries, isTiding } = useFiles()
 const uiStore = useUiStore()
 const selectionStore = useSelectionStore()
-
-const seasonNameSchema = z.object({
-  oldName: z.string().trim().min(1, "源文件夹名称不能为空"),
-  newName: z
-    .string()
-    .trim()
-    .regex(/^S\d{2,}$/i, "请选择季数")
-})
+const formRef = ref()
 
 const schema = z.object({
   seriesName: z.string().trim().min(1, "请输入剧集名称"),
   seasonNames: z
-    .array(seasonNameSchema)
-    .min(1, "至少需要包含一季")
+    .array(
+      z.object({
+        oldName: z.string().trim().min(1),
+        newName: z.string().trim().min(1, "请选择剧集")
+      })
+    )
     .superRefine((data, ctx) => {
-      // 提取所有的季数
-      const names = data.map((item) => item.newName)
-
-      // 处理重复项
+      const nameMap = new Map<string, number[]>()
       data.forEach((item, index) => {
+        // 空值跳过
         if (!item.newName) return
 
-        if (names.indexOf(item.newName) !== index) {
-          ctx.addIssue({
-            code: "custom",
-            message: "季名称重复",
-            path: [index, "newName"]
+        // 重复性统计
+        if (!nameMap.has(item.newName)) {
+          nameMap.set(item.newName, [])
+        }
+        nameMap.get(item.newName)!.push(index)
+      })
+
+      // 遍历统计结果，如果某个季数出现超过1次，给所有索引都打上标记
+      for (const indices of nameMap.values()) {
+        if (indices.length > 1) {
+          indices.forEach((index) => {
+            ctx.addIssue({
+              code: "custom",
+              message: "季名称重复",
+              path: [index, "newName"]
+            })
           })
         }
-      })
+      }
     })
 })
 type Schema = z.infer<typeof schema>
 const state = reactive<Schema>({ seriesName: "", seasonNames: [] })
 
 async function handleSubmit(event: FormSubmitEvent<Schema>) {
+  const { seriesName, seasonNames } = event.data
+
   try {
     await tidySeries({
-      seriesName: event.data.seriesName,
-      seasonNames: event.data.seasonNames
+      seriesName: seriesName,
+      seasonNames: seasonNames
     })
 
     toast.add({
@@ -113,6 +125,21 @@ async function handleSubmit(event: FormSubmitEvent<Schema>) {
     console.error("整理剧集失败: ", e)
   } finally {
     uiStore.tidyOpen = false
+  }
+}
+
+async function handleSeasonChange() {
+  // 等待数据状态更新
+  await nextTick()
+  if (formRef.value) {
+    try {
+      await formRef.value.validate({
+        path: "seasonNames",
+        silent: true
+      })
+    } catch (e) {
+      // 什么都不做，避免控制台报错
+    }
   }
 }
 

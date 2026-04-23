@@ -15,17 +15,15 @@ import type {
 import service from "./request"
 
 export async function getFiles(path: string) {
-  const rawPath = decodeURIComponent(path)
   const res = await service.get<FileInfo[]>("", {
-    params: { path: rawPath }
+    params: { path }
   })
   return Array.isArray(res) ? res : []
 }
 
 export async function getDirs(path: string) {
-  const rawPath = decodeURIComponent(path)
   const res = await service.get<Node[]>("/tree", {
-    params: { path: rawPath }
+    params: { path }
   })
   return Array.isArray(res) ? res : []
 }
