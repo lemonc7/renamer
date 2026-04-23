@@ -73,6 +73,7 @@
     </div>
   </header>
   <RemoveModal />
+  <TidyModal />
 </template>
 
 <script setup lang="ts">
@@ -124,6 +125,7 @@ function handleOperation() {
       uiStore.removeOpen = true
       break
     case "整理剧集":
+      uiStore.tidyOpen = true
       break
     default:
       uiStore.operationOpen = true

@@ -17,6 +17,7 @@ export const useUiStore = defineStore("ui", () => {
   const operationType = ref<OperationType>("重命名剧集")
   const removeStrings = ref<string[]>([])
   const removeOpen = ref(false)
+  const tidyOpen = ref(false)
 
   return {
     deleteOpen,
@@ -26,6 +27,7 @@ export const useUiStore = defineStore("ui", () => {
     operationOpen,
     operationType,
     removeStrings,
-    removeOpen
+    removeOpen,
+    tidyOpen
   }
 })

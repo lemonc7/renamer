@@ -387,13 +387,14 @@ impl SandBox {
         Ok(())
     }
 
-    pub fn unify_series(
+    pub fn tidy_series(
         &self,
         dir: &Path,
         series_name: String,
         season_names: Vec<Name>,
     ) -> Result<(), AppError> {
         let src_handle = self.open_dir(dir)?;
+        Self::check_names(&season_names)?;
 
         let suffix = time::SystemTime::now()
             .duration_since(time::UNIX_EPOCH)

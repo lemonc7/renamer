@@ -68,10 +68,10 @@ export interface RenameConfirmRequest {
 }
 
 // 整理剧集请求
-export interface UnifySeriesRequest {
+export interface TidySeriesRequest {
   dir: string
   seriesName: string
-  seasonNames: string[]
+  seasonNames: Name[]
 }
 
 export type OperationType = "重命名剧集" | "替换中文" | "移除字符" | "整理剧集"

@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1 w-full h-full min-h-0 overflow-hidden">
     <UTable
-      :data="props.files"
+      :data="props.series"
       :columns="columns"
       sticky="header"
       :ui="{
@@ -17,61 +17,63 @@
 </template>
 
 <script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui"
-import type { Name } from "../model"
 import { h, resolveComponent } from "vue"
+import type { Name } from "../model"
+import type { TableColumn } from "@nuxt/ui"
 
 const props = defineProps<{
-  files: Name[]
+  series: Name[]
+}>()
+
+const emit = defineEmits<{
+  (e: "change"): void
 }>()
 
 const UIcon = resolveComponent("UIcon")
-const UInput = resolveComponent("UInput")
+const USelectMenu = resolveComponent("USelectMenu")
+const UFormField = resolveComponent("UFormField")
+
+const seasonOptions = Array.from(
+  { length: 100 },
+  (_, i) => `S${String(i).padStart(2, "0")}`
+)
 
 const columns: TableColumn<Name>[] = [
   {
     accessorKey: "oldName",
-    header: "原名称",
-    meta: {
-      class: {
-        th: "whitespace-nowrap",
-        td: "truncate"
-      }
-    }
+    header: "原名称"
   },
   {
     id: "separator",
     cell: () =>
       h(UIcon, {
         name: "i-lucide-move-right"
-      }),
-    meta: {
-      class: {
-        th: "w-5 text-center",
-        td: "w-5 text-center"
-      }
-    }
+      })
   },
   {
     accessorKey: "newName",
     header: "新名称",
     cell: ({ row }) =>
-      h(UInput, {
-        modelValue: row.original.newName,
-        variant: "soft",
-        color: "neutral",
-        class: "w-full",
-        placeholder: "请输入新名称...",
-        "onUpdate:modelValue": (value: string) => {
-          row.original.newName = value
+      h(
+        UFormField,
+        {
+          name: `seasonNames.${row.index}.newName`,
+          class: "w-full"
+        },
+        {
+          default: () =>
+            h(USelectMenu, {
+              modelValue: row.original.newName,
+              class: "w-full",
+              items: seasonOptions,
+              placeholder: "选择季...",
+              "onUpdate:modelValue": (value: string) => {
+                row.original.newName = value
+                emit("change")
+              }
+            })
         }
-      }),
-    meta: {
-      class: {
-        th: "w-1/2 whitespace-nowrap",
-        td: "w-1/2 whitespace-nowrap"
-      }
-    }
+      )
   }
 ]
 </script>

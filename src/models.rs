@@ -59,7 +59,7 @@ pub struct RemoveStringsRequest {
 
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
-pub struct UnifySeriesRequest {
+pub struct TidySeriesRequest {
     pub dir: PathBuf,
     #[validate(custom(function = "validate_filename", message = "剧集名称非法"))]
     pub series_name: String,

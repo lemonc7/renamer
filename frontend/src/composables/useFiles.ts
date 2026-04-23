@@ -8,12 +8,13 @@ import {
   getFiles,
   moveItems,
   renameConfirm,
-  renameItem
+  renameItem,
+  tidySeries
 } from "../api"
 
 import { getCleanPath } from "../utils/path"
 import { useSelectionStore } from "../stores/selection"
-import type { FileInfo, NameMap } from "../model"
+import type { FileInfo, NameMap, TidySeriesRequest } from "../model"
 
 export function useFiles() {
   const route = useRoute()
@@ -104,6 +105,16 @@ export function useFiles() {
     onSettled: () => queryCache.invalidateQueries()
   })
 
+  // 整理剧集
+  const tidyMutation = useMutation({
+    mutation: (req: Omit<TidySeriesRequest, "dir">) =>
+      tidySeries({
+        dir: path.value,
+        ...req
+      }),
+    onSettled: () => queryCache.invalidateQueries()
+  })
+
   return {
     files: fileQuery.data,
     isLoading: fileQuery.isLoading,
@@ -116,12 +127,14 @@ export function useFiles() {
     moveItems: moveMutation.mutateAsync,
     renameItem: renameMutation.mutateAsync,
     renameBatch: renameBatchMutation.mutateAsync,
+    tidySeries: tidyMutation.mutateAsync,
 
     isCreating: createMutation.isLoading,
     isDeleting: deleteMutation.isLoading,
     isCoping: copyMutation.isLoading,
     isMoving: moveMutation.isLoading,
     isRenaming: renameMutation.isLoading,
-    isRenameBatching: renameBatchMutation.isLoading
+    isRenameBatching: renameBatchMutation.isLoading,
+    isTiding: tidyMutation.isLoading
   }
 }
