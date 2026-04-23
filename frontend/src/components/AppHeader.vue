@@ -57,19 +57,21 @@
       </div>
       <CreateModal />
       <USeparator orientation="vertical" class="h-6" />
-      <UFieldGroup>
-        <USelect
-          :items="selectItems"
-          v-model="uiStore.operationType"
-          class="w-30"
-        />
-        <UButton
-          icon="i-lucide-folder-pen"
-          :disabled="selectionStore.selectedDirs.length === 0"
-          @click="handleOperation"
-          color="neutral"
-        />
-      </UFieldGroup>
+      <UDropdownMenu
+        :items="items"
+        :content="{
+          align: 'end'
+        }"
+      >
+        <UTooltip text="批量操作">
+          <UButton
+            icon="i-lucide-menu"
+            color="neutral"
+            variant="outline"
+            :disabled="selectionStore.selectedDirs.length === 0"
+          />
+        </UTooltip>
+      </UDropdownMenu>
     </div>
   </header>
   <RemoveModal />
@@ -83,21 +85,45 @@ import CreateModal from "./CreateModal.vue"
 import DeleteModal from "./DeleteModal.vue"
 import { useSelectionStore } from "../stores/selection"
 import { useUiStore } from "../stores/ui"
-import { ref } from "vue"
-import type { OperationType } from "../model"
 import RemoveModal from "./RemoveModal.vue"
+import type { DropdownMenuItem } from "@nuxt/ui/runtime/components/DropdownMenu.vue.js"
 
 const router = useRouter()
 const toast = useToast()
 const selectionStore = useSelectionStore()
 const uiStore = useUiStore()
 const { refresh } = useFiles()
-const selectItems = ref<OperationType[]>([
-  "重命名剧集",
-  "移除字符",
-  "替换中文",
-  "整理剧集"
-])
+
+const items: DropdownMenuItem[] = [
+  {
+    label: "剧集重命名",
+    onSelect: () => {
+      uiStore.operationType = "重命名剧集"
+      uiStore.operationOpen = true
+    }
+  },
+  {
+    label: "移除字符",
+    onSelect: () => {
+      uiStore.operationType = "移除字符"
+      uiStore.removeOpen = true
+    }
+  },
+  {
+    label: "替换中文",
+    onSelect: () => {
+      uiStore.operationType = "替换中文"
+      uiStore.operationOpen = true
+    }
+  },
+  {
+    label: "整理剧集",
+    onSelect: () => {
+      uiStore.operationType = "整理剧集"
+      uiStore.tidyOpen = true
+    }
+  }
+]
 
 async function handleRefresh() {
   try {
@@ -116,20 +142,6 @@ async function handleRefresh() {
       icon: "i-lucide-x-circle"
     })
     console.error("刷新文件信息失败: ", e)
-  }
-}
-
-function handleOperation() {
-  switch (uiStore.operationType) {
-    case "移除字符":
-      uiStore.removeOpen = true
-      break
-    case "整理剧集":
-      uiStore.tidyOpen = true
-      break
-    default:
-      uiStore.operationOpen = true
-      break
   }
 }
 </script>

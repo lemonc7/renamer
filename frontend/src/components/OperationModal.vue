@@ -77,8 +77,9 @@ const { renameBatch, isRenameBatching } = useFiles()
 const nameMaps = ref<NameMap[]>([])
 
 async function fetchData() {
+  const rawPath = decodeURIComponent(route.path)
   const req = {
-    dir: !route.path || route.path === "/" ? "." : getCleanPath(route.path),
+    dir: !rawPath || rawPath === "/" ? "." : getCleanPath(rawPath),
     targets: selectionStore.selectedDirs
   }
   switch (uiStore.operationType) {

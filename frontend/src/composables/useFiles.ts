@@ -22,7 +22,6 @@ export function useFiles() {
 
   const path = computed(() => {
     const raw = route.path
-    // 如果是空字符串或只有根路径 `/`，返回 `.`
     if (!raw || raw === "/") {
       return "."
     }
@@ -32,7 +31,7 @@ export function useFiles() {
 
   // 获取文件信息
   const fileQuery = useQuery<FileInfo[]>({
-    key: () => [path.value, "files"],
+    key: () => ["files", path.value],
     query: () => getFiles(path.value),
     enabled: computed(() => !!path.value)
   })

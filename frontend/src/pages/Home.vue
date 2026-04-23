@@ -233,9 +233,6 @@ const columns: TableColumn<FileInfo>[] = [
     cell: ({ row }) =>
       h(
         "div",
-        {
-          class: "text-right"
-        },
         h(
           UDropdownMenu,
           {
@@ -247,8 +244,7 @@ const columns: TableColumn<FileInfo>[] = [
           () =>
             h(UButton, {
               icon: "i-lucide-ellipsis-vertical",
-              variant: "ghost",
-              class: "ml-auto"
+              variant: "ghost"
             })
         )
       ),
