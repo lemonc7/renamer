@@ -1,0 +1,11 @@
+services:
+  renamer:
+    image: "lemonc7/renamer:2.0.1"
+    container_name: renamer
+    network_mode: bridge
+    volumes:
+      - ./config:/app/config:ro # 需要在宿主机中创建config.yaml挂载到容器中
+      - /home:/home/data:rw
+    ports:
+      - 8080:8080 # 容器内部端口由config.yaml决定
+    restart: always

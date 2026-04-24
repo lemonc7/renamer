@@ -31,5 +31,5 @@ components.d.ts
 dist/
 .vscode/
 *.http
-/config.toml
+config.toml
 

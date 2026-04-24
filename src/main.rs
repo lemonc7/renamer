@@ -24,7 +24,7 @@ mod rules;
 
 #[tokio::main]
 async fn main() {
-    let cfg = load_config("./config.toml");
+    let cfg = load_config("./config/config.toml");
     init_tracing(&cfg.log_level);
 
     if let Err(e) = run(cfg).await {
