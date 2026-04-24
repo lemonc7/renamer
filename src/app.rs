@@ -11,6 +11,7 @@ use tower_http::{
     catch_panic::CatchPanicLayer,
     compression::CompressionLayer,
     cors::{Any, CorsLayer},
+    services::{ServeDir, ServeFile},
     timeout::TimeoutLayer,
     trace::TraceLayer,
 };
@@ -27,6 +28,9 @@ use crate::{
 };
 
 pub fn create_app(cfg: Config) -> Router {
+    let static_service =
+        ServeDir::new("./dist").not_found_service(ServeFile::new("./dist/index.html"));
+
     let router = Router::new()
         .route(
             "/",
@@ -54,6 +58,7 @@ pub fn create_app(cfg: Config) -> Router {
     Router::new()
         .nest("/api", router)
         .route("/health", get(health_check))
+        .fallback_service(static_service)
         // 状态注入
         .with_state(state)
         // 并发控制，防止过多请求涌入
