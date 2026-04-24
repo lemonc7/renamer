@@ -86,7 +86,7 @@ import DeleteModal from "./DeleteModal.vue"
 import { useSelectionStore } from "../stores/selection"
 import { useUiStore } from "../stores/ui"
 import RemoveModal from "./RemoveModal.vue"
-import type { DropdownMenuItem } from "@nuxt/ui/runtime/components/DropdownMenu.vue.js"
+import type { DropdownMenuItem } from "@nuxt/ui"
 
 const router = useRouter()
 const toast = useToast()
