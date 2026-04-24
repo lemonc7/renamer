@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import z from "zod"
+import { z } from "zod"
 import { useUiStore } from "../stores/ui"
 import { reactive, watch } from "vue"
 import type { FormSubmitEvent } from "@nuxt/ui"

@@ -50,13 +50,12 @@
 
 <script setup lang="ts">
 import { useFiles } from "../composables/useFiles"
-import type { TableColumn } from "@nuxt/ui"
+import type { TableColumn, TableRow } from "@nuxt/ui"
 import type { FileInfo } from "../model"
 import { h, ref, resolveComponent, useTemplateRef, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import Breadcrumb from "../components/Breadcrumb.vue"
 import { useSelectionStore } from "../stores/selection"
-import { type Row } from "@tanstack/table-core"
 import { useUiStore } from "../stores/ui"
 import CopyMoveModal from "../components/CopyMoveModal.vue"
 
@@ -75,7 +74,7 @@ const { files } = useFiles()
 const table = useTemplateRef("table")
 
 // 操作菜单定义
-function getRowItems(row: Row<FileInfo>) {
+function getRowItems(row: TableRow<FileInfo>) {
   return [
     {
       type: "label",

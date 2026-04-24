@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import z from "zod"
+import { z } from "zod"
 import { useFiles } from "../composables/useFiles"
 import { useUiStore } from "../stores/ui"
 import { nextTick, reactive, ref, watch } from "vue"

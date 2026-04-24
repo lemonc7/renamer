@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { useFiles } from "../composables/useFiles"
 import { useUiStore } from "../stores/ui"
-import z from "zod"
+import { z } from "zod"
 import { validateFilename } from "../utils/validate_filename"
 import { nextTick, reactive, ref, watch } from "vue"
 import type { FormSubmitEvent } from "@nuxt/ui"
