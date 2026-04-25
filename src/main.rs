@@ -1,16 +1,13 @@
-use std::{io, process, time::Duration};
+use std::{process, time::Duration};
 
+use anyhow::{Context, anyhow};
 use tokio::{net::TcpListener, signal};
-use tracing_subscriber::{
-    EnvFilter,
-    fmt::{self, time},
-    layer::SubscriberExt,
-    util::SubscriberInitExt,
-};
+use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
     app::create_app,
     config::{Config, load_config},
+    error::AppError,
 };
 
 mod app;
@@ -32,14 +29,20 @@ async fn main() {
     }
 }
 
-async fn run(cfg: Config) -> io::Result<()> {
-    let listener = TcpListener::bind(format!("0.0.0.0:{}", cfg.port)).await?;
-    let app = create_app(cfg);
+async fn run(cfg: Config) -> Result<(), AppError> {
+    let listener = TcpListener::bind(format!("0.0.0.0:{}", cfg.port))
+        .await
+        .map_err(|e| AppError::Internal(anyhow!("绑定 TCP 监听器失败: {e}")))?;
+    let app = create_app(cfg)?;
 
-    tracing::info!("HTTP 服务运行中: {}", listener.local_addr()?);
+    tracing::info!(
+        "HTTP 服务运行中: {}",
+        listener.local_addr().context("获取本地地址失败")?
+    );
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await
+        .map_err(|e| AppError::Internal(anyhow!("启动 HTTP 服务失败: {e}")))
 }
 
 async fn shutdown_signal() {
@@ -80,7 +83,7 @@ fn init_tracing(level: &str) {
         .compact()
         .with_target(true)
         .with_ansi(true)
-        .with_timer(time::ChronoLocal::rfc_3339());
+        .with_timer(fmt::time::ChronoLocal::rfc_3339());
 
     tracing_subscriber::registry()
         .with(filter_layer)

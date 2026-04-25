@@ -1,6 +1,5 @@
 // 获取的文件信息
 export interface FileInfo {
-  id: string
   name: string
   ext: string
   size: string

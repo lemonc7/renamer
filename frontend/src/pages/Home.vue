@@ -35,7 +35,7 @@
       sticky="header"
       v-model:row-selection="rowSelection"
       v-model:column-filters="columnFilters"
-      :get-row-id="(row: FileInfo) => row.id"
+      :get-row-id="(row: FileInfo) => row.name"
       :ui="{
         base: 'table-fixed border-separate border-spacing-0',
         thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none',

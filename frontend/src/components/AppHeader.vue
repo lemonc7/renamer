@@ -26,7 +26,7 @@
     </div>
     <div class="flex items-center gap-2">
       <div
-        v-show="selectionStore.selectedNames.length"
+        v-show="selectionStore.selectedNames.size"
         class="flex items-center gap-2"
       >
         <UTooltip text="删除文件">

@@ -78,7 +78,6 @@ pub struct RenameConfirmRequest {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct File {
-    pub id: String,
     pub name: String,
     pub ext: Option<String>,
     pub size: Option<String>,
@@ -113,19 +112,19 @@ pub struct Node {
 
 const INVALID_CHARS: [char; 9] = ['/', '\\', ':', '*', '?', '"', '<', '>', '|'];
 
-fn validate_filename(name: &str) -> Result<(), ValidationError> {
-    // 检查是否为空或全是空格
-    if name.trim().is_empty() {
-        return Err(ValidationError::new("empty filename"));
-    }
-    // 拦截不可见控制字符和非法字符
-    if name
-        .chars()
-        .any(|c| c.is_control() || INVALID_CHARS.contains(&c))
-    {
-        return Err(ValidationError::new("invalid characters"));
-    }
+pub fn is_valid_filename(name: &str) -> bool {
+    !name.trim().is_empty()
+        && name != "."
+        && name != ".."
+        && !name
+            .chars()
+            .any(|c| c.is_control() || INVALID_CHARS.contains(&c))
+}
 
+fn validate_filename(name: &str) -> Result<(), ValidationError> {
+    if !is_valid_filename(name) {
+        return Err(ValidationError::new("invalid filename"));
+    }
     Ok(())
 }
 

@@ -19,6 +19,7 @@ use tracing::{Span, field::Empty, info_span};
 
 use crate::{
     config::Config,
+    error::AppError,
     file_service::SandBox,
     handlers::{
         copy_items, create_dir, delete_items, get_dirs, get_items, health_check, move_items,
@@ -27,7 +28,7 @@ use crate::{
     },
 };
 
-pub fn create_app(cfg: Config) -> Router {
+pub fn create_app(cfg: Config) -> Result<Router, AppError> {
     let static_service =
         ServeDir::new("./dist").not_found_service(ServeFile::new("./dist/index.html"));
 
@@ -48,14 +49,14 @@ pub fn create_app(cfg: Config) -> Router {
         .route("/rename", post(rename_confirm))
         .route("/tidy", post(tidy_series));
 
-    let sandbox = SandBox::init(cfg.base, cfg.match_exts);
+    let sandbox = SandBox::init(cfg.base, cfg.match_exts)?;
     let state = Arc::new(sandbox);
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods(Any)
         .allow_headers(Any);
 
-    Router::new()
+    Ok(Router::new()
         .nest("/api", router)
         .route("/health", get(health_check))
         .fallback_service(static_service)
@@ -111,5 +112,5 @@ pub fn create_app(cfg: Config) -> Router {
         // 跨域
         .layer(cors)
         // 限制请求体大小
-        .layer(DefaultBodyLimit::max(10 * 1024 * 1024))
+        .layer(DefaultBodyLimit::max(10 * 1024 * 1024)))
 }

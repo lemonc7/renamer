@@ -4,7 +4,7 @@
     title="删除"
     description="删除操作无法撤销！请确认是否删除？"
   >
-    <UChip :text="selectionStore.selectedNames.length" size="3xl">
+    <UChip :text="selectionStore.selectedNames.size" size="3xl">
       <UButton icon="i-lucide-trash" color="error" variant="soft" />
     </UChip>
 

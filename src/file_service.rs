@@ -5,11 +5,10 @@ use cap_std::{ambient_authority, fs::Dir};
 use chrono::{DateTime, Local};
 use human_bytes::human_bytes;
 use pinyin::ToPinyin;
-use uuid::Uuid;
 
 use crate::{
     error::AppError,
-    models::{File, Name, NameMap, Node},
+    models::{self, File, Name, NameMap, Node},
     rules::{extract_episode, rename_format},
 };
 
@@ -19,10 +18,10 @@ pub struct SandBox {
 }
 
 impl SandBox {
-    pub fn init(base: String, match_exts: Vec<String>) -> Self {
+    pub fn init(base: String, match_exts: Vec<String>) -> Result<Self, AppError> {
         let root = Dir::open_ambient_dir(&base, ambient_authority())
-            .unwrap_or_else(|_| panic!("基础目录必须存在且可访问: {}", base));
-        Self { root, match_exts }
+            .map_err(|e| AppError::BadRequest(format!("无法打开基础目录 '{}': {}", base, e)))?;
+        Ok(Self { root, match_exts })
     }
 
     pub fn get_items(&self, dir: &Path) -> Result<Vec<File>, AppError> {
@@ -58,7 +57,6 @@ impl SandBox {
                     .unwrap_or_else(|_| "未知".to_string());
 
                 Some(File {
-                    id: Uuid::new_v4().to_string(),
                     name,
                     ext,
                     size,
@@ -281,11 +279,16 @@ impl SandBox {
                         new_stem = new_stem.replace(s, "")
                     }
 
+                    let new_stem = new_stem.trim();
+                    if new_stem.is_empty() {
+                        continue;
+                    }
+
                     // 拼接后缀
                     let new_name = if let Some(ref ext) = item.ext {
                         format!("{}.{}", new_stem, ext)
                     } else {
-                        new_stem
+                        new_stem.to_string()
                     };
 
                     names.push(Name {
@@ -314,9 +317,18 @@ impl SandBox {
             let items = self.get_items(&target_path)?;
 
             let mut names = Vec::new();
+            let mut seen: HashSet<String> = HashSet::new();
+
             for item in items {
                 if !item.is_dir {
-                    let new_name = convert_to_pinyin(&item.name);
+                    let base_name = convert_to_pinyin(&item.name);
+                    let mut new_name = base_name.clone();
+                    let mut counter = 1;
+                    while seen.contains(&new_name) {
+                        new_name = format!("{}_{}", base_name, counter);
+                        counter += 1;
+                    }
+                    seen.insert(new_name.clone());
                     names.push(Name {
                         old_name: item.name,
                         new_name,
@@ -403,31 +415,40 @@ impl SandBox {
         let tmp_name = format!("{}_{}", series_name, suffix);
         let tmp_path = dir.join(&tmp_name);
 
-        // 创建对应剧集文件夹
         src_handle
             .create_dir(&tmp_name)
             .context(format!("创建临时目录: {tmp_name}"))?;
         let dst_handle = self.open_dir(&tmp_path)?;
 
-        // 移动重命名对应的 season
-        for season in season_names {
+        // 移动并重命名 season
+        let mut moved_count = 0usize;
+        for season in &season_names {
             src_handle
-                .rename(&season.old_name, &dst_handle, season.new_name)
-                .context(format!("整理季数: {}", season.old_name))?;
+                .rename(&season.old_name, &dst_handle, &season.new_name)
+                .map_err(|e| {
+                    let ok = rollback_seasons(&dst_handle, &src_handle, &season_names, moved_count);
+                    if ok {
+                        clean_temp_dir(&src_handle, &tmp_name);
+                    }
+                    AppError::Internal(anyhow!("整理季数 '{}' 失败: {}", season.old_name, e))
+                })?;
+            moved_count += 1;
         }
 
-        // 检查最终目标目录是否存在
+        // 检查目标是否已被占用
         if src_handle
             .try_exists(&series_name)
             .context(format!("读取目录: {series_name}"))?
         {
-            return Err(AppError::Internal(anyhow!(
-                "剧集名已存在，已整理至临时目录，请手动处理: {tmp_name}"
-            )));
+            let ok = rollback_seasons(&dst_handle, &src_handle, &season_names, moved_count);
+            if ok {
+                clean_temp_dir(&src_handle, &tmp_name);
+            }
+            return Err(AppError::AlreadyExists(dir.join(&series_name)));
         }
-        // 重命名为正式名称
+
         src_handle
-            .rename(&tmp_name, &src_handle, series_name)
+            .rename(&tmp_name, &src_handle, &series_name)
             .context(format!("将临时目录重命名至正式剧集失败: {tmp_name}"))?;
         Ok(())
     }
@@ -444,18 +465,19 @@ impl SandBox {
 
     fn rollback(&self, dir: &Dir, tasks: &[Name], progress: usize, phase: u8, suffix: u128) {
         if phase == 2 {
-            // 如果在阶段 2 出错，先把阶段 2 已经完成的改回去
             for entry in tasks[..progress].iter().rev() {
                 let tmp_name = format!("{}.{}.tmp", entry.old_name, suffix);
-                let _ = dir.rename(&entry.new_name, dir, &tmp_name);
+                if let Err(e) = dir.rename(&entry.new_name, dir, &tmp_name) {
+                    tracing::warn!("回滚阶段2失败 ({} -> {}): {}", entry.new_name, tmp_name, e);
+                }
             }
-            // 然后统一走阶段 1 的回滚 (此时所有文件就是 .tmp 的状态)
             self.rollback(dir, tasks, tasks.len(), 1, suffix);
         } else {
-            // 阶段 1 的回滚，把 tmp 改回 old
             for entry in tasks[..progress].iter().rev() {
                 let tmp_name = format!("{}.{}.tmp", entry.old_name, suffix);
-                let _ = dir.rename(&tmp_name, dir, &entry.old_name);
+                if let Err(e) = dir.rename(&tmp_name, dir, &entry.old_name) {
+                    tracing::warn!("回滚阶段1失败 ({} -> {}): {}", tmp_name, entry.old_name, e);
+                }
             }
         }
     }
@@ -467,15 +489,13 @@ impl SandBox {
             let new_name = &entry.new_name;
             let old_name = &entry.old_name;
 
-            // 合法性校验
-            if !is_valid_filename(new_name) || !is_valid_filename(old_name) {
+            if !models::is_valid_filename(new_name) || !models::is_valid_filename(old_name) {
                 return Err(AppError::BadRequest(format!(
                     "文件名非法: '{}' 或 '{}'",
                     new_name, old_name
                 )));
             }
 
-            // 目标重名校验
             if !set.insert(new_name) {
                 return Err(AppError::BadRequest(format!("文件名重复: '{}'", new_name)));
             }
@@ -537,6 +557,25 @@ impl SandBox {
     }
 }
 
+fn rollback_seasons(dst: &Dir, src: &Dir, seasons: &[Name], count: usize) -> bool {
+    let mut all_ok = true;
+    for s in seasons[..count].iter().rev() {
+        if let Err(e) = dst.rename(&s.new_name, src, &s.old_name) {
+            tracing::warn!("整理剧集回滚失败 ({} -> {}): {}", s.new_name, s.old_name, e);
+            all_ok = false;
+        }
+    }
+    all_ok
+}
+
+fn clean_temp_dir(dir: &Dir, name: &str) {
+    if let Err(e) = dir.remove_dir_all(name)
+        && e.kind() != io::ErrorKind::NotFound
+    {
+        tracing::warn!("清理临时目录 '{}' 失败: {}", name, e);
+    }
+}
+
 // 将中文转化为拼音，英文转化为小写
 fn get_pinyin_helper(s: &str) -> String {
     let mut pinyin_str = String::new();
@@ -548,16 +587,6 @@ fn get_pinyin_helper(s: &str) -> String {
         }
     }
     pinyin_str
-}
-
-fn is_valid_filename(name: &str) -> bool {
-    let trimmed = name.trim();
-    // 不允许空名字，包含路径分隔符，当前或父目录表示
-    !trimmed.is_empty()
-        && !name.contains('/')
-        && !name.contains('\\')
-        && name != "."
-        && name != ".."
 }
 
 // 将中文字符串转换为拼音，并替换标点

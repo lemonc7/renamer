@@ -1,10 +1,9 @@
 [package]
 name = "renamer"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 
 [dependencies]
-uuid = { version = "1", features = ["v4"] }
 chrono = "0.4"
 human_bytes = "0.4"
 pinyin = "0.11"

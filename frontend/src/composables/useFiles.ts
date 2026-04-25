@@ -44,11 +44,13 @@ export function useFiles() {
   })
 
   // 选择需要删除/复制/移动的文件
-  const selectedNames = computed(() =>
-    selectionStore.selectedFile
-      ? [selectionStore.selectedFile.name]
-      : selectionStore.selectedNames
-  )
+  const selectedNames = computed(() => {
+    if (selectionStore.selectedFile) {
+      return [selectionStore.selectedFile.name]
+    }
+    return [...selectionStore.selectedNames]
+  })
+  
   // 删除文件
   const deleteMutation = useMutation({
     mutation: () =>
