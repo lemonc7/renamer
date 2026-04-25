@@ -3,7 +3,7 @@ use std::{io, process, time::Duration};
 use tokio::{net::TcpListener, signal};
 use tracing_subscriber::{
     EnvFilter,
-    fmt::{self},
+    fmt::{self, time},
     layer::SubscriberExt,
     util::SubscriberInitExt,
 };
@@ -76,7 +76,11 @@ async fn shutdown_signal() {
 fn init_tracing(level: &str) {
     let filter_layer = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(level));
 
-    let fmt_layer = fmt::layer().compact().with_target(true).with_ansi(true);
+    let fmt_layer = fmt::layer()
+        .compact()
+        .with_target(true)
+        .with_ansi(true)
+        .with_timer(time::ChronoLocal::rfc_3339());
 
     tracing_subscriber::registry()
         .with(filter_layer)
