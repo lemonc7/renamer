@@ -1,6 +1,6 @@
 services:
   renamer:
-    image: "lemonc7/renamer:3.2"
+    image: "lemonc7/renamer:latest"
     container_name: renamer
     network_mode: bridge
     environment:
