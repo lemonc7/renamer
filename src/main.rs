@@ -33,7 +33,7 @@ async fn main() {
 }
 
 async fn run(cfg: Config) -> io::Result<()> {
-    let listener = TcpListener::bind(format!("127.0.0.1:{}", cfg.port)).await?;
+    let listener = TcpListener::bind(format!("0.0.0.0:{}", cfg.port)).await?;
     let app = create_app(cfg);
 
     tracing::info!("HTTP 服务运行中: {}", listener.local_addr()?);
@@ -47,14 +47,14 @@ async fn shutdown_signal() {
     let ctrl_c = async { signal::ctrl_c().await.expect("无法监听 Ctrl+C 信号") };
 
     let terminate = cfg_select! {
-      // 监听 SIGTERM (用于 Unix 系统)
-      unix => {
-        async {
-          signal::unix::signal(signal::unix::SignalKind::terminate()).expect("无法安装 SIGTERM 信号处理器").recv().await
-        }
-      },
-      // 非 Unix 系统 (例如 Windows)，挂起 terminate future
-      _ => std::future::pending::<()>()
+        // 监听 SIGTERM (用于 Unix 系统)
+        unix => {
+            async {
+            signal::unix::signal(signal::unix::SignalKind::terminate()).expect("无法安装 SIGTERM 信号处理器").recv().await
+            }
+        },
+        // 非 Unix 系统 (例如 Windows)，挂起 terminate future
+        _ => std::future::pending::<()>()
     };
 
     // 使用 select 等待任意一个信号触发

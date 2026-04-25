@@ -1,0 +1,13 @@
+.git
+.gitignore
+
+Dockerfile
+docker-compose.yml
+
+target/
+.vscode/
+dist/
+node_modules/
+config/
+
+
