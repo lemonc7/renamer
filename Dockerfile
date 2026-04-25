@@ -21,9 +21,12 @@ RUN rm -f target/release/deps/renamer*
 COPY src ./src
 RUN cargo build --release
 
-FROM debian:bookworm-slim
+FROM gcr.io/distroless/cc-debian12
 WORKDIR /app
 COPY --from=backend-builder /app/target/release/renamer /app/renamer
 COPY --from=frontend-builder /app/dist /app/dist
+
+ENV TZ=Asia/Shanghai
+
 EXPOSE 8080
 CMD ["/app/renamer"]
