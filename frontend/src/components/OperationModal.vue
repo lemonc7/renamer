@@ -30,6 +30,26 @@
         </template>
         <!-- 内容 -->
         <template #content="{ item }">
+          <UFieldGroup
+            v-if="uiStore.operationType === '重命名剧集'"
+            class="pb-1 flex justify-end"
+          >
+            <UInputNumber
+              v-model="offsets[item.dir]"
+              placeholder="剧集偏移..."
+              orientation="vertical"
+              class="max-w-30"
+              color="neutral"
+            />
+            <UTooltip text="应用偏移">
+              <UButton
+                icon="i-lucide-list-restart"
+                color="neutral"
+                variant="outline"
+                @click="applyOffset(item)"
+              />
+            </UTooltip>
+          </UFieldGroup>
           <PreviewTable :files="item.files" class="h-full" />
         </template>
       </UTabs>
@@ -75,6 +95,7 @@ const selectionStore = useSelectionStore()
 const { renameBatch, isRenameBatching } = useFiles()
 
 const nameMaps = ref<NameMap[]>([])
+const offsets = ref<Record<string, number>>({})
 
 async function fetchData() {
   const rawPath = decodeURIComponent(route.path)
@@ -115,12 +136,49 @@ async function handleSubmit() {
   }
 }
 
+function applyOffset(item: NameMap) {
+  const offset = offsets.value[item.dir]
+  if (!offset || offset === 0) return
+
+  const epRe = /E(\d+(?:\.\d)?)/g
+  for (const name of item.files) {
+    for (const m of name.newName.matchAll(epRe)) {
+      const newVal = parseFloat(m[1]) + offset
+      if (Math.floor(newVal) < 1) {
+        toast.add({
+          title: "剧集偏移",
+          description: "偏移后集数不能小于1，请调整偏移量",
+          color: "error"
+        })
+        return
+      }
+    }
+  }
+
+  item.files.forEach((name) => {
+    name.newName = name.newName.replace(epRe, (_match, num) => {
+      const isHalf = num.includes(".")
+      const newVal = parseFloat(num) + offset
+
+      if (isHalf) {
+        return "E" + String(newVal)
+      }
+
+      const intVal = Math.floor(newVal)
+      return "E" + String(intVal).padStart(2, "0")
+    })
+  })
+
+  offsets.value[item.dir] = 0
+}
+
 watch(
   () => uiStore.operationOpen,
   async (isOpen, prev) => {
     if (isOpen && !prev) {
       // 清空旧数据
       nameMaps.value = []
+      offsets.value = {}
 
       try {
         const res = await fetchData()
