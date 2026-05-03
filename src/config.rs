@@ -16,7 +16,7 @@ pub struct Config {
 }
 
 fn default_base() -> String {
-    "/home".into()
+    "/mnt".into()
 }
 fn default_port() -> u16 {
     8080
