@@ -2,12 +2,11 @@ services:
   renamer:
     image: "lemonc7/renamer:latest"
     container_name: renamer
-    network_mode: bridge
     environment:
       - TZ=Asia/Shanghai
     volumes:
-      - ./config:/app/config:ro # 需要在宿主机中创建config.yaml挂载到容器中
+      - ./config:/app/config:ro # 可以在config.toml修改默认设置
       - /media:/mnt/media:rw
     ports:
-      - 8080:8080 # 容器内部端口由config.yaml决定
+      - 8080:8080
     restart: always
